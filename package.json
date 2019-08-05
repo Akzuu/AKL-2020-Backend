@@ -1,0 +1,32 @@
+{
+  "name": "project-2020.website-backend",
+  "version": "1.0.0",
+  "description": "Backend for the new akl.gg website",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "AKL",
+    "web",
+    "website",
+    "site",
+    "backend",
+    "2020"
+  ],
+  "author": "Akseli Kolari TG:@akzu404",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^3.2.2",
+    "fastify": "^2.7.1",
+    "fastify-swagger": "^2.4.0",
+    "mongoose": "^5.6.8",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.2",
+    "nodemon": "^1.19.1"
+  }
+}
