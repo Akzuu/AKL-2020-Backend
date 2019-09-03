@@ -13,4 +13,4 @@ const startDatabase = async () => {
   }
 };
 
-startDatabase();
+module.exports = { startDatabase };
