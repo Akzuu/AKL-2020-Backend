@@ -1,4 +1,5 @@
 const schema = {
+  preValidation: 'authentication',
   description: 'Create user',
   summary: 'Create new user for the service',
   tags: ['Integration'],
@@ -10,12 +11,12 @@ const schema = {
 };
 
 const handler = (req, reply) => {
-  reply.send(new Date());
+  reply.send();
 };
 
 module.exports = {
-  method: 'GET',
-  url: '/user/create',
+  method: 'POST',
+  url: '/create',
   schema,
   handler,
 };

@@ -2,9 +2,11 @@ const config = require('config');
 
 const fastify = require('fastify');
 const fastifySwagger = require('fastify-swagger');
+const fastifyJWT = require('fastify-jwt');
 const routes = require('./routes');
 
 const APPLICATION_PORT = config.get('port');
+const JWT_SECRET = config.get('jwt.secret');
 
 
 // Initialize swagger
@@ -40,7 +42,7 @@ const initSwagger = () => {
 
 
 // Routes
-const integrationRoute = async (server) => {
+const userRoute = async (server) => {
   Object.keys(routes.integration).forEach((key) => {
     server.route(routes.integration[key]);
   });
@@ -62,8 +64,10 @@ const initServer = async (options) => {
 
   server
     .register(fastifySwagger, initSwagger())
-    .register(integrationRoute, { prefix: '/integration' })
+    .register(fastifyJWT, { secret: JWT_SECRET })
+    .register(userRoute, { prefix: '/user' })
     .register(utilityRoute, { prefix: '/utility' });
+
 
   return {
     start: async () => {

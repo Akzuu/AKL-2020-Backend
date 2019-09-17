@@ -1,7 +1,7 @@
 const utility = require('./utility');
-const integration = require('./integration');
+const user = require('./user');
 
 module.exports = {
   utility,
-  integration,
+  user,
 };

@@ -10,7 +10,10 @@ const schema = {
 };
 
 const handler = (req, reply) => {
-  reply.send(new Date());
+  reply.send({
+    status: 'OK',
+    date: new Date(),
+  });
 };
 
 module.exports = {
