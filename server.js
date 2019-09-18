@@ -48,6 +48,26 @@ const userRoute = async (server) => {
   });
 };
 
+const teamRoute = async (server) => {
+  Object.keys(routes.team).forEach((key) => {
+    server.route(routes.team[key]);
+  });
+};
+
+
+const seasonRoute = async (server) => {
+  Object.keys(routes.season).forEach((key) => {
+    server.route(routes.season[key]);
+  });
+};
+
+
+const integrationRoute = async (server) => {
+  Object.keys(routes.integration).forEach((key) => {
+    server.route(routes.integration[key]);
+  });
+};
+
 
 const utilityRoute = async (server) => {
   Object.keys(routes.utility).forEach((key) => {
@@ -66,7 +86,10 @@ const initServer = async (options) => {
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(userRoute, { prefix: '/user' })
-    .register(utilityRoute, { prefix: '/utility' });
+    .register(utilityRoute, { prefix: '/utility' })
+    .register(teamRoute, { prefix: '/team' })
+    .register(seasonRoute, { prefix: '/season' })
+    .register(integrationRoute, { prefix: 'integration' });
 
 
   return {
