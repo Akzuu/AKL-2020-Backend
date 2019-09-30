@@ -5,7 +5,7 @@ const MONGO_URI = config.get('database.mongo.uri');
 const MONGO_OPTIONS = config.get('database.mongo.options');
 
 const start = async () => {
-  await mongoose.connection(MONGO_URI, MONGO_OPTIONS);
+  await mongoose.connect(MONGO_URI, MONGO_OPTIONS);
 };
 
 module.exports = {
