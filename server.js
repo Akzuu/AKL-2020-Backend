@@ -29,10 +29,18 @@ const initSwagger = () => {
         {
           name: 'Integration',
           description: 'Integration endpoints for accessing and controlling data',
-        },
-        {
+        }, {
           name: 'Utility',
           description: 'Utility endpoints',
+        }, {
+          name: 'User',
+          description: 'CRUD endpoints related to Users',
+        }, {
+          name: 'Team',
+          description: 'CRUD endpoints related to Teams',
+        }, {
+          name: 'Season',
+          description: 'CRUD endpoints related to Seasons',
         },
       ],
     },
@@ -43,8 +51,8 @@ const initSwagger = () => {
 
 // Routes
 const userRoute = async (server) => {
-  Object.keys(routes.integration).forEach((key) => {
-    server.route(routes.integration[key]);
+  Object.keys(routes.user).forEach((key) => {
+    server.route(routes.user[key]);
   });
 };
 
@@ -89,7 +97,7 @@ const initServer = async (options) => {
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })
     .register(seasonRoute, { prefix: '/season' })
-    .register(integrationRoute, { prefix: 'integration' });
+    .register(integrationRoute, { prefix: '/integration' });
 
 
   return {
