@@ -3,7 +3,6 @@ const { User } = require('../../models');
 const { userJSON } = require('../../json');
 
 const schema = {
-  preValidation: 'authentication',
   description: 'Create user',
   summary: 'Create new user for the service',
   tags: ['User'],
@@ -18,6 +17,10 @@ const schema = {
       },
     },
   },
+};
+
+const preHandler = (req, reply, done) => {
+  done();
 };
 
 const handler = async (req, reply) => {
@@ -36,4 +39,5 @@ module.exports = {
   url: '/create',
   schema,
   handler,
+  preHandler,
 };

@@ -90,6 +90,7 @@ const utilityRoute = async (server) => {
 const initServer = async (options) => {
   const server = fastify(options);
 
+  // Register plugins and routes
   server
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
