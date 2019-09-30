@@ -1,14 +1,21 @@
 const { log } = require('../../lib');
 const { User } = require('../../models');
+const { userJSON } = require('../../json');
 
 const schema = {
   preValidation: 'authentication',
   description: 'Create user',
   summary: 'Create new user for the service',
-  tags: ['Integration'],
+  tags: ['User'],
+  body: userJSON,
   response: {
     200: {
-      type: 'string',
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+      },
     },
   },
 };
