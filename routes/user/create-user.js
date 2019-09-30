@@ -24,7 +24,7 @@ const handler = async (req, reply) => {
   try {
     await User.create(req.body);
   } catch (error) {
-    log.error(error);
+    log.error('Error when trying to create user! ', error);
     reply.status(500).send();
   }
 

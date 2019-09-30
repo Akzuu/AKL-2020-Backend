@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const brcrypt = require('bcrypt');
+const { log } = require('../lib');
 
 const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
@@ -60,6 +62,20 @@ const schema = new Schema({
   },
 }, {
   timestamps: true,
+});
+
+// Hash passwords before saving them
+schema.pre('save', function preSave(next) {
+  const saltRounds = 10;
+  brcrypt.hash(this.passwordHash, saltRounds, (err, hash) => {
+    if (err) {
+      log.error('Not able to save user! Password hash failed! ', err);
+      next(new Error('Not able to save user!'));
+    }
+
+    this.passwordHash = hash;
+    next();
+  });
 });
 
 module.exports = mongoose.model('users', schema);
