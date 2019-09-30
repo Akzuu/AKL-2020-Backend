@@ -16,5 +16,6 @@ module.exports = {
   },
   rules: {
     "linebreak-style": 0,
+    "no-useless-escape": 0,
   },
 };
