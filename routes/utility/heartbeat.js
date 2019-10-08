@@ -4,7 +4,15 @@ const schema = {
   tags: ['Utility'],
   response: {
     200: {
-      type: 'string',
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+        date: {
+          type: 'string',
+        },
+      },
     },
   },
 };

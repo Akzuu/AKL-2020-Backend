@@ -4,12 +4,13 @@ const { log } = require('./lib');
 
 module.exports = (async () => {
   // Initialize database connection
-  // try {
-  //   await mongodb.start();
-  // } catch (error) {
-  //   log.error('Error starting database!', error);
-  //   process.exit(0);
-  // }
+  try {
+    await mongodb.start();
+  } catch (error) {
+    log.error('Error starting database!', error);
+    process.exit(0);
+  }
+
 
   // Start server
   try {
@@ -19,4 +20,6 @@ module.exports = (async () => {
     log.error('Error starting server!', error);
     process.exit(1);
   }
+
+  log.info('Service started successfully!');
 })();
