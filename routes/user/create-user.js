@@ -33,7 +33,7 @@ const handler = async (req, reply) => {
 
   // Pass token to body, so it will be saved to database
   if (token) {
-    req.body.token = token;
+    req.body.tokens = [{ token }];
   }
 
   let user;
