@@ -17,5 +17,6 @@ module.exports = {
   rules: {
     "linebreak-style": 0,
     "no-useless-escape": 0,
+    "no-underscore-dangle": 0,
   },
 };
