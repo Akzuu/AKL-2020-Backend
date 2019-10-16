@@ -4,7 +4,8 @@
   "description": "Backend for the new akl.gg website",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "service": "node index.js"
   },
   "keywords": [
     "AKL",
