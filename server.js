@@ -23,6 +23,11 @@ const initSwagger = () => {
       },
       host: swaggerOptions.host,
       schemes: swaggerOptions.schemes,
+      securityDefinitions: {
+        BearerAuth: {
+          type: 'apiKey',
+        },
+      },
       consumes: ['application/json'],
       produces: ['application/json'],
       tags: [
