@@ -48,12 +48,18 @@ const handler = async (req, reply) => {
     return;
   }
 
+  /**
+   * This if should never catch, because fastify makes sure req.body is valid
+   * and User.create should throw if it is unable to create database entry.
+   *
+   * But well, better safe than sorry.
+   */
   if (!user) {
-    log.error('Make sure the given information is correct!', req.body);
+    log.error('Make sure the given information is valid!', req.body);
     reply.status(400).send({
       status: 'ERROR',
       error: 'Bad Request',
-      message: 'Make sure the given information is correct!',
+      message: 'Make sure the given information is valid!',
     });
     return;
   }
