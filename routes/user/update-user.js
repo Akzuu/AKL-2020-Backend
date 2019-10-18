@@ -95,7 +95,7 @@ const preHandler = async (req, reply, done) => {
       'tokens.token': token,
     });
   } catch (error) {
-    log.error('Not able to remove user!', error);
+    log.error('Not able to find user!', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
