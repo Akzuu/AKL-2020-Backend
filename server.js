@@ -26,10 +26,13 @@ const initSwagger = () => {
       securityDefinitions: {
         bearerAuth: {
           type: 'apiKey',
-          name: 'apiKey',
+          name: 'Authorization',
           in: 'header',
         },
       },
+      security: [{
+        bearerAuth: [],
+      }],
       consumes: ['application/json'],
       produces: ['application/json'],
       tags: [
