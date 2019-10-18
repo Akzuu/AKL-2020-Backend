@@ -31,8 +31,9 @@ module.exports = {
       type: 'string',
       format: 'email',
     },
-    passwordHash: {
+    password: {
       type: 'string',
+      min: 8,
     },
     currentTeam: {
       type: 'string',

@@ -36,9 +36,10 @@ const schema = new Schema({
     required: true,
     unique: true,
   },
-  passwordHash: {
+  password: {
     type: String,
     required: true,
+    min: 8,
   },
   currentTeam: {
     type: ObjectId,
@@ -76,13 +77,13 @@ const schema = new Schema({
 // Hash passwords before saving them
 schema.pre('save', function preSave(next) {
   const saltRounds = 10;
-  bcrypt.hash(this.passwordHash, saltRounds, (err, hash) => {
+  bcrypt.hash(this.password, saltRounds, (err, hash) => {
     if (err) {
       log.error('Not able to save user! Password hash failed! ', err);
       next(new Error('Not able to save user!'));
     }
 
-    this.passwordHash = hash;
+    this.password = hash;
     next();
   });
 });
