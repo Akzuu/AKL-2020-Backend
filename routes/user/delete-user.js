@@ -2,8 +2,8 @@ const { log } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Create user',
-  summary: 'Create new user for the service',
+  description: 'Delete user from the service. Requires authorization',
+  summary: 'Delete user',
   tags: ['User'],
   params: {
     type: 'object',
@@ -26,14 +26,14 @@ const schema = {
 };
 
 const preHandler = async (req, reply, done) => {
-  // TODO: Make sure user can only delete him/herself
-  const token = req.raw.headers.authorization;
-
-  let userName;
+  // First we verify that user has a valid token
+  let payload;
+  let token;
   try {
-    userName = await req.jwtVerify();
+    payload = await req.jwtVerify();
+    token = req.raw.headers.authorization.replace('Bearer ', '');
   } catch (error) {
-    log.error('Error validating token!', { error, token });
+    log.error('Error validating token! ', error);
     reply.status(401).send({
       status: 'ERROR',
       error: 'Unauthorized',
@@ -42,23 +42,31 @@ const preHandler = async (req, reply, done) => {
     return;
   }
 
+  const { userName } = payload;
+
+  // Then make sure users token is for that user
   let userFound;
   try {
-    userFound = await User.findOne(userName, token);
+    userFound = await User.findOne({
+      _id: req.params.id,
+      userName,
+      'tokens.token': token,
+    });
   } catch (error) {
-    log.error('Not able to remove other users!', error);
-    reply.status(403).send({
+    log.error('Not able to remove user!', error);
+    reply.status(500).send({
       status: 'ERROR',
-      error: 'Forbidden',
+      error: 'Internal Server Error',
     });
     return;
   }
 
+  // If user was not found, then there is a missmatch between user and the token
+  // One could say that there is something fishy going on..
   if (!userFound) {
-    reply.status(404).send({
+    reply.status(403).send({
       status: 'ERROR',
-      error: 'Not Found',
-      message: `User ${userName} not found!`,
+      error: 'Forbidden',
     });
     return;
   }
