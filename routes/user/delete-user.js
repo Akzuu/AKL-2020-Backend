@@ -28,14 +28,37 @@ const schema = {
 const preHandler = async (req, reply, done) => {
   // TODO: Make sure user can only delete him/herself
   const token = req.raw.headers.authorization;
+
+  let userName;
   try {
-    await req.jwtVerify();
+    userName = await req.jwtVerify();
   } catch (error) {
     log.error('Error validating token!', { error, token });
     reply.status(401).send({
       status: 'ERROR',
       error: 'Unauthorized',
       message: 'Please authenticate',
+    });
+    return;
+  }
+
+  let userFound;
+  try {
+    userFound = await User.findOne(userName, token);
+  } catch (error) {
+    log.error('Not able to remove other users!', error);
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+    });
+    return;
+  }
+
+  if (!userFound) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: `User ${userName} not found!`,
     });
     return;
   }
