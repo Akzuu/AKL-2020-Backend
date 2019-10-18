@@ -75,6 +75,9 @@ const preHandler = async (req, reply, done) => {
 };
 
 const handler = async (req, reply) => {
+  // TODO: Figure out how this should be done
+  // TODO: Figure out if this is the best way to do authentication
+
   let user;
   try {
     user = await User.findOne({ _id: req.params.id });
