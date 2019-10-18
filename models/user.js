@@ -8,7 +8,7 @@ const { ObjectId } = Schema.Types;
 const schema = new Schema({
   userName: {
     type: String,
-    min: 1,
+    min: 3,
     required: true,
     unique: true,
   },
