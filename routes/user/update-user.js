@@ -47,9 +47,11 @@ const schema = {
       },
       password: {
         type: 'string',
+        min: 8,
       },
       newPassword: {
         type: 'string',
+        min: 8,
       },
     },
   },
@@ -119,7 +121,7 @@ const handler = async (req, reply) => {
   try {
     user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
   } catch (error) {
-    log.error('Error when trying to create user! ', error);
+    log.error('Error when trying to update user! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
