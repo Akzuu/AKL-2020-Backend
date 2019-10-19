@@ -1,10 +1,10 @@
 module.exports = {
   type: 'object',
-  required: ['userName', 'email', 'passwordHash', 'generalInfo', 'steam'],
+  required: ['userName', 'email', 'password', 'generalInfo', 'steam'],
   properties: {
     userName: {
       type: 'string',
-      min: 1,
+      minLength: 3,
     },
     generalInfo: {
       type: 'object',
@@ -33,7 +33,7 @@ module.exports = {
     },
     password: {
       type: 'string',
-      min: 8,
+      minLength: 8,
     },
     currentTeam: {
       type: 'string',
