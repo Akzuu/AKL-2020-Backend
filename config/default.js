@@ -4,4 +4,13 @@ module.exports = {
     host: 'localhost:3000',
     schemes: ['http', 'https'],
   },
+  database: {
+    mongo: {
+      options: {
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+      },
+    },
+  },
 };
