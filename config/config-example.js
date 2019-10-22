@@ -8,4 +8,7 @@ module.exports = {
   jwt: {
     secret: 'seeeecret',
   },
+  steam: {
+    webApiKey: '',
+  },
 };
