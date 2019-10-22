@@ -14,6 +14,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  application: {
+    type: String,
+    required: true,
+  },
   captain: {
     type: ObjectId,
     ref: 'user',
