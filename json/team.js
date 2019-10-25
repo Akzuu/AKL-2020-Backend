@@ -15,7 +15,6 @@ module.exports = {
     },
     application: {
       type: 'string',
-      format: 'email',
     },
     captain: {
       type: 'string',

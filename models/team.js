@@ -24,9 +24,11 @@ const schema = new Schema({
     required: true,
   },
   captain: {
-    type: ObjectId,
-    ref: 'user',
-    required: true,
+    // TODO: fix this
+    type: String,
+    // type: ObjectId,
+    // ref: 'user',
+    // required: true,
   },
   members: [{
     type: ObjectId,
