@@ -4,11 +4,16 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
 const schema = new Schema({
-  name: {
+  teamName: {
+    type: String,
+    min: 3,
+    required: true,
+    unique: true,
+  },
+  abbreviation: {
     type: String,
     min: 1,
     required: true,
-    unique: true,
   },
   introductionText: {
     type: String,
