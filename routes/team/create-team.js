@@ -34,7 +34,7 @@ const handler = async (req, reply) => {
 
   /**
  * This if should never catch, because fastify makes sure req.body is valid
- * and User.create should throw if it is unable to create database entry.
+ * and Team.create should throw if it is unable to create database entry.
  *
  * But well, better safe than sorry.
  */
