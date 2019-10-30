@@ -61,8 +61,8 @@ const preHandler = async (req, reply, done) => {
     return;
   }
 
-  // If user was not found or user is not the captain of the team,
-  // There's a missmatch
+  // If user was not found, then there is a missmatch between the user and the token
+  // One could say there is something fishy going on..
   if (!userFound) {
     reply.status(403).send({
       status: 'ERROR',
