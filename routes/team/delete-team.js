@@ -47,7 +47,7 @@ const preHandler = async (req, reply, done) => {
   //Make sure user's token is for that user
   let userFound;
   try {
-    userFound = await userFound.findOne({
+    userFound = await User.findOne({
       _id: req.params.id,
       userName,
       'tokens.token': token,
