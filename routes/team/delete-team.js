@@ -1,5 +1,6 @@
-const { log } = require('./../lib');
+const { log } = require('../../lib');
 const { Team } = require('../../models');
+const { User } = require('../../models');
 
 const schema = {
   description: 'Delete a team from the service. Requires authentication',
@@ -44,7 +45,7 @@ const preHandler = async (req, reply, done) => {
 
   const { userName } = payload;
 
-  //Make sure user's token is for that user
+  // Make sure user's token is for that user
   let userFound;
   try {
     userFound = await User.findOne({
@@ -70,7 +71,7 @@ const preHandler = async (req, reply, done) => {
     });
   }
 
-  done()
+  done();
 };
 
 const handler = async (req, reply) => {
@@ -95,5 +96,13 @@ const handler = async (req, reply) => {
     return;
   }
 
-  reply.send()
-}
+  reply.send({ status: 'OK ' });
+};
+
+module.exports = {
+  method: 'DELETE',
+  url: '/:id/delete',
+  schema,
+  handler,
+  preHandler,
+};
