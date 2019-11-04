@@ -2,8 +2,8 @@ const { log } = require('../../lib');
 const { Team } = require('../../models');
 
 const schema = {
-  description: 'Get all users',
-  summary: 'Get all users.',
+  description: 'Get all teams',
+  summary: 'Get all teams.',
   tags: ['Team'],
   query: {
     type: 'object',
