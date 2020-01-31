@@ -67,7 +67,6 @@ const schema = new Schema({
   tokens: [{
     token: {
       type: String,
-      required: true,
     },
   }],
 }, {
