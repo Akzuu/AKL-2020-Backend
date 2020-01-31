@@ -66,7 +66,7 @@ const handler = async (req, reply) => {
 
 
 module.exports = {
-  method: 'GET',
+  method: 'POST',
   url: '/:id/logout',
   schema,
   handler,
