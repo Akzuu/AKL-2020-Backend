@@ -6,6 +6,14 @@ const schema = {
   description: 'Logout user from the service',
   summary: 'Logout',
   tags: ['integration'],
+  params: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+      },
+    },
+  },
   response: {
     200: {
       type: 'object',
