@@ -7,6 +7,7 @@ const fastifyHelmet = require('fastify-helmet');
 const routes = require('./routes');
 
 const APPLICATION_PORT = config.get('port');
+const HOST = config.get('host');
 const JWT_SECRET = config.get('jwt.secret');
 
 
