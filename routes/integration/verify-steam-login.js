@@ -5,8 +5,8 @@ const { log } = require('../../lib');
 const HOST = config.get('host');
 
 const schema = {
-  description: 'Login user with Steam OpenID',
-  summary: 'Login with Steam',
+  description: 'Steam callback from openid',
+  summary: 'Steam callback',
   tags: ['integration'],
   response: {
     // 200: {
@@ -20,7 +20,6 @@ const schema = {
   },
 };
 
-
 const relyingParty = new openid.RelyingParty(
   `${HOST}/integration/steam/login/verify`, // Callback url
   null, // Realm (optional, specifies realm for OpenID authentication)
@@ -29,22 +28,33 @@ const relyingParty = new openid.RelyingParty(
   [], // List of extensions to enable and include
 );
 
+const steamIdRegex = new RegExp('^https:\/\/steamcommunity.com\/openid\/id\/([1-9]{17})$');
+
 const handler = async (req, reply) => {
-  relyingParty.authenticate('https://steamcommunity.com/openid', false, (error, authUrl) => {
-    if (error) {
-      reply.send(`Authentication failed: ${error.message}`);
-    } else if (!authUrl) {
-      reply.send('Authentication failed');
-    } else {
-      reply.redirect(authUrl);
+  relyingParty.verifyAssertion(req.raw.url, (error, result) => {
+    if (error || !result.authenticated) {
+      log.error('Error validating assertion! ', error);
+      reply.redirect('/integration/steam/login/failed');
+      return;
     }
+
+    let steamId64;
+    try {
+      [, steamId64] = steamIdRegex.exec(result.claimedIdentifier);
+    } catch (err) {
+      log.error('Error matching regex! ', err);
+      reply.redirect('/integration/steam/login/failed');
+    }
+
+
+    reply.redirect(`/integration/steam/login/success/${steamId64}`);
   });
 };
 
 
 module.exports = {
   method: 'GET',
-  url: '/steam/login',
+  url: '/steam/login/verify',
   schema,
   handler,
 };

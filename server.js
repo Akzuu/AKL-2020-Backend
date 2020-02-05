@@ -7,7 +7,6 @@ const fastifyHelmet = require('fastify-helmet');
 const routes = require('./routes');
 
 const APPLICATION_PORT = config.get('port');
-const HOST = config.get('host');
 const JWT_SECRET = config.get('jwt.secret');
 
 
@@ -60,7 +59,6 @@ const initSwagger = () => {
   };
 };
 
-
 // Routes
 const userRoute = async (server) => {
   Object.keys(routes.user).forEach((key) => {
@@ -107,6 +105,7 @@ const initServer = async (options) => {
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(fastifyHelmet)
+    // .use('/oidc', oidc.callback)
     .register(userRoute, { prefix: '/user' })
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })
