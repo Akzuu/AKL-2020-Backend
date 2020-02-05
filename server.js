@@ -105,7 +105,6 @@ const initServer = async (options) => {
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(fastifyHelmet)
-    // .use('/oidc', oidc.callback)
     .register(userRoute, { prefix: '/user' })
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })
