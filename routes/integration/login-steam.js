@@ -32,6 +32,7 @@ const relyingParty = new openid.RelyingParty(
 const handler = async (req, reply) => {
   relyingParty.authenticate('https://steamcommunity.com/openid', false, (error, authUrl) => {
     if (error) {
+      log.error(`Authentication failed: ${error.message}`);
       reply.send(`Authentication failed: ${error.message}`);
     } else if (!authUrl) {
       reply.send('Authentication failed');
