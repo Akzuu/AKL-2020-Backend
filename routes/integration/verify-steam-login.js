@@ -71,13 +71,14 @@ const handler = async (req, reply) => {
         return;
       }
 
-      reply.send({ status: 'OK', token }).redirect('/');
+      // TODO: Figure out how to transfer tokens
+      reply.send({ status: 'OK', token });
       return;
     }
 
     // Start creating account for the user
     // TODO: Do this :D
-    reply.redirect('/').send({ status: 'ERROR' });
+    reply.redirect('/');
   });
 };
 
