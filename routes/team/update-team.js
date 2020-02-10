@@ -16,7 +16,6 @@ const schema = {
   },
   body: {
     type: 'object',
-    // required: ['password'],
     properties: {
       teamName: {
         type: 'string',
@@ -82,18 +81,21 @@ const preHandler = async (req, reply, done) => {
   const { userName } = payload;
 
   // Make sure this token is for the captain of the team
+  let teamFound;
   try {
-    const team = Team.findOne({
+    teamFound = await Team.findOne({
       _id: req.params.id,
-    }).populate('captain');
-
+    }).populate({ path: 'captain', model: User });
     const user = await User.findOne({
-      userName: 'team.captain',
-      // 'tokens.token': token,
+      _id: teamFound.captain,
+      'tokens.token': token,
     });
+    if (!user) {
+      throw new Error('User does not match with the captains token');
+    }
 
     if (userName !== user.userName) {
-      throw new Error({ msg: 'User not captain' });
+      throw new Error('User is not the captain');
     }
   } catch (error) {
     log.error('Not able to find a team! ', error);

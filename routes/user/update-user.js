@@ -74,7 +74,6 @@ const preHandler = async (req, reply, done) => {
   try {
     payload = await req.jwtVerify();
     token = req.raw.headers.authorization.replace('Bearer ', '');
-    console.log(payload);
   } catch (error) {
     log.error('Error validating token! ', error);
     reply.status(401).send({
