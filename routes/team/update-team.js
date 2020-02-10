@@ -16,7 +16,7 @@ const schema = {
   },
   body: {
     type: 'object',
-    required: ['password'],
+    // required: ['password'],
     properties: {
       teamName: {
         type: 'string',
@@ -60,7 +60,7 @@ const schema = {
       },
     },
   },
-},
+};
 
 const preHandler = async (req, reply, done) => {
   // Verify that there is a valid token
@@ -82,17 +82,21 @@ const preHandler = async (req, reply, done) => {
   const { userName } = payload;
 
   // Make sure this token is for the captain of the team
-  let captainFound;
   try {
-    Team.findOne({
+    const team = Team.findOne({
       _id: req.params.id,
     }).populate('captain');
 
-    captainFound = await User.findOne({
-      userName: 'team.captain.userName',
+    const user = await User.findOne({
+      userName: 'team.captain',
+      // 'tokens.token': token,
     });
+
+    if (userName !== user.userName) {
+      throw new Error({ msg: 'User not captain' });
+    }
   } catch (error) {
-    log.error('Not able to find a team!', error);
+    log.error('Not able to find a team! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -101,4 +105,38 @@ const preHandler = async (req, reply, done) => {
   }
 
   done();
+};
+
+const handler = async (req, reply) => {
+  let team;
+  try {
+    team = await Team.findOneAndUpdate({ _id: req.params.id }, req.body);
+  } catch (error) {
+    log.error('Error when trying to update team! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (!team) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'Team not found',
+    });
+    return;
+  }
+
+  reply.send({ status: 'OK' });
+};
+
+
+module.exports = {
+  method: 'PATCH',
+  url: '/:id/update',
+  schema,
+  handler,
+  preHandler,
 };
