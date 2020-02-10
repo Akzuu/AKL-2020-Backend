@@ -32,59 +32,53 @@ const relyingParty = new openid.RelyingParty(
 const steamIdRegex = new RegExp('^https:\/\/steamcommunity.com\/openid\/id\/([1-9]{17})$');
 
 const handler = async (req, reply) => {
-  let result;
-  try {
-    result = await relyingParty.verifyAssertion(req.raw.url);
-  } catch (error) {
-    log.error('Error validating assertion! ', error);
-    reply.redirect('/integration/steam/login/failed');
-    return;
-  }
-
-  if (!result || !result.authenticated) {
-    reply.redirect('/integration/steam/login/failed');
-    return;
-  }
-
-  let steamId64;
-  try {
-    [, steamId64] = steamIdRegex.exec(result.claimedIdentifier);
-  } catch (err) {
-    log.error('Error matching regex! ', err);
-    reply.redirect('/integration/steam/login/failed');
-    return;
-  }
-
-  let user;
-  try {
-    user = User.findOne({
-      'steam.steamID': steamId64,
-    });
-  } catch (error) {
-    log.error('Error when trying to look for user! ', error);
-    reply.redirect('/integration/steam/login/failed');
-    return;
-  }
-
-  // User already has an account, so just log in and redirect to frontpage
-  if (user) {
-    let token;
-
-    try {
-      token = await reply.jwtSign({ userName: user.userName });
-    } catch (error) {
-      log.error('Error creating token!', error);
+  relyingParty.verifyAssertion(req.raw.url, async (error, result) => {
+    if (error || !result.authenticated) {
+      log.error('Error validating assertion! ', error);
       reply.redirect('/integration/steam/login/failed');
       return;
     }
 
-    reply.send({ status: 'OK', token }).redirect('/');
-    return;
-  }
+    let steamId64;
+    try {
+      [, steamId64] = steamIdRegex.exec(result.claimedIdentifier);
+    } catch (err) {
+      log.error('Error matching regex! ', err);
+      reply.redirect('/integration/steam/login/failed');
+      return;
+    }
 
-  // Start creating account for the user
-  // TODO: Do this :D
-  reply.send({ status: 'OK' }).redirect('/');
+    let user;
+    try {
+      user = await User.findOne({
+        'steam.steamID': steamId64,
+      });
+    } catch (err) {
+      log.error('Error when trying to look for user! ', error);
+      reply.redirect('/integration/steam/login/failed');
+      return;
+    }
+
+    // User already has an account, so just log in and redirect to frontpage
+    if (user) {
+      let token;
+
+      try {
+        token = await reply.jwtSign({ userName: user.userName });
+      } catch (err) {
+        log.error('Error creating token!', error);
+        reply.redirect('/integration/steam/login/failed');
+        return;
+      }
+
+      reply.send({ status: 'OK', token }).redirect('/');
+      return;
+    }
+
+    // Start creating account for the user
+    // TODO: Do this :D
+    reply.redirect('/').send({ status: 'ERROR' });
+  });
 };
 
 
