@@ -1,5 +1,6 @@
 const openid = require('openid');
 const config = require('config');
+const SteamId = require('steamid');
 const { log } = require('../../lib');
 const { User } = require('../../models');
 
@@ -42,6 +43,10 @@ const handler = async (req, reply) => {
     let steamId64;
     try {
       [, steamId64] = steamIdRegex.exec(result.claimedIdentifier);
+
+      // Validate id, just in case my RegExp fails or smth :D
+      const sid = new SteamId(steamId64);
+      if (!sid.isValid) throw new Error('Invalid SteamId');
     } catch (err) {
       log.error('Error matching regex! ', err);
       reply.redirect('/integration/steam/login/failed');
@@ -71,14 +76,16 @@ const handler = async (req, reply) => {
         return;
       }
 
-      // TODO: Figure out how to transfer tokens
       reply.send({ status: 'OK', token });
       return;
     }
 
-    // Start creating account for the user
-    // TODO: Do this :D
-    reply.redirect('/');
+    // Start account creation process
+    try {
+      
+    } catch (error) {
+      
+    }
   });
 };
 
