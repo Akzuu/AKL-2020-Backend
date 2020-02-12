@@ -86,7 +86,11 @@ const handler = async (req, reply) => {
       let token;
 
       try {
-        token = await reply.jwtSign({ userName: user.userName });
+        token = await reply.jwtSign({
+          _id: user._id,
+          registrationComplete: user.registrationComplete,
+          steamID64,
+        });
       } catch (err) {
         log.error('Error creating token!', error);
         reply.redirect('/integration/steam/login/failed');
