@@ -7,18 +7,48 @@ const { User } = require('../../models');
 const HOST = config.get('host');
 
 const schema = {
-  description: 'Steam callback from openid',
-  summary: 'Steam callback',
+  description: `This endpoint is used by steam openid when it redirects 
+  user from steamcommunity login. It may return three statuses.
+  
+  1. Code 200: user has an account and should be redirected to frontpage with new token
+  2. Code 201: user used the service for the first time and should complete the registration process
+  3. Code 500: Something went wrong, error has been logged to backend service`,
+  summary: 'Steam openid callback',
   tags: ['integration'],
   response: {
-    // 200: {
-    //   type: 'object',
-    //   properties: {
-    //     status: {
-    //       type: 'string',
-    //     },
-    //   },
-    // },
+    200: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+        token: {
+          type: 'string',
+        },
+      },
+    },
+    201: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+        token: {
+          type: 'string',
+        },
+      },
+    },
+    500: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+        error: {
+          type: 'string',
+        },
+      },
+    },
   },
 };
 
