@@ -6,39 +6,28 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
 const schema = new Schema({
-  userName: {
+  firstName: {
     type: String,
-    min: 3,
-    required: true,
-    unique: true,
   },
-  generalInfo: {
-    firstName: {
-      type: String,
-    },
-    surname: {
-      type: String,
-    },
-    age: {
-      type: Number,
-    },
-    guild: {
-      type: String,
-    },
-    university: {
-      type: String,
-      required: true,
-    },
+  surname: {
+    type: String,
+  },
+  age: {
+    type: Number,
+  },
+  guild: {
+    type: String,
+  },
+  university: {
+    type: String,
   },
   email: {
-    // TODO: Validation
     type: String,
-    required: true,
     unique: true,
+    match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Error invalid email'],
   },
   password: {
     type: String,
-    required: true,
     min: 8,
   },
   currentTeam: {
@@ -50,6 +39,10 @@ const schema = new Schema({
     ref: 'teams',
   }],
   steam: {
+    userName: {
+      type: String,
+      required: true,
+    },
     steamID: {
       type: String,
       required: true,
@@ -60,32 +53,45 @@ const schema = new Schema({
       required: true,
       unique: true,
     },
-  },
-  avatar: {
-    type: Buffer,
+    avatar: {
+      type: String,
+      required: true,
+    },
+    profileUrl: {
+      type: String,
+      required: true,
+    },
   },
   tokens: [{
     token: {
       type: String,
-      required: true,
     },
   }],
+  registrationComplete: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true,
 });
 
 // Hash passwords before saving them
 schema.pre('save', function preSave(next) {
-  const saltRounds = 10;
-  bcrypt.hash(this.password, saltRounds, (err, hash) => {
-    if (err) {
-      log.error('Not able to save user! Password hash failed! ', err);
-      next(new Error('Not able to save user!'));
-    }
-
-    this.password = hash;
+  // If creating account just with the steam data. See lib/create-user-steam.js
+  if (!this.password && !this.registrationComplete) {
     next();
-  });
+  } else {
+    const saltRounds = 10;
+    bcrypt.hash(this.password, saltRounds, (err, hash) => {
+      if (err) {
+        log.error('Not able to save user! Password hash failed! ', err);
+        next(new Error('Not able to save user!'));
+      }
+
+      this.password = hash;
+      next();
+    });
+  }
 });
 
 module.exports = mongoose.model('users', schema);

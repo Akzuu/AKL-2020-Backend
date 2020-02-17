@@ -118,6 +118,7 @@ const preHandler = async (req, reply, done) => {
 
 const handler = async (req, reply) => {
   let user;
+  // TODO: Handle this with single request to avoid multiple db requests (Auth)
   try {
     user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
   } catch (error) {

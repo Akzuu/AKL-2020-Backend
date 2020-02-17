@@ -3,6 +3,7 @@ const config = require('config');
 const fastify = require('fastify');
 const fastifySwagger = require('fastify-swagger');
 const fastifyJWT = require('fastify-jwt');
+const fastifyHelmet = require('fastify-helmet');
 const routes = require('./routes');
 
 const APPLICATION_PORT = config.get('port');
@@ -58,7 +59,6 @@ const initSwagger = () => {
   };
 };
 
-
 // Routes
 const userRoute = async (server) => {
   Object.keys(routes.user).forEach((key) => {
@@ -104,6 +104,7 @@ const initServer = async (options) => {
   server
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
+    .register(fastifyHelmet)
     .register(userRoute, { prefix: '/user' })
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })

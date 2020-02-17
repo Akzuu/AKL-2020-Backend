@@ -13,3 +13,8 @@ npm run service   // Run the service
 
 ## Documentation
 You can find swagger from the url */documentation/*. F.e if running in local env and port 3000, *localhost:3000/documentation*
+
+## TODO
+-Find out if the current authentication methods in use are done the right way.
+  -Should we blacklist tokens? Redis maybe?
+  -Move towards more stateless authentication
