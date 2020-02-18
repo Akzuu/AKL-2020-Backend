@@ -124,7 +124,7 @@ const handler = async (req, reply) => {
         'steam.steamID': steamID64,
       });
     } catch (err) {
-      log.error('Error when trying to look for user! ', error);
+      log.error('Error when trying to look for user! ', err);
       reply.status(500).send({
         status: 'ERROR',
         error: 'Internal Server Error',
@@ -143,7 +143,7 @@ const handler = async (req, reply) => {
           steamID64,
         });
       } catch (err) {
-        log.error('Error creating token!', error);
+        log.error('Error creating token!', err);
         reply.status(500).send({
           status: 'ERROR',
           error: 'Internal Server Error',
@@ -160,7 +160,7 @@ const handler = async (req, reply) => {
     try {
       [_id] = await createUser(steamID64);
     } catch (err) {
-      log.error('Unexpected error while trying to create user! ', error);
+      log.error('Unexpected error while trying to create user! ', err);
       reply.status(500).send({
         status: 'ERROR',
         error: 'Internal Server Error',
