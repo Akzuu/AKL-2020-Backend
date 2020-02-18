@@ -121,7 +121,7 @@ const handler = async (req, reply) => {
     let user;
     try {
       user = await User.findOne({
-        'steam.steamID': steamID64,
+        'steam.steamID64': steamID64,
       });
     } catch (err) {
       log.error('Error when trying to look for user! ', err);
