@@ -90,6 +90,7 @@ schema.pre('save', function preSave(next) {
       if (err) {
         log.error('Not able to save user! Password hash failed! ', err);
         next(new Error('Not able to save user!'));
+        return;
       }
 
       this.password = hash;
