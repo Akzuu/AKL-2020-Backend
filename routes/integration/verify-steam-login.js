@@ -83,7 +83,10 @@ const handler = async (req, reply) => {
   relyingParty.verifyAssertion(req.raw.url, async (error, result) => {
     if (error || !result.authenticated) {
       log.error('Error validating assertion! ', error);
-      reply.redirect('/integration/steam/login/failed');
+      reply.status(403).send({
+        status: 'ERROR',
+        error: 'Forbidden',
+      });
       return;
     }
 
@@ -96,7 +99,10 @@ const handler = async (req, reply) => {
       if (!sid.isValid) throw new Error('Invalid SteamId');
     } catch (err) {
       log.error('Error matching regex! ', err);
-      reply.redirect('/integration/steam/login/failed');
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
       return;
     }
 
@@ -107,7 +113,10 @@ const handler = async (req, reply) => {
       });
     } catch (err) {
       log.error('Error when trying to look for user! ', error);
-      reply.redirect('/integration/steam/login/failed');
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
       return;
     }
 
@@ -123,7 +132,10 @@ const handler = async (req, reply) => {
         });
       } catch (err) {
         log.error('Error creating token!', error);
-        reply.redirect('/integration/steam/login/failed');
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
         return;
       }
 
