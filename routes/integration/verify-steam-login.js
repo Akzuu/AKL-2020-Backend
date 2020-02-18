@@ -156,9 +156,9 @@ const handler = async (req, reply) => {
     }
 
     // Start account creation process
-    let _id;
+    let id;
     try {
-      [_id] = await createUser(steamID64);
+      id = await createUser(steamID64);
     } catch (err) {
       log.error('Unexpected error while trying to create user! ', err);
       reply.status(500).send({
@@ -171,7 +171,7 @@ const handler = async (req, reply) => {
     let token;
     try {
       token = await reply.jwtSign({
-        _id,
+        _id: id,
         registrationComplete: false,
         steamID64,
       }, {
