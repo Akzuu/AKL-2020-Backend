@@ -67,13 +67,13 @@ const schema = {
   },
 };
 
-const preHandler = async (req, reply, done) => {
+const handler = async (req, reply) => {
+  let user;
+
   // First we verify that user has a valid token
   let payload;
-  let token;
   try {
     payload = await req.jwtVerify();
-    token = req.raw.headers.authorization.replace('Bearer ', '');
   } catch (error) {
     log.error('Error validating token! ', error);
     reply.status(401).send({
@@ -84,28 +84,11 @@ const preHandler = async (req, reply, done) => {
     return;
   }
 
-  const { userName } = payload;
+  const { _id } = payload;
 
-  // Then make sure users token is for that user
-  let userFound;
-  try {
-    userFound = await User.findOne({
-      _id: req.params.id,
-      userName,
-      'tokens.token': token,
-    });
-  } catch (error) {
-    log.error('Not able to find user!', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  // If user was not found, then there is a missmatch between user and the token
-  // One could say that there is something fishy going on..
-  if (!userFound) {
+  // Make sure user is trying to remove his own account
+  // TODO: Let admins to update users
+  if (_id !== req.params.id) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
@@ -113,12 +96,6 @@ const preHandler = async (req, reply, done) => {
     return;
   }
 
-  done();
-};
-
-const handler = async (req, reply) => {
-  let user;
-  // TODO: Handle this with single request to avoid multiple db requests (Auth)
   try {
     user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
   } catch (error) {
@@ -147,5 +124,4 @@ module.exports = {
   url: '/:id/update',
   schema,
   handler,
-  preHandler,
 };

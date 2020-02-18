@@ -3,9 +3,9 @@ const { User } = require('../../models');
 const { userJSON } = require('../../json');
 
 const schema = {
-  description: 'Create new user for the service',
-  summary: 'Create user',
-  tags: ['User'],
+  description: 'Create new user for the service - DEVTEST, DO NOT USE',
+  summary: 'Create user - DEVTEST, DO NOT USE',
+  tags: ['Devtest'],
   body: userJSON,
   response: {
     200: {

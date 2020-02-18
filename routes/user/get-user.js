@@ -29,21 +29,17 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let token;
   let authPayload;
 
   // If there are authorization headers, check them
   if (req.raw.headers.authorization) {
-    token = req.raw.headers.authorization.replace('Bearer ', '');
-
     try {
       authPayload = await req.jwtVerify();
     } catch (error) {
       log.error('Error validating token! ', error);
-      reply.status(401).send({
+      reply.status(500).send({
         status: 'ERROR',
-        error: 'Unauthorized',
-        message: 'Please authenticate',
+        error: 'Internal Server Error',
       });
     }
   }
@@ -73,8 +69,8 @@ const handler = async (req, reply) => {
   }
 
   // If user is checking his/hers own account
-  if (authPayload && user.userName === authPayload.userName
-    && user.tokens.find(tokens => tokens.token === token)) {
+  // TODO: Admin check
+  if (authPayload && user._id === authPayload._id) {
     user.tokens = undefined;
     reply.send(user);
     return;
@@ -83,19 +79,19 @@ const handler = async (req, reply) => {
   // If user is checking someones account
   if (authPayload) {
     reply.send({
-      userName: user.userName,
-      generalInfo: {
-        firstname: user.generalInfo.firstname,
-        surname: user.generalInfo.surname,
-        age: user.generalInfo.age,
-        guild: user.generalInfo.guild,
-        university: user.generalInfo.university,
-      },
+      firstname: user.generalInfo.firstname,
+      surname: user.generalInfo.surname,
+      age: user.generalInfo.age,
+      guild: user.generalInfo.guild,
+      university: user.generalInfo.university,
       currentTeam: user.currentTeam,
       previousTeams: user.previousTeams,
-      avatar: user.avatar,
       steam: {
+        userName: user.steam.userName,
+        steamID: user.steam.steamID,
         steamID64: user.steam.steamID64,
+        avatar: user.steam.avatar,
+        profileUrl: user.steam.profileUrl,
       },
     });
     return;
@@ -103,16 +99,16 @@ const handler = async (req, reply) => {
 
   // If unregistered unauthenticated user is checking someones accounts
   reply.send({
-    userName: user.userName,
-    generalInfo: {
-      guild: user.generalInfo.guild,
-      university: user.generalInfo.university,
-    },
+    guild: user.generalInfo.guild,
+    university: user.generalInfo.university,
     currentTeam: user.currentTeam,
     previousTeams: user.previousTeams,
-    avatar: user.avatar,
     steam: {
+      userName: user.steam.userName,
+      steamID: user.steam.steamID,
       steamID64: user.steam.steamID64,
+      avatar: user.steam.avatar,
+      profileUrl: user.steam.profileUrl,
     },
   });
 };

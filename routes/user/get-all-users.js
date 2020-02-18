@@ -41,14 +41,17 @@ const handler = async (req, reply) => {
     users = await User
       .find({}, {
         password: 0,
-        'generalInfo.firstName': 0,
-        'generalInfo.surname': 0,
-        'generalInfo.age': 0,
+        firstName: 0,
+        surname: 0,
+        age: 0,
         email: 0,
         previousTeams: 0,
         'steam.steamID': 0,
         'steam.steamID64': 0,
+        'steam.profileUrl': 0,
+        'steam.avatar': 0,
         tokens: 0,
+        registrationComplete: 0,
         createdAt: 0,
         updatedAt: 0,
       })

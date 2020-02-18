@@ -52,6 +52,9 @@ const initSwagger = () => {
         }, {
           name: 'Season',
           description: 'CRUD endpoints related to Seasons',
+        }, {
+          name: 'Devtest',
+          description: 'These endpoints should only be used for testing. DO NOT USE IN REAL APPLICATION!',
         },
       ],
     },
