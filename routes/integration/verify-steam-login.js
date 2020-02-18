@@ -8,11 +8,12 @@ const HOST = config.get('host');
 
 const schema = {
   description: `This endpoint is used by steam openid when it redirects 
-  user from steamcommunity login. It may return three statuses.
+  user from steamcommunity login. It may return four statuses.
   
   1. Code 200: user has an account and should be redirected to frontpage with new token
   2. Code 201: user used the service for the first time and should complete the registration process
-  3. Code 500: Something went wrong, error has been logged to backend service`,
+  3. Code 403: openid login failed. User did not authenticate with steam or smth failed somewhere
+  4. Code 500: Something went wrong, error has been logged to backend service`,
   summary: 'Steam openid callback',
   tags: ['integration'],
   response: {
@@ -28,6 +29,17 @@ const schema = {
       },
     },
     201: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+        token: {
+          type: 'string',
+        },
+      },
+    },
+    403: {
       type: 'object',
       properties: {
         status: {
