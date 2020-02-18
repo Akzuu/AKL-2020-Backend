@@ -5,7 +5,7 @@ const { User } = require('../../models');
 const schema = {
   description: 'Login user to the service with normal credentials',
   summary: 'Login with credentials',
-  tags: ['integration'],
+  tags: ['Integration'],
   response: {
     200: {
       type: 'object',

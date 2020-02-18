@@ -7,7 +7,7 @@ const HOST = config.get('host');
 const schema = {
   description: 'Login user with Steam OpenID',
   summary: 'Login with Steam',
-  tags: ['integration'],
+  tags: ['Integration'],
   response: {
     // 200: {
     //   type: 'object',

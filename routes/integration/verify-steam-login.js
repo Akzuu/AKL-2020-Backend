@@ -15,7 +15,7 @@ const schema = {
   3. Code 401: openid login failed. User did not authenticate with steam or smth failed somewhere
   4. Code 500: Something went wrong, error has been logged to backend service`,
   summary: 'Steam openid callback',
-  tags: ['integration'],
+  tags: ['Integration'],
   response: {
     200: {
       type: 'object',
