@@ -1,31 +1,21 @@
 module.exports = {
   type: 'object',
-  required: ['userName', 'email', 'password', 'generalInfo', 'steam'],
+  required: ['userName', 'email', 'password', 'university', 'steam'],
   properties: {
-    userName: {
+    firstName: {
       type: 'string',
-      minLength: 3,
     },
-    generalInfo: {
-      type: 'object',
-      required: ['university'],
-      properties: {
-        firstName: {
-          type: 'string',
-        },
-        surname: {
-          type: 'string',
-        },
-        age: {
-          type: 'number',
-        },
-        guild: {
-          type: 'string',
-        },
-        university: {
-          type: 'string',
-        },
-      },
+    surname: {
+      type: 'string',
+    },
+    age: {
+      type: 'number',
+    },
+    guild: {
+      type: 'string',
+    },
+    university: {
+      type: 'string',
     },
     email: {
       type: 'string',
@@ -38,22 +28,19 @@ module.exports = {
     currentTeam: {
       type: 'string',
     },
+    registrationComplete: {
+      type: 'boolean',
+    },
     previousTeams: {
       type: ['null', 'array'],
       items: {
         type: 'string',
       },
     },
-    steam: {
-      type: 'object',
-      required: ['steamID', 'steamID64'],
-      properties: {
-        steamID: {
-          type: 'string',
-        },
-        steamID64: {
-          type: 'string',
-        },
+    roles: {
+      type: ['null', 'array'],
+      items: {
+        type: 'string',
       },
     },
   },

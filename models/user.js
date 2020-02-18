@@ -71,6 +71,10 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   },
+  roles: [{
+    type: String,
+    default: 'player',
+  }],
 }, {
   timestamps: true,
 });
