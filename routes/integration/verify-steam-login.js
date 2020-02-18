@@ -12,7 +12,7 @@ const schema = {
   
   1. Code 200: user has an account and should be redirected to frontpage with new token
   2. Code 201: user used the service for the first time and should complete the registration process
-  3. Code 403: openid login failed. User did not authenticate with steam or smth failed somewhere
+  3. Code 401: openid login failed. User did not authenticate with steam or smth failed somewhere
   4. Code 500: Something went wrong, error has been logged to backend service`,
   summary: 'Steam openid callback',
   tags: ['integration'],
@@ -39,7 +39,7 @@ const schema = {
         },
       },
     },
-    403: {
+    401: {
       type: 'object',
       properties: {
         status: {
@@ -95,9 +95,9 @@ const handler = async (req, reply) => {
   relyingParty.verifyAssertion(req.raw.url, async (error, result) => {
     if (error || !result.authenticated) {
       log.error('Error validating assertion! ', error);
-      reply.status(403).send({
+      reply.status(401).send({
         status: 'ERROR',
-        error: 'Forbidden',
+        error: 'Unauthorized',
       });
       return;
     }
