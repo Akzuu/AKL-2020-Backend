@@ -108,7 +108,7 @@ schema.pre('findOneAndUpdate', function preUpdate(next) {
       next(new Error('Not able to save user!'));
       return;
     }
-
+    console.log(hash);
     this._update.password = hash;
     next();
   });
