@@ -6,6 +6,8 @@ const fastifyJWT = require('fastify-jwt');
 const fastifyHelmet = require('fastify-helmet');
 const routes = require('./routes');
 
+const { verifyUserAndPassword } = require('./lib/auth');
+
 const APPLICATION_PORT = config.get('port');
 const JWT_SECRET = config.get('jwt.secret');
 
@@ -96,6 +98,11 @@ const utilityRoute = async (server) => {
   });
 };
 
+// Authentication
+const authenticate = async (server) => {
+  server.decorate('verifyUserAndPassword', verifyUserAndPassword);
+};
+
 /**
  * Init server
  * @param {Object} options Optional.
@@ -112,7 +119,8 @@ const initServer = async (options) => {
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })
     .register(seasonRoute, { prefix: '/season' })
-    .register(integrationRoute, { prefix: '/integration' });
+    .register(integrationRoute, { prefix: '/integration' })
+    .register(authenticate);
 
 
   return {
