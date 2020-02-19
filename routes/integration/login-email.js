@@ -38,6 +38,11 @@ const handler = async (req, reply) => {
     token = await reply.jwtSign({ userName: req.body.userName });
   } catch (error) {
     log.error('Error creating token!', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
   }
 
   reply.send({ status: 'OK', token });
