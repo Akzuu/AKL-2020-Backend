@@ -136,6 +136,7 @@ const initServer = async (options) => {
   // Register plugins and routes
   server
     .decorate('verifyEmailAndPassword', auth.verifyEmailAndPassword)
+    .decorate('verifyJWT', auth.verifyJWT)
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(fastifyHelmet)

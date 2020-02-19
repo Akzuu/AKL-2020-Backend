@@ -60,33 +60,6 @@ const schema = {
 
 const handler = async (req, reply) => {
   let user;
-
-  // First we verify that user has a valid token
-  let payload;
-  try {
-    payload = await req.jwtVerify();
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { _id } = payload;
-
-  // Make sure user is trying to remove his own account
-  // TODO: Let admins to update users
-  if (_id !== req.params.id) {
-    reply.status(403).send({
-      status: 'ERROR',
-      error: 'Forbidden',
-    });
-    return;
-  }
-
   try {
     user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
   } catch (error) {
@@ -110,9 +83,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK' });
 };
 
-module.exports = {
-  method: 'PATCH',
-  url: '/:id/update',
-  schema,
-  handler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'PATCH',
+    url: '/:id/update',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };
