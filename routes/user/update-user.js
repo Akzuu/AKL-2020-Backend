@@ -17,29 +17,20 @@ const schema = {
     type: 'object',
     required: ['password'],
     properties: {
-      userName: {
+      firstName: {
         type: 'string',
-        min: 1,
       },
-      generalInfo: {
-        type: 'object',
-        properties: {
-          firstName: {
-            type: 'string',
-          },
-          surname: {
-            type: 'string',
-          },
-          age: {
-            type: 'number',
-          },
-          guild: {
-            type: 'string',
-          },
-          university: {
-            type: 'string',
-          },
-        },
+      surname: {
+        type: 'string',
+      },
+      age: {
+        type: 'number',
+      },
+      guild: {
+        type: 'string',
+      },
+      university: {
+        type: 'string',
       },
       email: {
         type: 'string',
