@@ -4,6 +4,7 @@ const fastify = require('fastify');
 const fastifySwagger = require('fastify-swagger');
 const fastifyJWT = require('fastify-jwt');
 const fastifyHelmet = require('fastify-helmet');
+const fastifyAuth = require('fastify-auth');
 const routes = require('./routes');
 
 const { verifyUserAndPassword } = require('./lib/auth');
@@ -100,7 +101,7 @@ const utilityRoute = async (server) => {
 
 // Authentication
 const authenticate = async (server) => {
-  server.decorate('verifyUserAndPassword', verifyUserAndPassword);
+  server.decorate('verifyEmailAndPassword', verifyUserAndPassword);
 };
 
 /**
@@ -120,6 +121,7 @@ const initServer = async (options) => {
     .register(teamRoute, { prefix: '/team' })
     .register(seasonRoute, { prefix: '/season' })
     .register(integrationRoute, { prefix: '/integration' })
+    .register(fastifyAuth)
     .register(authenticate);
 
 
