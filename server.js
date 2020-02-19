@@ -7,7 +7,7 @@ const fastifyHelmet = require('fastify-helmet');
 const fastifyAuth = require('fastify-auth');
 const routes = require('./routes');
 
-const { verifyUserAndPassword } = require('./lib/auth');
+const { auth } = require('./lib');
 
 const APPLICATION_PORT = config.get('port');
 const JWT_SECRET = config.get('jwt.secret');
@@ -101,7 +101,7 @@ const utilityRoute = async (server) => {
 
 // Authentication
 const authenticate = async (server) => {
-  server.decorate('verifyEmailAndPassword', verifyUserAndPassword);
+  server.decorate('verifyEmailAndPassword', auth.verifyEmailAndPassword);
 };
 
 /**
