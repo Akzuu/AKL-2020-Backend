@@ -99,4 +99,19 @@ schema.pre('save', function preSave(next) {
   }
 });
 
+// Hash passwords before saving them
+schema.pre('findOneAndUpdate', function preUpdate(next) {
+  const saltRounds = 10;
+  bcrypt.hash(this._update.password, saltRounds, (err, hash) => {
+    if (err) {
+      log.error('Not able to save user! Password hash failed! ', err);
+      next(new Error('Not able to save user!'));
+      return;
+    }
+
+    this._update.password = hash;
+    next();
+  });
+});
+
 module.exports = mongoose.model('users', schema);
