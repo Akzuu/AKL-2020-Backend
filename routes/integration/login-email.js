@@ -35,7 +35,8 @@ const schema = {
 const handler = async (req, reply) => {
   let token;
   try {
-    token = await reply.jwtSign({ userName: req.body.userName });
+    // Note: preValidation rewrites req.body!
+    token = await reply.jwtSign(req.body);
   } catch (error) {
     log.error('Error creating token!', error);
     reply.status(500).send({
