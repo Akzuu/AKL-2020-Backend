@@ -174,8 +174,6 @@ const handler = async (req, reply) => {
         _id: id,
         roles: user.roles,
         steamID64,
-      }, {
-        expiresIn: '10min',
       });
     } catch (err) {
       log.error('Error creating token!', err);
