@@ -26,25 +26,9 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  // First we verify that user has a valid token
-  let payload;
-  try {
-    payload = await req.jwtVerify();
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { _id } = payload;
-
-  // Make sure user is trying to remove his own account
-  // TODO: Let admins to remove users
-  if (_id !== req.params.id) {
+  // Make sure user is trying to remove his own account / admin is removing account
+  if (req.params.id !== req.body.jwtPayload._id
+    && !req.body.jwtPayload.roles.includes('admin')) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
@@ -78,9 +62,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK' });
 };
 
-module.exports = {
-  method: 'DELETE',
-  url: '/:id/delete',
-  schema,
-  handler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'DELETE',
+    url: '/:id/delete',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };
