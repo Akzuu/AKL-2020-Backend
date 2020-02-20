@@ -139,7 +139,7 @@ const handler = async (req, reply) => {
       try {
         token = await reply.jwtSign({
           _id: user._id,
-          registrationComplete: user.registrationComplete,
+          roles: user.roles,
           steamID64,
         });
       } catch (err) {
@@ -172,7 +172,7 @@ const handler = async (req, reply) => {
     try {
       token = await reply.jwtSign({
         _id: id,
-        registrationComplete: false,
+        roles: user.roles,
         steamID64,
       }, {
         expiresIn: '10min',

@@ -73,7 +73,7 @@ const schema = new Schema({
   },
   roles: {
     type: Array,
-    default: ['player'],
+    default: ['unregistered'],
   },
 }, {
   timestamps: true,

@@ -69,6 +69,7 @@ const handler = async (req, reply) => {
   const { _id } = payload;
 
   req.body.registrationComplete = true;
+  req.body.roles = ['player'];
 
   try {
     user = await User.findOneAndUpdate({ _id, registrationComplete: false }, req.body, {
@@ -97,7 +98,7 @@ const handler = async (req, reply) => {
   try {
     token = await reply.jwtSign({
       _id: user._id,
-      registrationComplete: user.registrationComplete,
+      roles: user.roles,
       steamID64: user.steam.steamID64,
     });
   } catch (error) {

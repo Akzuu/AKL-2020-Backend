@@ -59,6 +59,15 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  if (req.params.id !== req.body.jwtPayload._id
+    && !req.body.jwtPayload.roles.includes('admin')) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+    });
+  }
+
+
   let user;
   try {
     user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
