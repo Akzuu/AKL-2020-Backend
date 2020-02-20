@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { log } = require('../../lib');
 const { User } = require('../../models');
 
@@ -65,12 +66,45 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Forbidden',
     });
+    return;
   }
 
 
+  const payload = req.body;
+
+  // If the user is changing password / email, he must provide the old password too
+  if (req.body.newPassword || req.body.email) {
+    let user;
+    try {
+      user = await User.findOne({ _id: req.params.id });
+    } catch (error) {
+      log.error('Error when trying to find user! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
+
+    const samePassword = await bcrypt.compare(req.body.password, user.password);
+
+    if (!samePassword) {
+      reply.status(403).send({
+        status: 'ERROR',
+        error: 'Forbidden',
+      });
+      return;
+    }
+
+    if (req.body.newPassword) {
+      payload.password = req.body.newPassword;
+      delete payload.newPassword;
+    }
+  }
+
   let user;
   try {
-    user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
+    user = await User.findOneAndUpdate({ _id: req.params.id }, payload);
   } catch (error) {
     log.error('Error when trying to update user! ', error);
     reply.status(500).send({
