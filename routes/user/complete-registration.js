@@ -50,29 +50,20 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let user;
-
-  // First we verify that user has a valid token
-  let payload;
-  try {
-    payload = await req.jwtVerify();
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { _id } = payload;
-
   req.body.registrationComplete = true;
   req.body.roles = ['player'];
 
+  const payload = req.body;
+  delete payload.jwtPayload;
+
+  let user;
   try {
-    user = await User.findOneAndUpdate({ _id, registrationComplete: false }, req.body, {
+    user = await User.findOneAndUpdate({
+      _id: req.body.jwtPayload._id,
+      registrationComplete: false,
+    },
+    payload,
+    {
       runValidators: true,
     });
   } catch (error) {
@@ -108,9 +99,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK', token });
 };
 
-module.exports = {
-  method: 'PATCH',
-  url: '/register/complete',
-  schema,
-  handler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'PATCH',
+    url: '/register/complete',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };
