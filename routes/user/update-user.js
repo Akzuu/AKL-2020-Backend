@@ -89,9 +89,9 @@ const handler = async (req, reply) => {
     const samePassword = await bcrypt.compare(req.body.password, user.password);
 
     if (!samePassword) {
-      reply.status(403).send({
+      reply.status(400).send({
         status: 'ERROR',
-        error: 'Forbidden',
+        error: 'Bad Request',
       });
       return;
     }
