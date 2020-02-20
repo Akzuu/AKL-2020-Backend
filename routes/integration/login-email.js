@@ -35,8 +35,8 @@ const schema = {
 const handler = async (req, reply) => {
   let token;
   try {
-    // Note: preValidation rewrites req.body!
-    token = await reply.jwtSign(req.body);
+    // Note: preValidation writes req.body.jwtPayload!
+    token = await reply.jwtSign(req.body.jwtPayload);
   } catch (error) {
     log.error('Error creating token!', error);
     reply.status(500).send({
@@ -50,7 +50,6 @@ const handler = async (req, reply) => {
 };
 
 
-// eslint-disable-next-line func-names
 module.exports = async function (fastify) {
   fastify.route({
     method: 'POST',
