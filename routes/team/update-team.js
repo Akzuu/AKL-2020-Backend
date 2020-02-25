@@ -1,6 +1,6 @@
 const { log } = require('../../lib');
-const { User } = require('../../models');
 const { Team } = require('../../models');
+// const { User } = require('../../models');
 
 const schema = {
   description: 'Update teams info. Requires authorization',
@@ -61,6 +61,7 @@ const schema = {
   },
 };
 
+/*
 const preHandler = async (req, reply, done) => {
   // Verify that there is a valid token
   let payload;
@@ -108,11 +109,18 @@ const preHandler = async (req, reply, done) => {
 
   done();
 };
+*/
 
 const handler = async (req, reply) => {
   let team;
   try {
-    team = await Team.findOneAndUpdate({ _id: req.params.id }, req.body);
+    team = await Team.findOneAndUpdate({
+      _id: req.params.id,
+      captain: req.body.jwtPayload._id,
+    }, req.body,
+    {
+      runValidators: true,
+    });
   } catch (error) {
     log.error('Error when trying to update team! ', error);
     reply.status(500).send({
@@ -135,10 +143,12 @@ const handler = async (req, reply) => {
 };
 
 
-module.exports = {
-  method: 'PATCH',
-  url: '/:id/update',
-  schema,
-  handler,
-  preHandler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'PATCH',
+    url: '/:id/update',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };
