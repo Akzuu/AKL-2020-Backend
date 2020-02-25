@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { log } = require('../../lib');
 const { User } = require('../../models');
 
@@ -17,29 +18,20 @@ const schema = {
     type: 'object',
     required: ['password'],
     properties: {
-      userName: {
+      firstName: {
         type: 'string',
-        min: 1,
       },
-      generalInfo: {
-        type: 'object',
-        properties: {
-          firstName: {
-            type: 'string',
-          },
-          surname: {
-            type: 'string',
-          },
-          age: {
-            type: 'number',
-          },
-          guild: {
-            type: 'string',
-          },
-          university: {
-            type: 'string',
-          },
-        },
+      surname: {
+        type: 'string',
+      },
+      age: {
+        type: 'number',
+      },
+      guild: {
+        type: 'string',
+      },
+      university: {
+        type: 'string',
       },
       email: {
         type: 'string',
@@ -67,45 +59,9 @@ const schema = {
   },
 };
 
-const preHandler = async (req, reply, done) => {
-  // First we verify that user has a valid token
-  let payload;
-  let token;
-  try {
-    payload = await req.jwtVerify();
-    token = req.raw.headers.authorization.replace('Bearer ', '');
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { userName } = payload;
-
-  // Then make sure users token is for that user
-  let userFound;
-  try {
-    userFound = await User.findOne({
-      _id: req.params.id,
-      userName,
-      'tokens.token': token,
-    });
-  } catch (error) {
-    log.error('Not able to find user!', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  // If user was not found, then there is a missmatch between user and the token
-  // One could say that there is something fishy going on..
-  if (!userFound) {
+const handler = async (req, reply) => {
+  if (req.params.id !== req.body.jwtPayload._id
+    && !req.body.jwtPayload.roles.includes('admin')) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
@@ -113,14 +69,42 @@ const preHandler = async (req, reply, done) => {
     return;
   }
 
-  done();
-};
 
-const handler = async (req, reply) => {
+  const payload = req.body;
+
+  // If the user is changing password / email, he must provide the old password too
+  if (req.body.newPassword || req.body.email) {
+    let user;
+    try {
+      user = await User.findOne({ _id: req.params.id });
+    } catch (error) {
+      log.error('Error when trying to find user! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
+
+    const samePassword = await bcrypt.compare(req.body.password, user.password);
+
+    if (!samePassword) {
+      reply.status(400).send({
+        status: 'ERROR',
+        error: 'Bad Request',
+      });
+      return;
+    }
+
+    if (req.body.newPassword) {
+      payload.password = req.body.newPassword;
+      delete payload.newPassword;
+    }
+  }
+
   let user;
-  // TODO: Handle this with single request to avoid multiple db requests (Auth)
   try {
-    user = await User.findOneAndUpdate({ _id: req.params.id }, req.body);
+    user = await User.findOneAndUpdate({ _id: req.params.id }, payload);
   } catch (error) {
     log.error('Error when trying to update user! ', error);
     reply.status(500).send({
@@ -142,10 +126,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK' });
 };
 
-module.exports = {
-  method: 'PATCH',
-  url: '/:id/update',
-  schema,
-  handler,
-  preHandler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'PATCH',
+    url: '/:id/update',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };

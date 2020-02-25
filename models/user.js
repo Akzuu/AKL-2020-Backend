@@ -71,6 +71,10 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   },
+  roles: {
+    type: Array,
+    default: ['unregistered'],
+  },
 }, {
   timestamps: true,
 });
@@ -86,12 +90,28 @@ schema.pre('save', function preSave(next) {
       if (err) {
         log.error('Not able to save user! Password hash failed! ', err);
         next(new Error('Not able to save user!'));
+        return;
       }
 
       this.password = hash;
       next();
     });
   }
+});
+
+// Hash passwords before saving them
+schema.pre('findOneAndUpdate', function preUpdate(next) {
+  const saltRounds = 10;
+  bcrypt.hash(this._update.password, saltRounds, (err, hash) => {
+    if (err) {
+      log.error('Not able to save user! Password hash failed! ', err);
+      next(new Error('Not able to save user!'));
+      return;
+    }
+
+    this._update.password = hash;
+    next();
+  });
 });
 
 module.exports = mongoose.model('users', schema);

@@ -8,13 +8,14 @@ const HOST = config.get('host');
 
 const schema = {
   description: `This endpoint is used by steam openid when it redirects 
-  user from steamcommunity login. It may return three statuses.
+  user from steamcommunity login. It may return four statuses.
   
   1. Code 200: user has an account and should be redirected to frontpage with new token
   2. Code 201: user used the service for the first time and should complete the registration process
-  3. Code 500: Something went wrong, error has been logged to backend service`,
+  3. Code 401: openid login failed. User did not authenticate with steam or smth failed somewhere
+  4. Code 500: Something went wrong, error has been logged to backend service`,
   summary: 'Steam openid callback',
-  tags: ['integration'],
+  tags: ['Integration'],
   response: {
     200: {
       type: 'object',
@@ -28,6 +29,17 @@ const schema = {
       },
     },
     201: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+        token: {
+          type: 'string',
+        },
+      },
+    },
+    401: {
       type: 'object',
       properties: {
         status: {
@@ -83,7 +95,10 @@ const handler = async (req, reply) => {
   relyingParty.verifyAssertion(req.raw.url, async (error, result) => {
     if (error || !result.authenticated) {
       log.error('Error validating assertion! ', error);
-      reply.redirect('/integration/steam/login/failed');
+      reply.status(401).send({
+        status: 'ERROR',
+        error: 'Unauthorized',
+      });
       return;
     }
 
@@ -96,18 +111,24 @@ const handler = async (req, reply) => {
       if (!sid.isValid) throw new Error('Invalid SteamId');
     } catch (err) {
       log.error('Error matching regex! ', err);
-      reply.redirect('/integration/steam/login/failed');
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
       return;
     }
 
     let user;
     try {
       user = await User.findOne({
-        'steam.steamID': steamID64,
+        'steam.steamID64': steamID64,
       });
     } catch (err) {
-      log.error('Error when trying to look for user! ', error);
-      reply.redirect('/integration/steam/login/failed');
+      log.error('Error when trying to look for user! ', err);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
       return;
     }
 
@@ -118,12 +139,15 @@ const handler = async (req, reply) => {
       try {
         token = await reply.jwtSign({
           _id: user._id,
-          registrationComplete: user.registrationComplete,
+          roles: user.roles,
           steamID64,
         });
       } catch (err) {
-        log.error('Error creating token!', error);
-        reply.redirect('/integration/steam/login/failed');
+        log.error('Error creating token!', err);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
         return;
       }
 
@@ -132,11 +156,11 @@ const handler = async (req, reply) => {
     }
 
     // Start account creation process
-    let _id;
+    let id;
     try {
-      [_id] = await createUser(steamID64);
+      id = await createUser(steamID64);
     } catch (err) {
-      log.error('Unexpected error while trying to create user! ', error);
+      log.error('Unexpected error while trying to create user! ', err);
       reply.status(500).send({
         status: 'ERROR',
         error: 'Internal Server Error',
@@ -147,11 +171,9 @@ const handler = async (req, reply) => {
     let token;
     try {
       token = await reply.jwtSign({
-        _id,
-        registrationComplete: false,
+        _id: id,
+        roles: user.roles,
         steamID64,
-      }, {
-        expiresIn: '10min',
       });
     } catch (err) {
       log.error('Error creating token!', err);

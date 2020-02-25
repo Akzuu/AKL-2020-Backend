@@ -4,9 +4,10 @@ const fastify = require('fastify');
 const fastifySwagger = require('fastify-swagger');
 const fastifyJWT = require('fastify-jwt');
 const fastifyHelmet = require('fastify-helmet');
+const fastifyAuth = require('fastify-auth');
 const routes = require('./routes');
 
-const { verifyUserAndPassword } = require('./lib/auth');
+const { auth } = require('./lib');
 
 const APPLICATION_PORT = config.get('port');
 const JWT_SECRET = config.get('jwt.secret');
@@ -54,6 +55,9 @@ const initSwagger = () => {
         }, {
           name: 'Season',
           description: 'CRUD endpoints related to Seasons',
+        }, {
+          name: 'Devtest',
+          description: 'These endpoints should only be used for testing. DO NOT USE IN REAL APPLICATION!',
         },
       ],
     },
@@ -61,43 +65,65 @@ const initSwagger = () => {
   };
 };
 
-// Routes
+/**
+ * Routes
+ * There is try catch inside the loop, because if we want to authenticate
+ * user, we must export route function instead of just options object.
+ *
+ * See routes/integration/login-email.js vs routes/integration/login-steam.js
+ * for more information.
+ */
 const userRoute = async (server) => {
   Object.keys(routes.user).forEach((key) => {
-    server.route(routes.user[key]);
+    try {
+      server.route(routes.user[key]);
+    } catch (error) {
+      routes.user[key](server);
+    }
   });
 };
 
 const teamRoute = async (server) => {
   Object.keys(routes.team).forEach((key) => {
-    server.route(routes.team[key]);
+    try {
+      server.route(routes.team[key]);
+    } catch (error) {
+      routes.team[key](server);
+    }
   });
 };
 
 
 const seasonRoute = async (server) => {
   Object.keys(routes.season).forEach((key) => {
-    server.route(routes.season[key]);
+    try {
+      server.route(routes.season[key]);
+    } catch (error) {
+      routes.season[key](server);
+    }
   });
 };
 
 
 const integrationRoute = async (server) => {
   Object.keys(routes.integration).forEach((key) => {
-    server.route(routes.integration[key]);
+    try {
+      server.route(routes.integration[key]);
+    } catch (error) {
+      routes.integration[key](server);
+    }
   });
 };
 
 
 const utilityRoute = async (server) => {
   Object.keys(routes.utility).forEach((key) => {
-    server.route(routes.utility[key]);
+    try {
+      server.route(routes.utility[key]);
+    } catch (error) {
+      routes.utility[key](server);
+    }
   });
-};
-
-// Authentication
-const authenticate = async (server) => {
-  server.decorate('verifyUserAndPassword', verifyUserAndPassword);
 };
 
 /**
@@ -109,15 +135,17 @@ const initServer = async (options) => {
 
   // Register plugins and routes
   server
+    .decorate('verifyEmailAndPassword', auth.verifyEmailAndPassword)
+    .decorate('verifyJWT', auth.verifyJWT)
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(fastifyHelmet)
+    .register(fastifyAuth)
     .register(userRoute, { prefix: '/user' })
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })
     .register(seasonRoute, { prefix: '/season' })
-    .register(integrationRoute, { prefix: '/integration' })
-    .register(authenticate);
+    .register(integrationRoute, { prefix: '/integration' });
 
 
   return {

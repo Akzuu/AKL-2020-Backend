@@ -25,45 +25,10 @@ const schema = {
   },
 };
 
-const preHandler = async (req, reply, done) => {
-  // First we verify that user has a valid token
-  let payload;
-  let token;
-  try {
-    payload = await req.jwtVerify();
-    token = req.raw.headers.authorization.replace('Bearer ', '');
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { userName } = payload;
-
-  // Then make sure users token is for that user
-  let userFound;
-  try {
-    userFound = await User.findOne({
-      _id: req.params.id,
-      userName,
-      'tokens.token': token,
-    });
-  } catch (error) {
-    log.error('Not able to find user!', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  // If user was not found, then there is a missmatch between user and the token
-  // One could say that there is something fishy going on..
-  if (!userFound) {
+const handler = async (req, reply) => {
+  // Make sure user is trying to remove his own account / admin is removing account
+  if (req.params.id !== req.body.jwtPayload._id
+    && !req.body.jwtPayload.roles.includes('admin')) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
@@ -71,15 +36,13 @@ const preHandler = async (req, reply, done) => {
     return;
   }
 
-  done();
-};
-
-const handler = async (req, reply) => {
   let user;
   try {
-    user = await User.findOneAndDelete({ _id: req.params.id });
+    user = await User.findOneAndDelete({
+      _id: req.params.id,
+    });
   } catch (error) {
-    log.error('Error when trying to create user! ', error);
+    log.error('Error when trying to delete user! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -99,10 +62,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK' });
 };
 
-module.exports = {
-  method: 'DELETE',
-  url: '/:id/delete',
-  schema,
-  handler,
-  preHandler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'DELETE',
+    url: '/:id/delete',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };

@@ -1,14 +1,14 @@
 module.exports = {
+  host: 'host url here',
   database: {
     mongo: {
-      uri: 'something',
-      options: {},
+      uri: 'E.g mongodb://localhost:27017/akl-backend',
     },
   },
   jwt: {
-    secret: 'seeeecret',
+    secret: 'E.g sshhhhhhhh',
   },
   steam: {
-    webApiKey: '',
+    webApiKey: 'Get steam web api key',
   },
 };
