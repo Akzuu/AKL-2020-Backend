@@ -52,7 +52,7 @@ const handler = async (req, reply) => {
       password: 0, // Do not return password
     });
   } catch (error) {
-    log.error('Not able to find user!', error);
+    log.error('Not able to find the user!', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -79,11 +79,11 @@ const handler = async (req, reply) => {
   // If user is checking someones account
   if (authPayload) {
     reply.send({
-      firstname: user.generalInfo.firstname,
-      surname: user.generalInfo.surname,
-      age: user.generalInfo.age,
-      guild: user.generalInfo.guild,
-      university: user.generalInfo.university,
+      firstname: user.firstname,
+      surname: user.surname,
+      age: user.age,
+      guild: user.guild,
+      university: user.university,
       currentTeam: user.currentTeam,
       previousTeams: user.previousTeams,
       steam: {
@@ -99,8 +99,8 @@ const handler = async (req, reply) => {
 
   // If unregistered unauthenticated user is checking someones accounts
   reply.send({
-    guild: user.generalInfo.guild,
-    university: user.generalInfo.university,
+    guild: user.guild,
+    university: user.university,
     currentTeam: user.currentTeam,
     previousTeams: user.previousTeams,
     steam: {

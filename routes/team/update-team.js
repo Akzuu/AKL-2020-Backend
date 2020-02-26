@@ -131,10 +131,10 @@ const handler = async (req, reply) => {
   }
 
   if (!team) {
-    reply.status(404).send({
+    reply.status(401).send({
       status: 'ERROR',
-      error: 'Not Found',
-      message: 'Team not found',
+      error: 'Unauthorized',
+      message: 'Only captain can update the team!',
     });
     return;
   }

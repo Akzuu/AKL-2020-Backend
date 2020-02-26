@@ -1,6 +1,6 @@
 module.exports = {
   type: 'object',
-  required: ['teamName', 'introductionText', 'application', 'captain', 'active'],
+  required: ['teamName', 'introductionText', 'captain', 'active'],
   properties: {
     teamName: {
       type: 'string',
@@ -13,7 +13,7 @@ module.exports = {
     introductionText: {
       type: 'string',
     },
-    application: {
+    applicationText: {
       type: 'string',
     },
     captain: {

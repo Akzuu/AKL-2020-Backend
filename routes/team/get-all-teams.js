@@ -31,15 +31,15 @@ const handler = async (req, reply) => {
   try {
     teams = await Team
       .find({}, {
-        /* teamName: 0,
-        abbreviation: 0,
-        introductionText: 0,
+        teamName: 1,
+        abbreviation: 1,
+        introductionText: 1,
         application: 0,
-        captain: 0,
-        members: 0,
+        captain: 1,
+        members: 1,
         seasons: 0,
-        active: 0,
-        rank: 0, */
+        active: 1,
+        rank: 1,
       })
       .limit(pageSize)
       .skip(pageSize * page);

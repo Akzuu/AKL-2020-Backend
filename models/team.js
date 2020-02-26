@@ -21,7 +21,6 @@ const schema = new Schema({
   },
   applicationText: {
     type: String,
-    required: true,
   },
   captain: {
     type: ObjectId,
