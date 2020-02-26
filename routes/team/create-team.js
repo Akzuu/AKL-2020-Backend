@@ -7,6 +7,8 @@ const schema = {
   summary: 'Create a team',
   tags: ['Team'],
   body: teamJSON,
+
+  /*
   response: {
     200: {
       type: 'object',
@@ -17,12 +19,38 @@ const schema = {
       },
     },
   },
+  */
 };
 
 const handler = async (req, reply) => {
+  let isAlreadyInTeam;
+  try {
+    isAlreadyInTeam = await Team.findOne({
+      members: req.body.jwtPayload._id,
+    });
+  } catch (error) {
+    log.error('Error when trying to find an existing team! ', { error, body: req.body });
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
   let team;
   try {
-    team = await Team.create(req.body);
+    if (!isAlreadyInTeam) {
+      req.body.captain = req.body.jwtPayload._id;
+      req.body.members = [req.body.jwtPayload._id];
+      team = await Team.create(req.body);
+    } else {
+      reply.status(403).send({
+        status: 'ERROR',
+        error: 'Forbidden',
+        message: 'You already belong to a team!',
+      });
+      return;
+    }
   } catch (error) {
     log.error('Error when trying to create team! ', { error, body: req.body });
     reply.status(500).send({
@@ -51,9 +79,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK' });
 };
 
-module.exports = {
-  method: 'POST',
-  url: '/create',
-  schema,
-  handler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'POST',
+    url: '/create',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };

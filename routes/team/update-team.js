@@ -1,6 +1,6 @@
 const { log } = require('../../lib');
-const { User } = require('../../models');
 const { Team } = require('../../models');
+// const { User } = require('../../models');
 
 const schema = {
   description: 'Update teams info. Requires authorization',
@@ -9,7 +9,7 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      teamId: {
         type: 'string',
       },
     },
@@ -49,6 +49,7 @@ const schema = {
       },
     },
   },
+  /*
   response: {
     200: {
       type: 'object',
@@ -59,8 +60,10 @@ const schema = {
       },
     },
   },
+  */
 };
 
+/*
 const preHandler = async (req, reply, done) => {
   // Verify that there is a valid token
   let payload;
@@ -108,11 +111,18 @@ const preHandler = async (req, reply, done) => {
 
   done();
 };
+*/
 
 const handler = async (req, reply) => {
   let team;
   try {
-    team = await Team.findOneAndUpdate({ _id: req.params.id }, req.body);
+    team = await Team.findOneAndUpdate({
+      _id: req.params.teamId,
+      captain: req.body.jwtPayload._id,
+    }, req.body,
+    {
+      runValidators: true,
+    });
   } catch (error) {
     log.error('Error when trying to update team! ', error);
     reply.status(500).send({
@@ -123,10 +133,10 @@ const handler = async (req, reply) => {
   }
 
   if (!team) {
-    reply.status(404).send({
+    reply.status(401).send({
       status: 'ERROR',
-      error: 'Not Found',
-      message: 'Team not found',
+      error: 'Unauthorized',
+      message: 'Only captain can update the team!',
     });
     return;
   }
@@ -135,10 +145,12 @@ const handler = async (req, reply) => {
 };
 
 
-module.exports = {
-  method: 'PATCH',
-  url: '/:id/update',
-  schema,
-  handler,
-  preHandler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'PATCH',
+    url: '/:teamId/update',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };

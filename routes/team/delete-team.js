@@ -1,6 +1,6 @@
 const { log } = require('../../lib');
 const { Team } = require('../../models');
-const { User } = require('../../models');
+// const { User } = require('../../models');
 
 const schema = {
   description: 'Delete a team from the service. Requires authentication',
@@ -9,11 +9,12 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      teamId: {
         type: 'string',
       },
     },
   },
+  /*
   response: {
     200: {
       type: 'object',
@@ -24,8 +25,10 @@ const schema = {
       },
     },
   },
+  */
 };
 
+/*
 const preHandler = async (req, reply, done) => {
   // First verify that user has a valid token
   let payload;
@@ -49,7 +52,7 @@ const preHandler = async (req, reply, done) => {
   let userFound;
   try {
     userFound = await User.findOne({
-      _id: req.params.id,
+      _id: req.params.teamId,
       userName,
       'tokens.token': token,
     });
@@ -73,11 +76,15 @@ const preHandler = async (req, reply, done) => {
 
   done();
 };
+*/
 
 const handler = async (req, reply) => {
   let team;
   try {
-    team = await Team.findOneAndDelete({ _id: req.params.id });
+    team = await Team.findOneAndDelete({
+      _id: req.params.teamId,
+      captain: req.body.jwtPayload._id,
+    });
   } catch (error) {
     log.error('Error when trying to delete team! ', error);
     reply.status(500).send({
@@ -99,10 +106,12 @@ const handler = async (req, reply) => {
   reply.send({ status: 'OK ' });
 };
 
-module.exports = {
-  method: 'DELETE',
-  url: '/:id/delete',
-  schema,
-  handler,
-  preHandler,
+module.exports = async function (fastify) {
+  fastify.route({
+    method: 'DELETE',
+    url: '/:teamId/delete',
+    preValidation: fastify.auth([fastify.verifyJWT]),
+    handler,
+    schema,
+  });
 };

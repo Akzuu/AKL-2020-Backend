@@ -21,7 +21,6 @@ const schema = new Schema({
   },
   applicationText: {
     type: String,
-    required: true,
   },
   captain: {
     type: ObjectId,
@@ -39,6 +38,7 @@ const schema = new Schema({
   active: {
     type: Boolean,
     required: true,
+    default: false,
   },
   rank: {
     type: String,
