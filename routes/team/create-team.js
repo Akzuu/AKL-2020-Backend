@@ -7,6 +7,8 @@ const schema = {
   summary: 'Create a team',
   tags: ['Team'],
   body: teamJSON,
+
+  /*
   response: {
     200: {
       type: 'object',
@@ -17,15 +19,26 @@ const schema = {
       },
     },
   },
+  */
 };
 
 const handler = async (req, reply) => {
   let isAlreadyInTeam;
-  let team;
   try {
     isAlreadyInTeam = await Team.findOne({
       members: req.body.jwtPayload._id,
     });
+  } catch (error) {
+    log.error('Error when trying to find an existing team! ', { error, body: req.body });
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  let team;
+  try {
     if (!isAlreadyInTeam) {
       req.body.captain = req.body.jwtPayload._id;
       req.body.members = [req.body.jwtPayload._id];

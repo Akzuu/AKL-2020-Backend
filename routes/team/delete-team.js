@@ -14,6 +14,7 @@ const schema = {
       },
     },
   },
+  /*
   response: {
     200: {
       type: 'object',
@@ -24,6 +25,7 @@ const schema = {
       },
     },
   },
+  */
 };
 
 /*
@@ -107,7 +109,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'DELETE',
-    url: '/:id/delete',
+    url: '/:teamId/delete',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
     schema,

@@ -11,12 +11,13 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      teamId: {
         type: 'string',
       },
     },
   },
-  response: {
+
+  /* response: {
     200: {
       type: 'object',
       propertis: {
@@ -25,7 +26,7 @@ const schema = {
         },
       },
     },
-  },
+  }, */
 };
 // TODO: handler with authentication
 
@@ -48,7 +49,7 @@ const handler = async (req, reply) => {
   let team;
   try {
     team = await Team.findOne({
-      _id: req.params.id,
+      _id: req.params.teamId,
     });
   } catch (error) {
     log.error('Not able to find the team!', error);
@@ -75,28 +76,14 @@ const handler = async (req, reply) => {
     return;
   }
 
-  // Registered users
-  if (authPayload) {
-    reply.send({
-      teamName: team.teamName,
-      abbreviation: team.abbreviation,
-      introductionText: team.introductionText,
-      captain: team.captain,
-      members: team.members,
-      seasons: team.seasons,
-      active: team.active,
-      rank: team.rank,
-    });
-    return;
-  }
-
-  // Unregistered users
+  // Other users
   reply.send({
-    status: 'OK',
     teamName: team.teamName,
     abbreviation: team.abbreviation,
     introductionText: team.introductionText,
+    captain: team.captain,
     members: team.members,
+    seasons: team.seasons,
     active: team.active,
     rank: team.rank,
   });
@@ -104,7 +91,7 @@ const handler = async (req, reply) => {
 
 module.exports = {
   method: 'GET',
-  url: '/:id/info',
+  url: '/:teamId/info',
   schema,
   handler,
 };

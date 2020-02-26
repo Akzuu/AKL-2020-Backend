@@ -9,7 +9,7 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      teamId: {
         type: 'string',
       },
     },
@@ -49,6 +49,7 @@ const schema = {
       },
     },
   },
+  /*
   response: {
     200: {
       type: 'object',
@@ -59,6 +60,7 @@ const schema = {
       },
     },
   },
+  */
 };
 
 /*
@@ -115,7 +117,7 @@ const handler = async (req, reply) => {
   let team;
   try {
     team = await Team.findOneAndUpdate({
-      _id: req.params.id,
+      _id: req.params.teamId,
       captain: req.body.jwtPayload._id,
     }, req.body,
     {
@@ -146,7 +148,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'PATCH',
-    url: '/:id/update',
+    url: '/:teamId/update',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
     schema,
