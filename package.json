@@ -18,14 +18,14 @@
   "author": "Akseli Kolari TG:@akzu404",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.7",
-    "config": "^3.2.5",
-    "fastify": "^2.11.0",
+    "bcrypt": "^3.0.8",
+    "config": "^3.3.1",
+    "fastify": "^2.13.0",
     "fastify-auth": "^0.7.2",
     "fastify-helmet": "^3.0.2",
-    "fastify-jwt": "^1.2.1",
+    "fastify-jwt": "^1.3.1",
     "fastify-swagger": "^2.5.0",
-    "mongoose": "^5.8.10",
+    "mongoose": "^5.9.7",
     "openid": "^2.0.6",
     "request-promise-native": "^1.0.8",
     "steamid": "^1.1.3",
@@ -34,7 +34,7 @@
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
-    "eslint-plugin-import": "^2.20.0",
-    "nodemon": "^1.19.4"
+    "eslint-plugin-import": "^2.20.2",
+    "nodemon": "^2.0.2"
   }
 }
