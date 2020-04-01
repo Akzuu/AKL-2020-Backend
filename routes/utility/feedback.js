@@ -28,14 +28,14 @@ const schema = {
     },
   },
   response: {
-    // 200: {
-    //   type: 'object',
-    //   properties: {
-    //     status: {
-    //       type: 'string',
-    //     },
-    //   },
-    // },
+    200: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+        },
+      },
+    },
   },
 };
 
