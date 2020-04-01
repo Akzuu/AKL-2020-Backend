@@ -14,9 +14,11 @@ const schema = new Schema({
   },
   teams: [{
     type: ObjectId,
+    ref: 'teams',
   }],
   applications: [{
     type: ObjectId,
+    ref: 'teams',
   }],
   year: {
     type: Number,

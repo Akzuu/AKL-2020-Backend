@@ -57,7 +57,7 @@ const handler = async (req, reply) => {
     await Feedback.create({
       subject: req.body.subject,
       feedback: req.body.feedback,
-      author: authPayload._id,
+      author: authPayload ? authPayload._id : null,
       authorStringName: req.body.authorStringName,
     });
   } catch (error) {

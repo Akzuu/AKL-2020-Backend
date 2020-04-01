@@ -24,16 +24,16 @@ const schema = new Schema({
   },
   captain: {
     type: ObjectId,
-    ref: 'user',
+    ref: 'users',
     required: true,
   },
   members: [{
     type: ObjectId,
-    ref: 'user',
+    ref: 'users',
   }],
   seasons: [{
     type: ObjectId,
-    ref: 'season',
+    ref: 'seasons',
   }],
   active: {
     type: Boolean,

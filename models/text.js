@@ -18,6 +18,7 @@ const schema = new Schema({
   },
   author: {
     type: ObjectId,
+    ref: 'users',
     required: true,
   },
 }, {
