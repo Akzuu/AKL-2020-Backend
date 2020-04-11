@@ -12,7 +12,7 @@ npm run service   // Run the service
 ```
 
 ## Endpoint documentation
-You can find swagger from the url */documentation/*. F.e if running in local env and port 3000, *localhost:3000/documentation*
+You can find swagger from the url */documentation/*. E.g. if running in local env and port 3000, *localhost:3000/documentation*
 
 ## How authentication works
 Authentication is stateless and it is done with JWT tokens. We have two tokens, accessToken and refreshToken. AccessToken expires in 10 minutes, because it also stores roles which can change pretty fast. RefreshTokens expire in 2 days.
