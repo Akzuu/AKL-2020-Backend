@@ -14,7 +14,30 @@ npm run service   // Run the service
 ## Documentation
 You can find swagger from the url */documentation/*. F.e if running in local env and port 3000, *localhost:3000/documentation*
 
+## How authentication works
+Authentication is stateless and it is done with JWT tokens. We have two tokens, accessToken and refreshToken. AccessToken expires in 10 minutes, because it also stores roles which can change pretty fast. RefreshTokens expire in 2 days.
+
+If accessToken has expired, but refreshToken is still valid, the endpoint will supply the response with new tokens. Both refresh and access will be generated again.
+
+If refreshToken has expired, user must login again to get new tokens. If expired token has been used, the server will respond with 401 Unauthorized.
+
+Frontend must be able to process new tokens from every endpoint, because new tokens may arrive from every endpoint that checks authentication. It should also check if the accessToken has expired, because it must then use refreshToken.
+
+## Roles
+Currently, there are four roles. Roles are stored to array, so it should be easy to create more roles if needed.
+
+#### Unregistered
+User has completed Steam login and data from Steam has been saved to database. User must complete registration using correct endpoint to gain normal access. Frontend should forward users to correct endpoint for completing registration process.
+
+#### Player
+Basic role given to everyone who completes registration.
+
+#### Moderator
+Can modify website (use text endpoints for posting news etc).
+
+#### Admin
+Basic admin role, can remove users and see more info about them etc.
+
 ## TODO
--Find out if the current authentication methods in use are done the right way.
-  -Should we blacklist tokens? Redis maybe?
-  -Move towards more stateless authentication
+-Check database models
+-ALL integration checks
