@@ -21,6 +21,10 @@ const schema = {
         type: 'string',
         description: 'Text in english',
       },
+      hiddenUntil: {
+        type: 'string',
+        format: 'date-time',
+      },
     },
   },
   response: {

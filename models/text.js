@@ -21,6 +21,9 @@ const schema = new Schema({
     ref: 'users',
     required: true,
   },
+  hiddenUntil: {
+    type: Date,
+  },
 }, {
   timestamps: true,
 });
