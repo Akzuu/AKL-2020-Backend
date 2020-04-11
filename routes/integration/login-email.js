@@ -24,7 +24,10 @@ const schema = {
         status: {
           type: 'string',
         },
-        token: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
           type: 'string',
         },
       },
@@ -33,10 +36,18 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let token;
+  let accessToken;
+  let refreshToken;
   try {
     // Note: preValidation writes req.body.jwtPayload!
-    token = await reply.jwtSign(req.body.jwtPayload);
+    accessToken = await reply.jwtSign(req.body.jwtPayload, {
+      expiresIn: '10min',
+    });
+    refreshToken = await reply.jwtSign({
+      _id: req.body.jwtPayload._id,
+    }, {
+      expiresIn: '2d',
+    });
   } catch (error) {
     log.error('Error creating token!', error);
     reply.status(500).send({
@@ -46,7 +57,7 @@ const handler = async (req, reply) => {
     return;
   }
 
-  reply.send({ status: 'OK', token });
+  reply.send({ status: 'OK', accessToken, refreshToken });
 };
 
 

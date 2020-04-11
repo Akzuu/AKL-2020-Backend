@@ -23,7 +23,10 @@ const schema = {
         status: {
           type: 'string',
         },
-        token: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
           type: 'string',
         },
       },
@@ -34,7 +37,10 @@ const schema = {
         status: {
           type: 'string',
         },
-        token: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
           type: 'string',
         },
       },
@@ -134,13 +140,21 @@ const handler = async (req, reply) => {
 
     // User already has an account, so just log in and redirect to frontpage
     if (user) {
-      let token;
-
+      let accessToken;
+      let refreshToken;
       try {
-        token = await reply.jwtSign({
+        accessToken = await reply.jwtSign({
           _id: user._id,
           roles: user.roles,
           steamID64,
+        }, {
+          expiresIn: '10min',
+        });
+
+        refreshToken = await reply.jwtSign({
+          _id: user._id,
+        }, {
+          expiresIn: '2d',
         });
       } catch (err) {
         log.error('Error creating token!', err);
@@ -151,7 +165,7 @@ const handler = async (req, reply) => {
         return;
       }
 
-      reply.send({ status: 'OK', token });
+      reply.send({ status: 'OK', accessToken, refreshToken });
       return;
     }
 
@@ -168,18 +182,27 @@ const handler = async (req, reply) => {
       return;
     }
 
-    let token;
+    let accessToken;
+    let refreshToken;
     try {
-      token = await reply.jwtSign({
+      accessToken = await reply.jwtSign({
         _id: id,
-        roles: user.roles,
+        roles: ['unregistered'],
         steamID64,
+      }, {
+        expiresIn: '10min',
+      });
+
+      refreshToken = await reply.jwtSign({
+        _id: id,
+      }, {
+        expiresIn: '2d',
       });
     } catch (err) {
       log.error('Error creating token!', err);
     }
 
-    reply.status(201).send({ status: 'CREATED', token });
+    reply.status(201).send({ status: 'CREATED', accessToken, refreshToken });
   });
 };
 

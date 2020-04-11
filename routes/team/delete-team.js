@@ -28,56 +28,6 @@ const schema = {
   */
 };
 
-/*
-const preHandler = async (req, reply, done) => {
-  // First verify that user has a valid token
-  let payload;
-  let token;
-  try {
-    payload = await req.jwtVerify();
-    token = req.raw.headers.authorization.replace('Bearer ', '');
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { userName } = payload;
-
-  // Make sure user's token is for that user
-  let userFound;
-  try {
-    userFound = await User.findOne({
-      _id: req.params.teamId,
-      userName,
-      'tokens.token': token,
-    });
-  } catch (error) {
-    log.error('Not able to find user!', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  // If user was not found, then there is a missmatch between the user and the token
-  // One could say there is something fishy going on..
-  if (!userFound) {
-    reply.status(403).send({
-      status: 'ERROR',
-      error: 'Forbidden',
-    });
-  }
-
-  done();
-};
-*/
-
 const handler = async (req, reply) => {
   let team;
   try {

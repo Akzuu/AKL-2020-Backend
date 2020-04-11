@@ -41,7 +41,10 @@ const schema = {
         status: {
           type: 'string',
         },
-        token: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
           type: 'string',
         },
       },
@@ -86,18 +89,26 @@ const handler = async (req, reply) => {
   }
 
   // Generate new token with correct roles
-  let token;
+  let accessToken;
+  let refreshToken;
   try {
-    token = await reply.jwtSign({
+    accessToken = await reply.jwtSign({
       _id: user._id,
       roles: user.roles,
       steamID64: user.steam.steamID64,
+    }, {
+      expiresIn: '10min',
+    });
+    refreshToken = await reply.jwtSign({
+      _id: user._id,
+    }, {
+      expiresIn: '2d',
     });
   } catch (error) {
     log.error('Error creating token!', error);
   }
 
-  reply.send({ status: 'OK', token });
+  reply.send({ status: 'OK', accessToken, refreshToken });
 };
 
 module.exports = async function (fastify) {
