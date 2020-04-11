@@ -8,7 +8,7 @@ module.exports = (async () => {
     await mongodb.start();
   } catch (error) {
     log.error('Error starting database!', error);
-    process.exit(0);
+    process.exit(1);
   }
 
 
