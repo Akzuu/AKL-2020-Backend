@@ -74,6 +74,16 @@ const handler = async (req, reply) => {
 
   // If the user is changing password / email, he must provide the old password too
   if (req.body.newPassword || req.body.email) {
+    if (!req.body.password) {
+      reply.status(400).send({
+        status: 'ERROR',
+        error: 'Bad Request',
+        message: 'Password required for changing password / email',
+      });
+      return;
+    }
+
+
     let user;
     try {
       user = await User.findOne({ _id: req.params.id });

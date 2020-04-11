@@ -41,6 +41,7 @@ const handler = async (req, reply) => {
         status: 'ERROR',
         error: 'Internal Server Error',
       });
+      return;
     }
   }
 
@@ -50,6 +51,7 @@ const handler = async (req, reply) => {
       _id: req.params.id,
     }, {
       password: 0, // Do not return password
+      tokens: 0,
     });
   } catch (error) {
     log.error('Not able to find the user!', error);
@@ -57,6 +59,7 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Internal Server Error',
     });
+    return;
   }
 
   if (!user) {
@@ -68,16 +71,15 @@ const handler = async (req, reply) => {
     return;
   }
 
-  console.log(user);
+
   // If user is checking his/hers own account
-  // TODO: Admin check
-  if (authPayload && user._id === authPayload._id) {
-    user.tokens = undefined;
+  if ((authPayload && user._id === authPayload._id)
+  || authPayload.roles.includes('admin')) {
     reply.send(user);
     return;
   }
 
-  // If user is checking someones account
+  // If authenticated user is checking someones account
   if (authPayload) {
     reply.send({
       firstname: user.firstname,

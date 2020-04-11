@@ -50,10 +50,11 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  req.body.registrationComplete = true;
-  req.body.roles = ['player'];
-
   const payload = req.body;
+
+  payload.roles = ['player'];
+  payload.registrationComplete = true;
+
   delete payload.jwtPayload;
 
   let user;
@@ -84,7 +85,7 @@ const handler = async (req, reply) => {
     return;
   }
 
-  // Generate new, full expiration time JWT token
+  // Generate new token with correct roles
   let token;
   try {
     token = await reply.jwtSign({
