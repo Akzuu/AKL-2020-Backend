@@ -25,8 +25,9 @@ const schema = {
 const handler = async (req, reply) => {
   let isAlreadyInTeam;
   try {
+    // TODO: This will not work, needs aggregation
     isAlreadyInTeam = await Team.findOne({
-      members: req.body.jwtPayload._id,
+      members: req.auth.jwtPayload._id,
     });
   } catch (error) {
     log.error('Error when trying to find an existing team! ', { error, body: req.body });
@@ -40,8 +41,8 @@ const handler = async (req, reply) => {
   let team;
   try {
     if (!isAlreadyInTeam) {
-      req.body.captain = req.body.jwtPayload._id;
-      req.body.members = [req.body.jwtPayload._id];
+      req.body.captain = req.auth.jwtPayload._id;
+      req.body.members = [req.auth.jwtPayload._id];
       team = await Team.create(req.body);
     } else {
       reply.status(403).send({

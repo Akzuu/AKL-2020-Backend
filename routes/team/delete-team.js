@@ -33,7 +33,7 @@ const handler = async (req, reply) => {
   try {
     team = await Team.findOneAndDelete({
       _id: req.params.teamId,
-      captain: req.body.jwtPayload._id,
+      captain: req.auth.jwtPayload._id,
     });
   } catch (error) {
     log.error('Error when trying to delete team! ', error);

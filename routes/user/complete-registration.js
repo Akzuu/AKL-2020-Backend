@@ -58,12 +58,10 @@ const handler = async (req, reply) => {
   payload.roles = ['player'];
   payload.registrationComplete = true;
 
-  delete payload.jwtPayload;
-
   let user;
   try {
     user = await User.findOneAndUpdate({
-      _id: req.body.jwtPayload._id,
+      _id: req.auth.jwtPayload._id,
       registrationComplete: false,
     },
     payload,

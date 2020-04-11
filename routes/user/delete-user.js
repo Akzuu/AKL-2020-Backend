@@ -27,8 +27,8 @@ const schema = {
 
 const handler = async (req, reply) => {
   // Make sure user is trying to remove his own account / admin is removing account
-  if (req.params.id !== req.body.jwtPayload._id
-    && !req.body.jwtPayload.roles.includes('admin')) {
+  if (req.params.id !== req.auth.jwtPayload._id
+    && !req.auth.jwtPayload.roles.includes('admin')) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',

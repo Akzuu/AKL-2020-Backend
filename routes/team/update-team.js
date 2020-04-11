@@ -118,7 +118,7 @@ const handler = async (req, reply) => {
   try {
     team = await Team.findOneAndUpdate({
       _id: req.params.teamId,
-      captain: req.body.jwtPayload._id,
+      captain: req.auth.jwtPayload._id,
     }, req.body,
     {
       runValidators: true,

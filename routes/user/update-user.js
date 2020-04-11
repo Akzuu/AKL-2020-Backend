@@ -60,8 +60,8 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  if (req.params.id !== req.body.jwtPayload._id
-    && !req.body.jwtPayload.roles.includes('admin')) {
+  if (req.params.id !== req.auth.jwtPayload._id
+    && !req.auth.jwtPayload.roles.includes('admin')) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',

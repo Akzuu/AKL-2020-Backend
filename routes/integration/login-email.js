@@ -39,12 +39,12 @@ const handler = async (req, reply) => {
   let accessToken;
   let refreshToken;
   try {
-    // Note: preValidation writes req.body.jwtPayload!
-    accessToken = await reply.jwtSign(req.body.jwtPayload, {
+    // Note: preValidation writes req.auth.jwtPayload!
+    accessToken = await reply.jwtSign(req.auth.jwtPayload, {
       expiresIn: '10min',
     });
     refreshToken = await reply.jwtSign({
-      _id: req.body.jwtPayload._id,
+      _id: req.auth.jwtPayload._id,
     }, {
       expiresIn: '2d',
     });
