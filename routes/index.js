@@ -3,6 +3,7 @@ const user = require('./user');
 const team = require('./team');
 const season = require('./season');
 const integration = require('./integration');
+const text = require('./text');
 
 module.exports = {
   utility,
@@ -10,4 +11,5 @@ module.exports = {
   team,
   season,
   integration,
+  text,
 };

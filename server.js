@@ -58,6 +58,9 @@ const initSwagger = () => {
         }, {
           name: 'Devtest',
           description: 'These endpoints should only be used for testing. DO NOT USE IN REAL APPLICATION!',
+        }, {
+          name: 'Text',
+          description: 'Endpoints for managing text resources on the site',
         },
       ],
     },
@@ -126,6 +129,16 @@ const utilityRoute = async (server) => {
   });
 };
 
+const textRoute = async (server) => {
+  Object.keys(routes.text).forEach((key) => {
+    try {
+      server.route(routes.text[key]);
+    } catch (error) {
+      routes.text[key](server);
+    }
+  });
+};
+
 /**
  * Init server
  * @param {Object} options Optional.
@@ -145,7 +158,8 @@ const initServer = async (options) => {
     .register(utilityRoute, { prefix: '/utility' })
     .register(teamRoute, { prefix: '/team' })
     .register(seasonRoute, { prefix: '/season' })
-    .register(integrationRoute, { prefix: '/integration' });
+    .register(integrationRoute, { prefix: '/integration' })
+    .register(textRoute, { prefix: '/text' });
 
 
   return {
