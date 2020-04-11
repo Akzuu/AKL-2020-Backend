@@ -141,7 +141,13 @@ const handler = async (req, reply) => {
     return;
   }
 
-  reply.send({ status: 'OK' });
+  let accessToken;
+  let refreshToken;
+  if (req.auth.newTokens) {
+    [accessToken, refreshToken] = req.auth.newTokens;
+  }
+
+  reply.send({ status: 'OK', accessToken, refreshToken });
 };
 
 
