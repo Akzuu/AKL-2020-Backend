@@ -57,6 +57,10 @@ const handler = async (req, reply) => {
 
   const payload = req.body;
 
+  if (!payload.hiddenUntil) {
+    payload.hiddenUntil = Date.now();
+  }
+
   payload.author = req.auth.jwtPayload._id;
   try {
     await Text.create(payload);

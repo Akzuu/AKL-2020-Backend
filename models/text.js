@@ -23,6 +23,7 @@ const schema = new Schema({
   },
   hiddenUntil: {
     type: Date,
+    required: true,
   },
 }, {
   timestamps: true,
