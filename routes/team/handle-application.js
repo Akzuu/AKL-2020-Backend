@@ -2,8 +2,8 @@ const { log } = require('../../lib');
 const { Team, User } = require('../../models');
 
 const schema = {
-  description: 'Apply to be a member of a team. Requires authorization',
-  summary: 'Apply to team.',
+  description: 'Handle applications to team. Requires authorization and captain rights',
+  summary: 'Accept / decline applications.',
   tags: ['Team'],
   params: {
     type: 'object',
@@ -15,9 +15,13 @@ const schema = {
   },
   body: {
     type: 'object',
+    required: ['userId', 'accepted'],
     properties: {
-      applicationText: {
+      userId: {
         type: 'string',
+      },
+      accepted: {
+        type: 'boolean',
       },
     },
   },
@@ -40,37 +44,25 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let user;
-  try {
-    user = await User.findOne({ _id: req.auth.jwtPayload._id });
-  } catch (error) {
-    log.error('Error when trying to find user! ', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
+  let payload;
+  if (req.body.accepted) {
+    payload = {
+      $push: { members: req.body.userId },
+      $pull: { applications: { $elemMatch: { user: req.body.userId } } },
+    };
+  } else {
+    payload = {
+      $pull: { applications: { $elemMatch: { user: req.body.userId } } },
+    };
   }
-
-  if (user.currentTeam && Object.keys(user.currentTeam).length === 0) {
-    reply.status(403).send({
-      status: 'ERROR',
-      error: 'Forbidden',
-      message: 'You already belong to a team!',
-    });
-    return;
-  }
-
-  const applicationPayload = {
-    applicationText: req.body.applicationText,
-    user: req.auth.jwtPayload._id,
-  };
 
   let team;
   try {
     team = await Team.findOneAndUpdate({
       _id: req.params.teamId,
-    }, { $push: { applications: applicationPayload } },
+      captain: req.auth.jwtPayload._id,
+    },
+    payload,
     {
       runValidators: true,
     });
@@ -84,11 +76,30 @@ const handler = async (req, reply) => {
   }
 
   if (!team) {
-    reply.status(404).send({
+    reply.status(401).send({
       status: 'ERROR',
-      error: 'Not Found',
+      error: 'Unauthorized',
+      message: 'Only captain can update the team!',
     });
     return;
+  }
+
+  // Update users profile only after we have made sure team update was a success
+  if (req.body.accepted) {
+    try {
+      await User.findOneAndUpdate({ _id: req.body.userId }, {
+        currentTeam: req.params.teamId,
+      }, {
+        runValidators: true,
+      });
+    } catch (error) {
+      log.error('Error when trying to update users currentTeam! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
   }
 
   const { newTokens = {} } = req.auth;
@@ -103,7 +114,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'POST',
-    url: '/:teamId/applications/apply',
+    url: '/:teamId/applications/accept',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
     schema,

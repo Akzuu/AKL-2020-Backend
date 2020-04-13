@@ -1,6 +1,5 @@
 const { log } = require('../../lib');
 const { Team } = require('../../models');
-// const { User } = require('../../models');
 
 const schema = {
   description: 'Update teams info. Requires authorization',
@@ -17,25 +16,13 @@ const schema = {
   body: {
     type: 'object',
     properties: {
-      teamName: {
-        type: 'string',
-        min: 3,
-      },
       abbreviation: {
         type: 'string',
-        min: 1,
+        minLength: 1,
+        maxLength: 11,
       },
       introductionText: {
         type: 'string',
-      },
-      application: {
-        type: 'string',
-      },
-      captain: {
-        type: 'string',
-      },
-      active: {
-        type: 'boolean',
       },
       rank: {
         type: 'string',
@@ -44,12 +31,10 @@ const schema = {
           'Gold Nova I', 'Gold Nova II', 'Gold Nova III', 'Gold Nova Master',
           'Master Guardian I', 'Master Guardian II', 'Master Guardian Elite',
           'Distinguished Master Guardian', 'Legendary Eagle', 'Legendary Eagle Master',
-          'Supreme Master First Class', 'Global Elite',
-        ],
+          'Supreme Master First Class', 'Global Elite'],
       },
     },
   },
-  /*
   response: {
     200: {
       type: 'object',
@@ -57,13 +42,27 @@ const schema = {
         status: {
           type: 'string',
         },
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
+          type: 'string',
+        },
       },
     },
   },
-  */
 };
 
 const handler = async (req, reply) => {
+  if (Object.keys(req.body).length === 0) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      messsage: 'Atleast one change is required',
+    });
+    return;
+  }
+
   let team;
   try {
     team = await Team.findOneAndUpdate({

@@ -3,6 +3,10 @@ const deleteTeam = require('./delete-team');
 const getAllTeams = require('./get-all-teams');
 const updateTeam = require('./update-team');
 const getTeam = require('./get-team');
+const applyToTeam = require('./apply-to-team');
+const handleApplication = require('./handle-application');
+const leaveTeam = require('./leave-team');
+const removeTeamMember = require('./remove-team-member');
 
 module.exports = {
   createTeam,
@@ -10,4 +14,8 @@ module.exports = {
   getAllTeams,
   updateTeam,
   getTeam,
+  applyToTeam,
+  handleApplication,
+  leaveTeam,
+  removeTeamMember,
 };

@@ -28,7 +28,6 @@ const schema = {
     },
   }, */
 };
-// TODO: handler with authentication
 
 const handler = async (req, reply) => {
   let authPayload;
@@ -84,7 +83,6 @@ const handler = async (req, reply) => {
     captain: team.captain,
     members: team.members,
     seasons: team.seasons,
-    active: team.active,
     rank: team.rank,
   });
 };

@@ -1,6 +1,5 @@
 const { log } = require('../../lib');
 const { Team } = require('../../models');
-// const { User } = require('../../models');
 
 const schema = {
   description: 'Delete a team from the service. Requires authentication',

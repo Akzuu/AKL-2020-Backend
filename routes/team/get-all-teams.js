@@ -31,8 +31,8 @@ const handler = async (req, reply) => {
   try {
     teams = await Team
       .find({}, {
-        application: 0,
-        seasons: 0,
+        applications: 0,
+        hidden: 0,
       })
       .limit(pageSize)
       .skip(pageSize * page);
