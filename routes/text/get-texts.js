@@ -13,6 +13,11 @@ const schema = {
         type: 'string',
         description: 'Text location. E.g. /rules',
       },
+      showHidden: {
+        type: 'boolean',
+        description: 'returns hidden texts if set to true',
+        default: false,
+      },
       page: {
         type: 'number',
         minimum: 0,
@@ -42,10 +47,19 @@ const schema = {
 const handler = async (req, reply) => {
   const { page, pageSize } = req.query;
   let texts;
+
+  const findParams = {};
+
+  if (req.query.location) {
+    findParams.location = req.query.location;
+  }
+
+  if (!req.query.showHidden) {
+    findParams.hiddenUntil = { $lte: Date.now() };
+  }
+
   try {
-    texts = await Text.find({
-      location: req.query.location,
-    })
+    texts = await Text.find(findParams)
       .limit(pageSize)
       .skip(pageSize * page);
   } catch (error) {
