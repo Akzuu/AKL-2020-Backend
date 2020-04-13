@@ -62,12 +62,11 @@ const schema = new Schema({
       required: true,
     },
   },
-  tokens: [{
-    token: {
-      type: String,
-    },
-  }],
   registrationComplete: {
+    type: Boolean,
+    default: false,
+  },
+  emailConfirmed: {
     type: Boolean,
     default: false,
   },

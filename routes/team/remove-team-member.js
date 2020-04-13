@@ -41,6 +41,14 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  if (req.body.userId === req.auth.jwtPayload._id) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'User can\'t remove him/herself',
+    });
+  }
+
   let team;
   try {
     team = await Team.findOneAndUpdate({
