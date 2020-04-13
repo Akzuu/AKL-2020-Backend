@@ -23,6 +23,11 @@ const schema = new Schema({
   year: {
     type: Number,
   },
+  active: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 }, {
   timestamps: true,
 });
