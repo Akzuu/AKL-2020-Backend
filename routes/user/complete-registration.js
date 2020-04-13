@@ -111,7 +111,7 @@ const handler = async (req, reply) => {
 
 module.exports = async function (fastify) {
   fastify.route({
-    method: 'PATCH',
+    method: 'POST',
     url: '/register/complete',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,

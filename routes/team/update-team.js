@@ -63,56 +63,6 @@ const schema = {
   */
 };
 
-/*
-const preHandler = async (req, reply, done) => {
-  // Verify that there is a valid token
-  let payload;
-  let token;
-  try {
-    payload = await req.jwtVerify();
-    token = req.raw.headers.authorization.replace('Bearer ', '');
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
-  const { userName } = payload;
-
-  // Make sure this token is for the captain of the team
-  let teamFound;
-  try {
-    teamFound = await Team.findOne({
-      _id: req.params.id,
-    }).populate({ path: 'captain', model: User });
-    const user = await User.findOne({
-      _id: teamFound.captain,
-      'tokens.token': token,
-    });
-    if (!user) {
-      throw new Error('User does not match with the captains token');
-    }
-
-    if (userName !== user.userName) {
-      throw new Error('User is not the captain');
-    }
-  } catch (error) {
-    log.error('Not able to find a team! ', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  done();
-};
-*/
-
 const handler = async (req, reply) => {
   let team;
   try {
@@ -141,13 +91,12 @@ const handler = async (req, reply) => {
     return;
   }
 
-  let accessToken;
-  let refreshToken;
-  if (req.auth.newTokens) {
-    [accessToken, refreshToken] = req.auth.newTokens;
-  }
-
-  reply.send({ status: 'OK', accessToken, refreshToken });
+  const { newTokens = {} } = req.auth;
+  reply.send({
+    status: 'OK',
+    accessToken: newTokens.accessToken,
+    refreshToken: newTokens.refreshToken,
+  });
 };
 
 

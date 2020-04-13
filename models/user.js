@@ -101,6 +101,11 @@ schema.pre('save', function preSave(next) {
 
 // Hash passwords before saving them
 schema.pre('findOneAndUpdate', function preUpdate(next) {
+  if (!this._update.password) {
+    next();
+    return;
+  }
+
   const saltRounds = 10;
   bcrypt.hash(this._update.password, saltRounds, (err, hash) => {
     if (err) {

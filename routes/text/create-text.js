@@ -69,13 +69,12 @@ const handler = async (req, reply) => {
     return;
   }
 
-  let accessToken;
-  let refreshToken;
-  if (req.auth.newTokens) {
-    [accessToken, refreshToken] = req.auth.newTokens;
-  }
-
-  reply.send({ status: 'OK', accessToken, refreshToken });
+  const { newTokens = {} } = req.auth;
+  reply.send({
+    status: 'OK',
+    accessToken: newTokens.accessToken,
+    refreshToken: newTokens.refreshToken,
+  });
 };
 
 

@@ -37,9 +37,10 @@ const handler = async (req, reply) => {
       authPayload = await req.jwtVerify();
     } catch (error) {
       log.error('Error validating token! ', error);
-      reply.status(500).send({
+      reply.status(401).send({
         status: 'ERROR',
-        error: 'Internal Server Error',
+        error: 'Unauthorized',
+        message: 'Please authenticate',
       });
       return;
     }
@@ -73,8 +74,8 @@ const handler = async (req, reply) => {
 
 
   // If user is checking his/hers own account
-  if ((authPayload && user._id === authPayload._id)
-  || authPayload.roles.includes('admin')) {
+  if (authPayload && (String(user._id) === authPayload._id
+  || (authPayload.roles && authPayload.roles.includes('admin')))) {
     reply.send(user);
     return;
   }
@@ -82,7 +83,7 @@ const handler = async (req, reply) => {
   // If authenticated user is checking someones account
   if (authPayload) {
     reply.send({
-      firstname: user.firstname,
+      firstName: user.firstName,
       surname: user.surname,
       age: user.age,
       guild: user.guild,

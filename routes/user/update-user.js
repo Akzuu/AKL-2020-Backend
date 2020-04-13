@@ -16,7 +16,6 @@ const schema = {
   },
   body: {
     type: 'object',
-    required: ['password'],
     properties: {
       firstName: {
         type: 'string',
@@ -37,13 +36,13 @@ const schema = {
         type: 'string',
         format: 'email',
       },
-      password: {
+      oldPassword: {
         type: 'string',
-        min: 8,
+        minLength: 8,
       },
       newPassword: {
         type: 'string',
-        min: 8,
+        minLength: 8,
       },
     },
   },
@@ -75,10 +74,19 @@ const handler = async (req, reply) => {
     return;
   }
 
+  if (Object.keys(req.body).length === 0) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      messsage: 'Atleast one change is required',
+    });
+    return;
+  }
+
   const payload = req.body;
 
-  if (req.body.newPassword || req.body.email) {
-    if (!req.body.password) {
+  if (req.body.newPassword || req.body.email || req.body.oldPassword) {
+    if (!req.body.oldPassword) {
       reply.status(400).send({
         status: 'ERROR',
         error: 'Bad Request',
@@ -107,11 +115,12 @@ const handler = async (req, reply) => {
       return;
     }
 
-    const samePassword = await bcrypt.compare(req.body.password, user.password);
+    const samePassword = await bcrypt.compare(req.body.oldPassword, user.password);
     if (!samePassword) {
       reply.status(400).send({
         status: 'ERROR',
         error: 'Bad Request',
+        message: 'Password does not match',
       });
       return;
     }
@@ -120,11 +129,13 @@ const handler = async (req, reply) => {
       payload.password = req.body.newPassword;
       delete payload.newPassword;
     }
+
+    delete payload.oldPassword;
   }
 
   let user;
   try {
-    await User.findOneAndUpdate({ _id: req.params.id },
+    user = await User.findOneAndUpdate({ _id: req.params.id },
       payload,
       {
         runValidators: true,
@@ -146,18 +157,17 @@ const handler = async (req, reply) => {
     return;
   }
 
-  let accessToken;
-  let refreshToken;
-  if (req.auth.newTokens) {
-    [accessToken, refreshToken] = req.auth.newTokens;
-  }
-
-  reply.send({ status: 'OK', accessToken, refreshToken });
+  const { newTokens = {} } = req.auth;
+  reply.send({
+    status: 'OK',
+    accessToken: newTokens.accessToken,
+    refreshToken: newTokens.refreshToken,
+  });
 };
 
 module.exports = async function (fastify) {
   fastify.route({
-    method: 'PATCH',
+    method: 'POST',
     url: '/:id/update',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
