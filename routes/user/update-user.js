@@ -75,20 +75,17 @@ const handler = async (req, reply) => {
     return;
   }
 
-
   const payload = req.body;
 
-  // If the user is changing password / email, he must provide the old password too
   if (req.body.newPassword || req.body.email) {
     if (!req.body.password) {
       reply.status(400).send({
         status: 'ERROR',
         error: 'Bad Request',
-        message: 'Password required for changing password / email',
+        message: 'Password required when changing password or email',
       });
       return;
     }
-
 
     let user;
     try {
@@ -102,8 +99,15 @@ const handler = async (req, reply) => {
       return;
     }
 
-    const samePassword = await bcrypt.compare(req.body.password, user.password);
+    if (!user) {
+      reply.status(404).send({
+        status: 'ERROR',
+        error: 'Not Found',
+      });
+      return;
+    }
 
+    const samePassword = await bcrypt.compare(req.body.password, user.password);
     if (!samePassword) {
       reply.status(400).send({
         status: 'ERROR',
@@ -120,7 +124,11 @@ const handler = async (req, reply) => {
 
   let user;
   try {
-    user = await User.findOneAndUpdate({ _id: req.params.id }, payload);
+    await User.findOneAndUpdate({ _id: req.params.id },
+      payload,
+      {
+        runValidators: true,
+      });
   } catch (error) {
     log.error('Error when trying to update user! ', error);
     reply.status(500).send({
@@ -134,7 +142,6 @@ const handler = async (req, reply) => {
     reply.status(404).send({
       status: 'ERROR',
       error: 'Not Found',
-      message: 'User not found.',
     });
     return;
   }
