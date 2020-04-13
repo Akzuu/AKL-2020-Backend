@@ -4,10 +4,17 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
 const schema = new Schema({
-  name: {
+  seasonName: {
     type: String,
     required: true,
-    unique: true,
+  },
+  seasonNumber: {
+    type: Number,
+    required: true,
+  },
+  division: {
+    type: String,
+    required: true,
   },
   informationText: {
     type: String,
@@ -17,16 +24,27 @@ const schema = new Schema({
     ref: 'teams',
   }],
   applications: [{
-    type: ObjectId,
-    ref: 'teams',
+    applicationText: {
+      type: String,
+      required: true,
+    },
+    team: {
+      type: ObjectId,
+      ref: 'teams',
+      required: true,
+    },
   }],
   year: {
     type: Number,
+    required: true,
   },
   active: {
     type: Boolean,
     required: true,
     default: false,
+  },
+  challongeURI: {
+    type: String,
   },
 }, {
   timestamps: true,

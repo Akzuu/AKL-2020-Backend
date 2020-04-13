@@ -13,14 +13,13 @@ const schema = new Schema({
   abbreviation: {
     type: String,
     min: 1,
+    max: 11,
     required: true,
+    unique: true,
   },
   introductionText: {
     type: String,
     required: true,
-  },
-  applicationText: {
-    type: String,
   },
   captain: {
     type: ObjectId,
@@ -31,11 +30,21 @@ const schema = new Schema({
     type: ObjectId,
     ref: 'users',
   }],
+  applications: [{
+    applicationText: {
+      type: String,
+    },
+    user: {
+      type: ObjectId,
+      ref: 'users',
+      required: true,
+    },
+  }],
   seasons: [{
     type: ObjectId,
     ref: 'seasons',
   }],
-  active: {
+  hidden: {
     type: Boolean,
     required: true,
     default: false,
