@@ -32,6 +32,8 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  // TODO: Handle captain leaving
+
   let team;
   try {
     team = await Team.findOneAndUpdate({
