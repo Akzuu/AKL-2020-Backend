@@ -38,7 +38,6 @@ const schema = {
       },
       oldPassword: {
         type: 'string',
-        minLength: 8,
       },
       newPassword: {
         type: 'string',

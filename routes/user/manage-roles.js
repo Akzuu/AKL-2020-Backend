@@ -2,7 +2,9 @@ const { log } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Update users roles. Requires authorization and admin rights',
+  description: `Update users roles. Requires authorization and admin rights.
+                NOTE: WILL REMOVE UNREGISTERED ROLE IF USER HAS NOT COMPLETED REGISTRATION!
+                WILL ALWAYS GIVE "player" ROLE!`,
   summary: 'Update user roles',
   tags: ['User'],
   params: {
@@ -96,7 +98,7 @@ const handler = async (req, reply) => {
 
 module.exports = async function (fastify) {
   fastify.route({
-    method: 'PATCH',
+    method: 'POST',
     url: '/:id/roles',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
