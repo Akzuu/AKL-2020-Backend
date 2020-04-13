@@ -1,14 +1,37 @@
 const { log } = require('../../lib');
-const { Team } = require('../../models');
-const { teamJSON } = require('../../json');
+const { Team, User } = require('../../models');
 
 const schema = {
   description: 'Create new team for the service',
   summary: 'Create a team',
   tags: ['Team'],
-  body: teamJSON,
-
-  /*
+  body: {
+    type: 'object',
+    required: ['teamName', 'abbreviation', 'introductionText', 'rank'],
+    properties: {
+      teamName: {
+        type: 'string',
+        minLength: 3,
+      },
+      abbreviation: {
+        type: 'string',
+        minLength: 1,
+        maxLength: 11,
+      },
+      introductionText: {
+        type: 'string',
+      },
+      rank: {
+        type: 'string',
+        enum: [
+          'Silver I', 'Silver II', 'Silver III', 'Silver IV', 'Silver Elite', 'Silver Elite Master',
+          'Gold Nova I', 'Gold Nova II', 'Gold Nova III', 'Gold Nova Master',
+          'Master Guardian I', 'Master Guardian II', 'Master Guardian Elite',
+          'Distinguished Master Guardian', 'Legendary Eagle', 'Legendary Eagle Master',
+          'Supreme Master First Class', 'Global Elite'],
+      },
+    },
+  },
   response: {
     200: {
       type: 'object',
@@ -16,21 +39,23 @@ const schema = {
         status: {
           type: 'string',
         },
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
+          type: 'string',
+        },
       },
     },
   },
-  */
 };
 
 const handler = async (req, reply) => {
-  let isAlreadyInTeam;
+  let user;
   try {
-    // TODO: This will not work, needs aggregation
-    isAlreadyInTeam = await Team.findOne({
-      members: req.auth.jwtPayload._id,
-    });
+    user = await User.findOne({ _id: req.auth.jwtPayload._id });
   } catch (error) {
-    log.error('Error when trying to find an existing team! ', { error, body: req.body });
+    log.error('Error when trying to find user! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -38,41 +63,26 @@ const handler = async (req, reply) => {
     return;
   }
 
-  let team;
+  if (user.currentTeam && Object.keys(user.currentTeam).length === 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'You already belong to a team!',
+    });
+    return;
+  }
+
+  const payload = req.body;
+  payload.captain = req.auth.jwtPayload._id;
+  payload.members = [req.auth.jwtPayload._id];
+
   try {
-    if (!isAlreadyInTeam) {
-      req.body.captain = req.auth.jwtPayload._id;
-      req.body.members = [req.auth.jwtPayload._id];
-      team = await Team.create(req.body);
-    } else {
-      reply.status(403).send({
-        status: 'ERROR',
-        error: 'Forbidden',
-        message: 'You already belong to a team!',
-      });
-      return;
-    }
+    await Team.create(req.body);
   } catch (error) {
     log.error('Error when trying to create team! ', { error, body: req.body });
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  /**
- * This if should never catch, because fastify makes sure req.body is valid
- * and Team.create should throw if it is unable to create database entry.
- *
- * But well, better safe than sorry.
- */
-  if (!team) {
-    log.error('Make sure the given information is valid!', req.body);
-    reply.status(400).send({
-      status: 'ERROR',
-      error: 'Bad Request',
-      message: 'Make sure the given information is valid!',
     });
     return;
   }
