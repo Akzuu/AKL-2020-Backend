@@ -65,53 +65,42 @@ const handler = async (req, reply) => {
   }
 
   // Captain leaving the team
-  if (team.captain === req.auth.jwtPayload._id) {
-    // Try to assign team member as the new captain
+  if (String(team.captain) === req.auth.jwtPayload._id) {
+    let updatePayload;
+
+    /**
+     * If there are still members to the team, assign one of them
+     * as the new captain
+     * else hide the team, because there are no more members for it
+     */
     if (team.members.length !== 0) {
-      try {
-        await Team.findOneAndUpdate(
-          {
-            _id: req.params.teamId,
-          },
-          {
-            captain: team.members[0],
-          },
-          {
-            runValidators: true,
-          },
-        );
-      } catch (error) {
-        log.error('Error when trying to assign new captain automaticly! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
+      updatePayload = { captain: team.members[0] };
     } else {
-      // Hide team, because it no longer has active members
-      try {
-        await Team.findOneAndUpdate(
-          {
-            _id: req.params.teamId,
-          },
-          {
-            hidden: true,
-          },
-          {
-            runValidators: true,
-          },
-        );
-      } catch (error) {
-        log.error('Error when trying to assign new captain automaticly! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
+      updatePayload = { hidden: true };
+    }
+
+    try {
+      await Team.findOneAndUpdate(
+        {
+          _id: req.params.teamId,
+        },
+        {
+          updatePayload,
+        },
+        {
+          runValidators: true,
+        },
+      );
+    } catch (error) {
+      log.error('Error when trying to assign new captain automaticly! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
     }
   }
+
 
   // Update user profile
   try {
@@ -134,7 +123,6 @@ const handler = async (req, reply) => {
     });
     return;
   }
-
 
   const { newTokens = {} } = req.auth;
   reply.send({
