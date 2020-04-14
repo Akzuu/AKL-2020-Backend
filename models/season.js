@@ -38,7 +38,7 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
-  active: {
+  hidden: {
     type: Boolean,
     required: true,
     default: false,

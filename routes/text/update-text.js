@@ -62,6 +62,15 @@ const handler = async (req, reply) => {
     return;
   }
 
+  if (Object.keys(req.body).length === 0) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      messsage: 'Atleast one change is required',
+    });
+    return;
+  }
+
   let text;
   try {
     text = await Text.findOneAndUpdate({
