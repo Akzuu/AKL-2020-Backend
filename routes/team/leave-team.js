@@ -31,6 +31,8 @@ const schema = {
   },
 };
 
+
+// TODO: Optimize Team database queries
 const handler = async (req, reply) => {
   let team;
   try {
