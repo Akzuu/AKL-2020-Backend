@@ -12,7 +12,7 @@ const { auth } = require('./lib');
 
 const APPLICATION_PORT = config.get('port');
 const JWT_SECRET = config.get('jwt.secret');
-const ROUTE_PREFIX = config.get('routeprefix');
+const ROUTE_PREFIX = config.get('routePrefix');
 
 
 // Initialize swagger
