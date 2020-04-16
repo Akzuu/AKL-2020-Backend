@@ -3,6 +3,8 @@ const config = require('config');
 const { log } = require('../../lib');
 
 const HOST = config.get('host');
+const ROUTE_PREFIX = config.get('routePrefix');
+
 
 const schema = {
   description: 'Login user with Steam OpenID',
@@ -22,7 +24,7 @@ const schema = {
 
 
 const relyingParty = new openid.RelyingParty(
-  `${HOST}/integration/steam/login/verify`, // Callback url
+  `${HOST}${ROUTE_PREFIX}/integration/steam/login/verify`, // Callback url
   null, // Realm (optional, specifies realm for OpenID authentication)
   true, // Use stateless verification, must be true with Steam
   false, // Strict mode
