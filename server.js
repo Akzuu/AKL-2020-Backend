@@ -12,6 +12,7 @@ const { auth } = require('./lib');
 
 const APPLICATION_PORT = config.get('port');
 const JWT_SECRET = config.get('jwt.secret');
+const ROUTE_PREFIX = config.get('routeprefix');
 
 
 // Initialize swagger
@@ -19,7 +20,7 @@ const initSwagger = () => {
   const swaggerOptions = config.get('swagger');
 
   return {
-    routePrefix: '/documentation',
+    routePrefix: `${ROUTE_PREFIX}/documentation`,
     swagger: {
       info: {
         title: 'Project AKL 2020 Web Backend - Core',
@@ -156,12 +157,12 @@ const initServer = async (options) => {
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(fastifyHelmet)
     .register(fastifyAuth)
-    .register(userRoute, { prefix: '/user' })
-    .register(utilityRoute, { prefix: '/utility' })
-    .register(teamRoute, { prefix: '/team' })
-    .register(seasonRoute, { prefix: '/season' })
-    .register(integrationRoute, { prefix: '/integration' })
-    .register(textRoute, { prefix: '/text' });
+    .register(userRoute, { prefix: `${ROUTE_PREFIX}/user` })
+    .register(utilityRoute, { prefix: `${ROUTE_PREFIX}/utility` })
+    .register(teamRoute, { prefix: `${ROUTE_PREFIX}/team` })
+    .register(seasonRoute, { prefix: `${ROUTE_PREFIX}/season` })
+    .register(integrationRoute, { prefix: `${ROUTE_PREFIX}/integration` })
+    .register(textRoute, { prefix: `${ROUTE_PREFIX}/text` });
 
 
   return {
