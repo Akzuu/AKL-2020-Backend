@@ -1,20 +1,65 @@
 const { log } = require('../../lib');
 const { User } = require('../../models');
-const { userJSON } = require('../../json');
 
 const schema = {
-  description: 'Create new user for the service - DEVTEST, DO NOT USE',
-  summary: 'Create user - DEVTEST, DO NOT USE',
-  tags: ['Devtest'],
-  body: userJSON,
+  description: 'Create new user for the service. ALL Endpoint',
+  summary: 'Create user. ALL Endpoint',
+  tags: ['User'],
+  body: {
+    type: 'object',
+    required: ['password', 'email', 'gameInfo'],
+    properties: {
+      firstName: {
+        type: 'string',
+      },
+      surname: {
+        type: 'string',
+      },
+      age: {
+        type: 'number',
+      },
+      guild: {
+        type: 'string',
+      },
+      university: {
+        type: 'string',
+      },
+      email: {
+        type: 'string',
+        format: 'email',
+      },
+      password: {
+        type: 'string',
+        min: 8,
+      },
+      gameInfo: {
+        type: 'object',
+        required: ['username'],
+        properties: {
+          username: {
+            type: 'string',
+          },
+          role: {
+            type: 'string',
+          },
+          rank: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  },
   response: {
-    200: {
+    201: {
       type: 'object',
       properties: {
         status: {
           type: 'string',
         },
-        token: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
           type: 'string',
         },
       },
@@ -23,22 +68,14 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  // Generate JWT token
-  let token;
-  try {
-    token = await reply.jwtSign({ userName: req.body.userName });
-  } catch (error) {
-    log.error('Error creating token!', error);
-  }
-
-  // Pass token to body, so it will be saved to database
-  if (token) {
-    req.body.tokens = [{ token }];
-  }
-
   let user;
+
+  const payload = req.body;
+  payload.roles = ['player'];
+  payload.registrationComplete = true;
+
   try {
-    user = await User.create(req.body);
+    user = await User.create(payload);
   } catch (error) {
     log.error('Error when trying to create user! ', { error, body: req.body });
     reply.status(500).send({
@@ -48,23 +85,36 @@ const handler = async (req, reply) => {
     return;
   }
 
-  /**
-   * This if should never catch, because fastify makes sure req.body is valid
-   * and User.create should throw if it is unable to create database entry.
-   *
-   * But well, better safe than sorry.
-   */
-  if (!user) {
-    log.error('Make sure the given information is valid!', req.body);
-    reply.status(400).send({
+  let accessToken;
+  let refreshToken;
+  try {
+    accessToken = await reply.jwtSign({
+      _id: user._id,
+      roles: user.roles,
+    }, {
+      expiresIn: '10min',
+    });
+
+    refreshToken = await reply.jwtSign({
+      _id: user._id,
+    }, {
+      expiresIn: '2d',
+    });
+  } catch (err) {
+    log.error('Error creating tokens!', err);
+    log.error('Error when trying to create tokens! ', err);
+    reply.status(500).send({
       status: 'ERROR',
-      error: 'Bad Request',
-      message: 'Make sure the given information is valid!',
+      error: 'Internal Server Error',
     });
     return;
   }
 
-  reply.send({ status: 'OK', token });
+  reply.status(201).send({
+    status: 'CREATED',
+    accessToken,
+    refreshToken,
+  });
 };
 
 module.exports = {

@@ -39,27 +39,31 @@ const schema = new Schema({
     ref: 'teams',
   }],
   steam: {
-    userName: {
+    username: {
       type: String,
-      required: true,
     },
     steamID: {
       type: String,
-      required: true,
-      unique: true,
     },
     steamID64: {
       type: String,
-      required: true,
-      unique: true,
     },
     avatar: {
       type: String,
-      required: true,
     },
     profileUrl: {
       type: String,
-      required: true,
+    },
+  },
+  gameInfo: {
+    username: {
+      type: String,
+    },
+    role: {
+      type: String,
+    },
+    rank: {
+      type: String,
     },
   },
   registrationComplete: {
