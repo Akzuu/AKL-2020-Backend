@@ -38,7 +38,7 @@ const schema = {
       },
       gameInfo: {
         type: 'object',
-        required: ['username'],
+        required: ['riotUsername'],
         properties: {
           riotUsername: {
             type: 'string',
