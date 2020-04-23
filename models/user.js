@@ -6,20 +6,32 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
 const schema = new Schema({
+  username: {
+    type: String,
+    min: 3,
+    trim: true,
+    unique: true,
+    sparse: true,
+  },
   firstName: {
     type: String,
+    trim: true,
   },
   surname: {
     type: String,
+    trim: true,
   },
   age: {
     type: Number,
+    trim: true,
   },
   guild: {
     type: String,
+    trim: true,
   },
   university: {
     type: String,
+    trim: true,
   },
   email: {
     type: String,
@@ -44,9 +56,13 @@ const schema = new Schema({
     },
     steamID: {
       type: String,
+      unique: true,
+      sparse: true,
     },
     steamID64: {
       type: String,
+      unique: true,
+      sparse: true,
     },
     avatar: {
       type: String,
@@ -56,8 +72,11 @@ const schema = new Schema({
     },
   },
   gameInfo: {
-    username: {
+    riotUsername: {
       type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
     },
     role: {
       type: String,

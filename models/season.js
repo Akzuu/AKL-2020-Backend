@@ -7,6 +7,7 @@ const schema = new Schema({
   seasonName: {
     type: String,
     required: true,
+    trim: true,
   },
   seasonNumber: {
     type: Number,

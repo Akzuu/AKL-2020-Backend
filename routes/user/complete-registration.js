@@ -7,8 +7,12 @@ const schema = {
   tags: ['User'],
   body: {
     type: 'object',
-    required: ['password', 'email'],
+    required: ['username', 'password', 'email'],
     properties: {
+      username: {
+        type: 'string',
+        minLenght: 3,
+      },
       firstName: {
         type: 'string',
       },
@@ -30,7 +34,7 @@ const schema = {
       },
       password: {
         type: 'string',
-        min: 8,
+        minLength: 8,
       },
     },
   },
