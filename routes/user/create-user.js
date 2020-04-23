@@ -40,7 +40,7 @@ const schema = {
         type: 'object',
         required: ['username'],
         properties: {
-          username: {
+          riotUsername: {
             type: 'string',
           },
           role: {
