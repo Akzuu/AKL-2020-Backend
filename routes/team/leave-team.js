@@ -38,10 +38,10 @@ const handler = async (req, reply) => {
   try {
     team = await Team.findOneAndUpdate({
       _id: req.params.teamId,
-      members: { $elemMatch: req.auth.jwtPayload._id },
+      members: req.auth.jwtPayload._id,
     },
     {
-      $pull: { members: { $elemMatch: req.auth.jwtPayload._id } },
+      $pull: { members: req.auth.jwtPayload._id },
     },
     {
       runValidators: true,

@@ -31,6 +31,7 @@ const schema = {
   },
 };
 
+// TODO: Handle removing team member, if user is part of a team!
 const handler = async (req, reply) => {
   // Make sure user is trying to remove his own account / admin is removing account
   if (req.params.id !== req.auth.jwtPayload._id

@@ -57,21 +57,23 @@ const handler = async (req, reply) => {
   let payload;
   if (req.body.accepted) {
     payload = {
-      $push: { members: req.body.teamId },
-      $pull: { applications: { $elemMatch: { team: req.body.teamId } } },
+      $push: { teams: req.body.teamId },
+      $pull: { applications: { team: req.body.teamId } },
     };
   } else {
     payload = {
-      $pull: { applications: { $elemMatch: { team: req.body.teamId } } },
+      $pull: { applications: { team: req.body.teamId } },
     };
   }
 
+  let season;
   try {
-    await Season.findOneAndUpdate({
+    season = await Season.findOneAndUpdate({
       _id: req.params.seasonId,
-    }, {
-      payload,
-    }, {
+      'applications.team': req.body.teamId,
+    },
+    payload,
+    {
       runValidators: true,
     });
   } catch (error) {
@@ -79,6 +81,15 @@ const handler = async (req, reply) => {
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (!season) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'Season / team not found inside season!',
     });
     return;
   }

@@ -51,7 +51,16 @@ const handler = async (req, reply) => {
   }
 
   try {
-    seasons = await Season.find(findParams)
+    seasons = await Season.find(findParams, {
+      applications: 0,
+      challongeURI: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      __V: 0,
+      informationText: 0,
+      hidden: 0,
+      teams: 0,
+    })
       .limit(pageSize)
       .skip(pageSize * page);
   } catch (error) {

@@ -48,10 +48,12 @@ const handler = async (req, reply) => {
         previousTeams: 0,
         'steam.steamID': 0,
         'steam.steamID64': 0,
-        'steam.profileUrl': 0,
         'steam.avatar': 0,
         tokens: 0,
         registrationComplete: 0,
+        emailConfirmed: 0,
+        roles: 0,
+        __v: 0,
         createdAt: 0,
         updatedAt: 0,
       })

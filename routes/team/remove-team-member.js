@@ -56,7 +56,7 @@ const handler = async (req, reply) => {
       captain: req.auth.jwtPayload._id,
     },
     {
-      $pull: { members: { $elemMatch: req.body.userId } },
+      $pull: { members: req.body.userId },
     },
     {
       runValidators: true,

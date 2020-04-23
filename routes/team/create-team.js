@@ -23,12 +23,6 @@ const schema = {
       },
       rank: {
         type: 'string',
-        enum: [
-          'Silver I', 'Silver II', 'Silver III', 'Silver IV', 'Silver Elite', 'Silver Elite Master',
-          'Gold Nova I', 'Gold Nova II', 'Gold Nova III', 'Gold Nova Master',
-          'Master Guardian I', 'Master Guardian II', 'Master Guardian Elite',
-          'Distinguished Master Guardian', 'Legendary Eagle', 'Legendary Eagle Master',
-          'Supreme Master First Class', 'Global Elite'],
       },
     },
   },
@@ -63,7 +57,7 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (user.currentTeam && Object.keys(user.currentTeam).length === 0) {
+  if (user.currentTeam != null) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
@@ -76,10 +70,25 @@ const handler = async (req, reply) => {
   payload.captain = req.auth.jwtPayload._id;
   payload.members = [req.auth.jwtPayload._id];
 
+  let team;
   try {
-    await Team.create(req.body);
+    team = await Team.create(req.body);
   } catch (error) {
     log.error('Error when trying to create team! ', { error, body: req.body });
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+
+  // Save current team for user
+  user.currentTeam = team._id;
+  try {
+    await user.save();
+  } catch (error) {
+    log.error('Error when trying to set current team for user! ', { error, body: req.body });
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',

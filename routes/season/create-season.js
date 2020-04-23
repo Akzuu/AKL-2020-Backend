@@ -7,7 +7,7 @@ const schema = {
   tags: ['Season'],
   body: {
     type: 'object',
-    required: ['seasonName', 'seasonNumber', 'division', 'year', 'active'],
+    required: ['seasonName', 'seasonNumber', 'division', 'year', 'hidden'],
     properties: {
       seasonName: {
         type: 'string',

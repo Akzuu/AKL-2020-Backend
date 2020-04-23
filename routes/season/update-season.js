@@ -8,7 +8,7 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      seasonId: {
         type: 'string',
       },
     },
@@ -74,7 +74,7 @@ const handler = async (req, reply) => {
   let season;
   try {
     season = await Season.findOneAndUpdate({
-      _id: req.params.id,
+      _id: req.params.seasonId,
     },
     req.body,
     {
@@ -108,7 +108,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'POST',
-    url: '/:id/update',
+    url: '/:seasonId/update',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
     schema,

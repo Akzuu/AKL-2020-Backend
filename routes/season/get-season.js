@@ -9,7 +9,7 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      seasonId: {
         type: 'string',
       },
     },
@@ -44,8 +44,8 @@ const handler = async (req, reply) => {
     }
 
     // Show applications for moderators and admins
-    if (authPayload.roles.includes('moderator')
-        || authPayload.roles.includes('admin')) {
+    if (authPayload.roles && (authPayload.roles.includes('moderator')
+        || authPayload.roles.includes('admin'))) {
       projection = {};
     }
   }
@@ -54,7 +54,7 @@ const handler = async (req, reply) => {
   let season;
   try {
     season = await Season.findOne({
-      _id: req.params.id,
+      _id: req.params.seasonId,
     },
     projection);
   } catch (error) {
@@ -72,7 +72,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'GET',
-    url: '/:id/info',
+    url: '/:seasonId/info',
     handler,
     schema,
   });

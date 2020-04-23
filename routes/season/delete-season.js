@@ -2,13 +2,13 @@ const { log } = require('../../lib');
 const { Season } = require('../../models');
 
 const schema = {
-  description: 'Delete season from the site',
-  summary: 'Delete season',
-  tags: ['Season'],
+  description: 'Delete season from the site. Requires admin role',
+  summary: 'Delete season. Do not implement!',
+  tags: ['Devtest'],
   params: {
     type: 'object',
     properties: {
-      id: {
+      seasonId: {
         type: 'string',
       },
     },
@@ -42,7 +42,7 @@ const handler = async (req, reply) => {
 
   try {
     await Season.findOneAndDelete({
-      _id: req.params.id,
+      _id: req.params.seasonId,
     });
   } catch (error) {
     log.error('Error deleting season: ', error);
@@ -64,7 +64,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'DELETE',
-    url: '/:id/delete',
+    url: '/:seasonId/delete',
     preValidation: fastify.auth([fastify.verifyJWT]),
     handler,
     schema,

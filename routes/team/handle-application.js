@@ -48,11 +48,11 @@ const handler = async (req, reply) => {
   if (req.body.accepted) {
     payload = {
       $push: { members: req.body.userId },
-      $pull: { applications: { $elemMatch: { user: req.body.userId } } },
+      $pull: { applications: { user: req.body.userId } },
     };
   } else {
     payload = {
-      $pull: { applications: { $elemMatch: { user: req.body.userId } } },
+      $pull: { applications: { user: req.body.userId } },
     };
   }
 

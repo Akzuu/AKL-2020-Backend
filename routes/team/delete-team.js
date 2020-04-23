@@ -2,9 +2,9 @@ const { log } = require('../../lib');
 const { Team } = require('../../models');
 
 const schema = {
-  description: 'Delete a team from the service. Requires authentication',
-  summary: 'Delete a team',
-  tags: ['Team'],
+  description: 'Delete a team from the service. Requires admin role.',
+  summary: 'Delete a team. Do not implement!',
+  tags: ['Devtest'],
   params: {
     type: 'object',
     properties: {
@@ -28,11 +28,18 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  if (!req.auth.jwtPayload.roles.includes('admin')) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+    });
+    return;
+  }
+
   let team;
   try {
     team = await Team.findOneAndDelete({
       _id: req.params.teamId,
-      captain: req.auth.jwtPayload._id,
     });
   } catch (error) {
     log.error('Error when trying to delete team! ', error);

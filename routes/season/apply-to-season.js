@@ -64,7 +64,16 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (user._id !== user.currentTeam.captain) {
+  if (user.currentTeam.seasons.includes(req.params.seasonId)) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      messsage: 'Team already belongs to the season!',
+    });
+    return;
+  }
+
+  if (String(user._id) !== String(user.currentTeam.captain)) {
     reply.status(401).send({
       status: 'ERROR',
       error: 'Unauthorized',
@@ -73,8 +82,9 @@ const handler = async (req, reply) => {
     return;
   }
 
+  let season;
   try {
-    await Season.findOneAndUpdate({ _id: req.params.seasonId }, {
+    season = await Season.findOneAndUpdate({ _id: req.params.seasonId }, {
       $push: {
         applications: {
           applicationText: req.body.applicationText,
@@ -87,6 +97,15 @@ const handler = async (req, reply) => {
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (!season) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'Season not found!',
     });
     return;
   }
