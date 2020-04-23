@@ -189,7 +189,6 @@ const handler = async (req, reply) => {
       log.error('Error creating token!', err);
     }
 
-    reply.status(201).send({ status: 'CREATED', accessToken, refreshToken });
     reply.redirect(`${REDIRECT_URI}?status=CREATED&accessToken=${accessToken}&refreshToken=${refreshToken}`);
   });
 };

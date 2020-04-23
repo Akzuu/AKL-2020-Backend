@@ -44,7 +44,7 @@ const initSwagger = () => {
       tags: [
         {
           name: 'Integration',
-          description: 'Integration endpoints for accessing and controlling data',
+          description: '...',
         }, {
           name: 'Utility',
           description: 'Utility endpoints',
