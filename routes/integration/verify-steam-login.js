@@ -80,7 +80,7 @@ const relyingParty = new openid.RelyingParty(
   [], // List of extensions to enable and include
 );
 
-const steamIdRegex = new RegExp('^https:\/\/steamcommunity.com\/openid\/id\/([1-9]{17})$');
+const steamIdRegex = new RegExp(/(\d{17})$/, 'g');
 
 
 /**
@@ -109,7 +109,7 @@ const handler = async (req, reply) => {
 
     let steamID64;
     try {
-      [, steamID64] = steamIdRegex.exec(result.claimedIdentifier);
+      [steamID64] = steamIdRegex.exec(result.claimedIdentifier);
 
       // Validate id, just in case my RegExp fails or smth :D
       const sid = new SteamId(steamID64);

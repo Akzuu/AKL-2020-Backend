@@ -14,4 +14,14 @@ module.exports = {
   steam: {
     webApiKey: 'Get steam web api key',
   },
+  mailOptions: {
+    host: 'smtp server',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'username',
+      pass: 'password',
+    },
+  },
+  serviceEmail: '"Akateeminen Kynäriliiga" <akl@null.net>',
 };

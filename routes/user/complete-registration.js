@@ -1,5 +1,9 @@
-const { log } = require('../../lib');
+const config = require('config');
+const { log, sendMail } = require('../../lib');
 const { User } = require('../../models');
+
+const HOST = config.get('host');
+const ROUTE_PREFIX = config.get('routePrefix');
 
 const schema = {
   description: 'Completes Users registration. Requires authorization',
@@ -59,7 +63,7 @@ const schema = {
 const handler = async (req, reply) => {
   const payload = req.body;
 
-  payload.roles = ['player'];
+  payload.roles = ['player', 'unConfirmedEmail'];
   payload.registrationComplete = true;
 
   let user;
@@ -111,6 +115,27 @@ const handler = async (req, reply) => {
   }
 
   reply.send({ status: 'OK', accessToken, refreshToken });
+
+
+  // Send email confirmation
+  let confirmToken;
+  try {
+    confirmToken = await reply.jwtSign({
+      _id: user._id,
+    }, {
+      expiresIn: '2d',
+    });
+  } catch (error) {
+    log.error('Error when trying to create confirmation token', error);
+  }
+
+  try {
+    await sendMail(payload.email,
+      'Email confirmation',
+      `Please click :D ${HOST}${ROUTE_PREFIX}/user/confirm?token=${confirmToken}`);
+  } catch (error) {
+    log.error('Error when trying to send an email', error);
+  }
 };
 
 module.exports = async function (fastify) {
