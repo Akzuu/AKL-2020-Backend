@@ -13,6 +13,7 @@ const { auth } = require('./lib');
 const APPLICATION_PORT = config.get('port');
 const JWT_SECRET = config.get('jwt.secret');
 const ROUTE_PREFIX = config.get('routePrefix');
+const FASTIFY_OPTIONS = config.get('fastifyOptions');
 
 
 // Initialize swagger
@@ -145,8 +146,11 @@ const textRoute = async (server) => {
  * Init server
  * @param {Object} options Optional.
  */
-const initServer = async (options) => {
-  const server = fastify(options);
+const initServer = async () => {
+  const server = fastify({
+    logger: FASTIFY_OPTIONS.logger,
+    ignoreTrailingSlash: FASTIFY_OPTIONS.ignoreTrailingSlash,
+  });
 
   // Register plugins and routes
   server
