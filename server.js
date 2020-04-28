@@ -5,7 +5,6 @@ const fastifySwagger = require('fastify-swagger');
 const fastifyJWT = require('fastify-jwt');
 const fastifyHelmet = require('fastify-helmet');
 const fastifyAuth = require('fastify-auth');
-const fastifyNoAdditional = require('fastify-no-additional-properties');
 const routes = require('./routes');
 
 const { auth } = require('./lib');
@@ -150,13 +149,17 @@ const initServer = async () => {
   const server = fastify({
     logger: FASTIFY_OPTIONS.logger,
     ignoreTrailingSlash: FASTIFY_OPTIONS.ignoreTrailingSlash,
+    ajv: {
+      customOptions: {
+        removeAdditional: 'all',
+      },
+    },
   });
 
   // Register plugins and routes
   server
     .decorate('verifyEmailAndPassword', auth.verifyEmailAndPassword)
     .decorate('verifyJWT', auth.verifyJWT)
-    .register(fastifyNoAdditional)
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
     .register(fastifyHelmet)
