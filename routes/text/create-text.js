@@ -7,8 +7,11 @@ const schema = {
   tags: ['Text'],
   body: {
     type: 'object',
-    required: ['location', 'fiText', 'enText'],
+    required: ['title', 'location', 'fiText', 'enText'],
     properties: {
+      title: {
+        type: 'string',
+      },
       location: {
         type: 'string',
         description: 'Location on site for the text. E.g. "/" would mean frontpage',

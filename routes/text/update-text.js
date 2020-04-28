@@ -16,6 +16,9 @@ const schema = {
   body: {
     type: 'object',
     properties: {
+      title: {
+        type: 'string',
+      },
       location: {
         type: 'string',
         description: 'Location on site for the text. E.g. "/" would mean frontpage',
