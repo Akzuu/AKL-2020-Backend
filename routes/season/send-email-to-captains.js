@@ -1,5 +1,4 @@
 const { log } = require('../../lib');
-const { Season } = require('../../models');
 const { getCaptainEmails } = require('../../lib');
 
 const schema = {
