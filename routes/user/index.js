@@ -5,6 +5,7 @@ const getUser = require('./get-user');
 const getAllUsers = require('./get-all-users');
 const completeRegistration = require('./complete-registration');
 const manageRoles = require('./manage-roles');
+const confirmEmail = require('./confirm-email');
 
 module.exports = {
   createUser,
@@ -14,4 +15,5 @@ module.exports = {
   getAllUsers,
   completeRegistration,
   manageRoles,
+  confirmEmail,
 };
