@@ -53,6 +53,8 @@ const schema = new Schema({
   rank: {
     type: String,
   },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('teams', schema);
