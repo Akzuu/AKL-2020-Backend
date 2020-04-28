@@ -40,7 +40,6 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  console.log(req.body);
   let authPayload;
   if (!req.body.anonymous && req.raw.headers.authorization) {
     try {
