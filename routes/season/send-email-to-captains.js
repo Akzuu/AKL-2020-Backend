@@ -1,5 +1,6 @@
 const { log } = require('../../lib');
 const { getCaptainEmails } = require('../../lib');
+const { sendMail } = require('../../lib');
 
 const schema = {
   description: 'Send email to all captains. Moderator / Admin rights required',
@@ -11,6 +12,12 @@ const schema = {
       seasonId: {
         type: 'string',
       },
+      emailSubject: {
+        type: 'string',
+      },
+      emailBody: {
+        type: 'string',
+      },
     },
   },
   response: {
@@ -18,6 +25,12 @@ const schema = {
       type: 'object',
       properties: {
         status: {
+          type: 'string',
+        },
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
           type: 'string',
         },
       },
@@ -48,6 +61,23 @@ const handler = async (req, reply) => {
     return;
   }
 
+  try {
+    await sendMail(emails, req.params.emailSubject, req.params.emailBody);
+  } catch (error) {
+    log.error('Error sending emails! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  const { newTokens = {} } = req.auth;
+  reply.send({
+    status: 'OK',
+    accessToken: newTokens.accessToken,
+    refreshToken: newTokens.refreshToken,
+  });
 };
 
 module.exports = async function (fastify) {
