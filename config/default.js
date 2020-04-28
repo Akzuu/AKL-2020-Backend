@@ -16,7 +16,7 @@ module.exports = {
   },
   routePrefix: '/aklapi',
   fastifyOptions: {
-    logger: true,
+    logger: false,
     ignoreTrailingSlash: true,
   },
 };
