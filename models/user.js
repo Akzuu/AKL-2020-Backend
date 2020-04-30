@@ -97,6 +97,9 @@ const schema = new Schema({
     type: Array,
     default: ['unregistered'],
   },
+  resetToken: {
+    type: String,
+  },
 }, {
   timestamps: true,
 });

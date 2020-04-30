@@ -8,7 +8,6 @@ const manageRoles = require('./manage-roles');
 const confirmEmail = require('./confirm-email');
 const resetPassword = require('./reset-password');
 const sendResetPasswordEmail = require('./send-reset-password-email');
-const nullifyPassword = require('./nullify-password');
 
 module.exports = {
   createUser,
@@ -21,5 +20,4 @@ module.exports = {
   confirmEmail,
   resetPassword,
   sendResetPasswordEmail,
-  nullifyPassword,
 };
