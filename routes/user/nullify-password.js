@@ -29,6 +29,7 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  // Check authorization
   req.raw.headers.authorization = `Bearer ${req.query.resetToken}`;
   let authPayload;
   try {
@@ -38,6 +39,7 @@ const handler = async (req, reply) => {
     return;
   }
 
+  // Find user, nullify password and push reseting role to role array
   let user;
   try {
     user = await User.findOneAndUpdate({
@@ -54,11 +56,13 @@ const handler = async (req, reply) => {
     });
     return;
   }
+
   if (!user) {
     reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Bad Request"&message="User not found!"`);
     return;
   }
 
+  // Redirect to front with resetToken
   reply.redirect(`${REDIRECT_URI}?status=OK&resetToken=${req.query.resetToken}`);
 };
 

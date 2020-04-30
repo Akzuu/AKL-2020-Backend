@@ -66,7 +66,7 @@ const handler = async (req, reply) => {
     return;
   }
 
-  // Send email confirmation
+  // Create temp resetToken to verify user in later phases
   let resetToken;
   try {
     resetToken = await reply.jwtSign({
@@ -78,6 +78,7 @@ const handler = async (req, reply) => {
     log.error('Error when trying to create confirmation token', error);
   }
 
+  // Send email with link to reset password
   try {
     await sendMail(user.email,
       'Password change',
@@ -85,7 +86,6 @@ const handler = async (req, reply) => {
   } catch (error) {
     log.error('Error when trying to send an email', error);
   }
-  console.log(`${HOST}${ROUTE_PREFIX}/user/nullify-password?token=${resetToken}`);
 
   reply.send({
     status: 'OK',
