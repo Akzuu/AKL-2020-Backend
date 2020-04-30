@@ -39,5 +39,4 @@ Can modify website (use text endpoints for posting news etc).
 Basic admin role, can remove users and see more info about them etc.
 
 ## TODO
--Check database models
--ALL integration checks
+-Resend email confirmation when user changes email
