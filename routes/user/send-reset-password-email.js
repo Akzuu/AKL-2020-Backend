@@ -9,10 +9,10 @@ const schema = {
   description: 'Reset password for current user',
   summary: 'Reset password',
   tags: ['User'],
-  params: {
+  body: {
     type: 'object',
     properties: {
-      id: {
+      email: {
         type: 'string',
       },
     },
@@ -36,21 +36,14 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  // Make sure user is reseting his / her own account
-  if (req.params.id !== req.auth.jwtPayload._id
-    && !req.auth.jwtPayload.roles.includes('admin')) {
-    reply.status(403).send({
-      status: 'ERROR',
-      error: 'Forbidden',
-    });
-    return;
-  }
-
+  // Make sure user is reseting password with correct email address
   let user;
   try {
-    user = await User.findOne({ _id: req.params.id });
+    user = await User.findOne({
+      email: req.body.email,
+    });
   } catch (error) {
-    log.error('Error when trying to find user! ', error);
+    log.error('User not found with given email! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -72,21 +65,40 @@ const handler = async (req, reply) => {
     resetToken = await reply.jwtSign({
       _id: user._id,
     }, {
-      expiresIn: '10min',
+      expiresIn: '1h',
     });
   } catch (error) {
-    log.error('Error when trying to create confirmation token', error);
+    log.error('Error trying to create confirmation token! ', error);
+    return;
+  }
+
+  // Add the temporary token to database for security reasons
+  try {
+    await User.findOneAndUpdate({
+      email: req.body.email,
+    }, {
+      $push: { roles: 'passwordReset' },
+      resetToken,
+    });
+  } catch (error) {
+    log.error('User not found with given email! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
   }
 
   // Send email with link to reset password
   try {
     await sendMail(user.email,
       'Password change',
-      `Please click to change password :D ${HOST}${ROUTE_PREFIX}/user/nullify-password?token=${resetToken}`);
+      `Password reset was requested for user ${user.username}. Please click to change password. The link is valid for one (1) hour.
+      ${HOST}${ROUTE_PREFIX}/user/reset-password?resetToken=${resetToken}`);
   } catch (error) {
-    log.error('Error when trying to send an email', error);
+    log.error('Error trying to send an email! ', error);
+    return;
   }
-
   reply.send({
     status: 'OK',
   });
@@ -95,8 +107,7 @@ const handler = async (req, reply) => {
 module.exports = async function (fastify) {
   fastify.route({
     method: 'POST',
-    url: '/:id/send-reset-password',
-    preValidation: fastify.auth([fastify.verifyJWT]),
+    url: '/send-reset-password',
     handler,
     schema,
   });
