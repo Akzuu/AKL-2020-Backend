@@ -1,4 +1,5 @@
 const config = require('config');
+const bcrypt = require('bcrypt');
 const { log, sendMail } = require('../../lib');
 const { User } = require('../../models');
 
@@ -36,11 +37,28 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  // Make sure user is reseting password with correct email address
+  // Create hash for security reasons
+  const saltRounds = 10;
+  const hashString = `${Date.now()}${req.body.email}`;
+  let resetHash;
+  try {
+    resetHash = await bcrypt.hash(hashString, saltRounds);
+  } catch (error) {
+    log.error('Not able to save user! Password hash failed! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+  }
+
+  // Update required info to user for password reset
   let user;
   try {
-    user = await User.findOne({
+    user = await User.findOneAndUpdate({
       email: req.body.email,
+    }, {
+      $push: { roles: 'passwordReset' },
+      resetHash,
     });
   } catch (error) {
     log.error('User not found with given email! ', error);
@@ -50,7 +68,6 @@ const handler = async (req, reply) => {
     });
     return;
   }
-
   if (!user) {
     reply.status(404).send({
       status: 'ERROR',
@@ -64,28 +81,12 @@ const handler = async (req, reply) => {
   try {
     resetToken = await reply.jwtSign({
       _id: user._id,
+      resetHash,
     }, {
-      expiresIn: '1h',
+      expiresIn: '24h',
     });
   } catch (error) {
     log.error('Error trying to create confirmation token! ', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  // Add the temporary token to database for security reasons
-  try {
-    await User.findOneAndUpdate({
-      email: req.body.email,
-    }, {
-      $push: { roles: 'passwordReset' },
-      resetToken,
-    });
-  } catch (error) {
-    log.error('User not found with given email! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -97,7 +98,7 @@ const handler = async (req, reply) => {
   try {
     await sendMail(user.email,
       'Password change',
-      `Password reset was requested for user ${user.username}. Please click to change password. The link is valid for one (1) hour.
+      `Password reset was requested for user ${user.username}. Please click to change password. The link is valid for 24 hours.
       ${HOST}${ROUTE_PREFIX}/user/reset-password?resetToken=${resetToken}`);
   } catch (error) {
     log.error('Error trying to send an email! ', error);

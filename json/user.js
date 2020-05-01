@@ -43,7 +43,7 @@ module.exports = {
         type: 'string',
       },
     },
-    resetToken: {
+    resetHash: {
       type: 'string',
     },
   },

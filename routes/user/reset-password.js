@@ -52,17 +52,16 @@ const handler = async (req, reply) => {
   }
 
   let user;
-
   // Find user, set new password and remove reset role
   try {
     user = await User.findOneAndUpdate({
       _id: authPayload._id,
       roles: 'passwordReset',
-      resetToken: req.body.resetToken,
+      resetHash: authPayload.resetHash,
     }, {
       password: req.body.newPassword,
       $pull: { roles: 'passwordReset' },
-      resetToken: null,
+      resetHash: null,
     },
     {
       runValidators: true,

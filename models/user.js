@@ -97,7 +97,7 @@ const schema = new Schema({
     type: Array,
     default: ['unregistered'],
   },
-  resetToken: {
+  resetHash: {
     type: String,
   },
 }, {
