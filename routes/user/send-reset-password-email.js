@@ -69,6 +69,10 @@ const handler = async (req, reply) => {
     });
   } catch (error) {
     log.error('Error trying to create confirmation token! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
     return;
   }
 
@@ -97,6 +101,10 @@ const handler = async (req, reply) => {
       ${HOST}${ROUTE_PREFIX}/user/reset-password?resetToken=${resetToken}`);
   } catch (error) {
     log.error('Error trying to send an email! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
     return;
   }
   reply.send({
