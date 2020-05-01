@@ -24,7 +24,7 @@ If refreshToken has expired, user must login again to get new tokens. If expired
 Frontend must be able to process new tokens from every endpoint, because new tokens may arrive from every endpoint that checks authentication. It should also check if the accessToken has expired, because it must then use refreshToken.
 
 ## Roles
-Currently, there are four roles. Roles are stored to array in user model, so it should be easy to create more roles if needed. This of course has some drawbacks, but it is imo better than the alternative.
+Currently, there are five roles. Roles are stored to array in user model, so it should be easy to create more roles if needed. This of course has some drawbacks, but it is imo better than the alternative.
 
 #### Unregistered
 User has completed Steam login and data from Steam has been saved to database. User must complete registration using correct endpoint to gain normal access. Frontend should forward users to correct endpoint for completing registration process.
@@ -37,6 +37,9 @@ Can modify website (use text endpoints for posting news etc).
 
 #### Admin
 Basic admin role, can remove users and see more info about them etc.
+
+#### PasswordReset
+User has started password reset procedure, for example in case of forgotten password.
 
 ## TODO
 -Resend email confirmation when user changes email

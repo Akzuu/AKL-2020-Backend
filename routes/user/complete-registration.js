@@ -116,7 +116,6 @@ const handler = async (req, reply) => {
 
   reply.send({ status: 'OK', accessToken, refreshToken });
 
-
   // Send email confirmation
   let confirmToken;
   try {

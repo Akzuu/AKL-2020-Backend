@@ -6,6 +6,8 @@ const getAllUsers = require('./get-all-users');
 const completeRegistration = require('./complete-registration');
 const manageRoles = require('./manage-roles');
 const confirmEmail = require('./confirm-email');
+const resetPassword = require('./reset-password');
+const sendResetPasswordEmail = require('./send-reset-password-email');
 
 module.exports = {
   createUser,
@@ -16,4 +18,6 @@ module.exports = {
   completeRegistration,
   manageRoles,
   confirmEmail,
+  resetPassword,
+  sendResetPasswordEmail,
 };

@@ -97,6 +97,9 @@ const schema = new Schema({
     type: Array,
     default: ['unregistered'],
   },
+  resetHash: {
+    type: String,
+  },
 }, {
   timestamps: true,
 });
@@ -114,7 +117,6 @@ schema.pre('save', function preSave(next) {
         next(new Error('Not able to save user!'));
         return;
       }
-
       this.password = hash;
       next();
     });
@@ -135,7 +137,6 @@ schema.pre('findOneAndUpdate', function preUpdate(next) {
       next(new Error('Not able to save user!'));
       return;
     }
-
     this._update.password = hash;
     next();
   });
