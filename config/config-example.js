@@ -23,5 +23,9 @@ module.exports = {
       pass: 'password',
     },
   },
+  superAdminCredentials: {
+    username: 'Username',
+    password: 'veryLongAndSecurePassword',
+  },
   serviceEmail: '"Akateeminen Kynäriliiga" <akl@null.net>',
 };
