@@ -2,8 +2,8 @@ const { log, sendEmailVerification } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Sends email verification after changing email',
-  summary: 'Send email verification',
+  description: 'Re-sends email verification for user from ones request',
+  summary: 'Re-send email verification',
   tags: ['User'],
   params: {
     type: 'object',
@@ -46,14 +46,24 @@ const handler = async (req, reply) => {
   // Find user with given id
   let user;
   try {
-    user = await User.findByIdAndUpdate(req.params.id, {
-      $push: { roles: 'unConfirmedEmail' },
+    user = await User.findOne({
+      id_: req.params.id,
+      roles: 'unConfirmedEmail',
     });
   } catch (error) {
     log.error('Error finding the user! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (!user) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'Email is already verified!',
     });
     return;
   }
