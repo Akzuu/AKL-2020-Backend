@@ -21,7 +21,7 @@ const user2 = {
   university: 'Tuni',
   email: 'Hayo.Miyazaki@tuni.fi',
   password: 'moromoro',
-  roles: ['player'],
+  roles: ['player', 'unConfirmedEmail'],
   registrationComplete: true,
   emailConfirmed: false,
 };
@@ -49,7 +49,7 @@ const user4 = {
   university: 'TAMK',
   email: 'igor@tamk.fi',
   password: 'yugoslavia',
-  roles: ['player'],
+  roles: ['player', 'unConfirmedEmail'],
   registrationComplete: true,
   emailConfirmed: false,
 };

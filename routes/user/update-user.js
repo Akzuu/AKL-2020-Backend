@@ -97,7 +97,9 @@ const handler = async (req, reply) => {
 
     let user;
     try {
-      user = await User.findOne({ _id: req.params.id });
+      user = await User.findOne({
+        _id: req.params.id,
+      });
     } catch (error) {
       log.error('Error when trying to find user! ', error);
       reply.status(500).send({
@@ -115,9 +117,9 @@ const handler = async (req, reply) => {
       return;
     }
 
+    // eslint-disable-next-line prefer-destructuring
+    roles = user.roles;
     if (req.body.email !== user.email) {
-      // eslint-disable-next-line prefer-destructuring
-      roles = user.roles;
       roles.push('unConfirmedEmail');
       payload.emailConfirmed = false;
     }
@@ -142,11 +144,14 @@ const handler = async (req, reply) => {
 
   let user;
   try {
-    user = await User.findOneAndUpdate({ _id: req.params.id },
+    user = await User.findOneAndUpdate({
+      _id: req.params.id,
+    }, {
       payload,
-      {
-        runValidators: true,
-      });
+      roles,
+    }, {
+      runValidators: true,
+    });
   } catch (error) {
     log.error('Error when trying to update user! ', error);
     reply.status(500).send({
