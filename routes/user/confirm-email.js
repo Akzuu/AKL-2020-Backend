@@ -45,7 +45,7 @@ const handler = async (req, reply) => {
       emailConfirmed: false,
     }, {
       emailConfirmed: true,
-      roles: ['player'],
+      $pull: { roles: 'unConfirmedEmail' },
     });
   } catch (error) {
     log.error('Error updating user!', error);
