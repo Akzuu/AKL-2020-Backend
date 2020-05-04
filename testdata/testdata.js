@@ -78,11 +78,23 @@ const season3 = {
   year: 2020,
 };
 
+const team1 = {
+  teamName: 'Käyrikset',
+  abbreviation: 'KÄYR',
+  introductionText: 'Me ollaa käyrikset!',
+  hidden: false,
+  rank: 'Silver 1',
+  members: [],
+};
+
 const testUserDataArray = [user1, user2, user3, user4];
 
 const testSeasonDataArray = [season1, season2, season3];
 
+const testTeamDataArray = [team1];
+
 module.exports = {
   testUserDataArray,
   testSeasonDataArray,
+  testTeamDataArray,
 };
