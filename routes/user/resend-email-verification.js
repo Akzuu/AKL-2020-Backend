@@ -47,7 +47,7 @@ const handler = async (req, reply) => {
   let user;
   try {
     user = await User.findOne({
-      id_: req.params.id,
+      _id: req.params.id,
       roles: 'unConfirmedEmail',
     });
   } catch (error) {

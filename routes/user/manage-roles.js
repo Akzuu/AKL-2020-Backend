@@ -55,28 +55,54 @@ const handler = async (req, reply) => {
     return;
   }
 
-
-  const payload = {
-    roles: ['player'],
-  };
+  const roles = [];
 
   // Note that this will also remove roles
   if (req.body.admin) {
-    payload.roles.push('admin');
+    roles.push('admin');
   } else if (req.body.moderator) {
-    payload.roles.push('moderator');
+    roles.push('moderator');
   }
 
+  // First finds the user
   let user;
   try {
-    user = await User.findOneAndUpdate({ _id: req.params.id }, payload);
+    user = await User.findById(req.params.id);
   } catch (error) {
-    log.error('Error when trying to update user! ', error);
+    log.error('Error when trying to find the user! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
     });
     return;
+  }
+
+  // Remove all roles user already has
+  roles.forEach((role) => {
+    const index = user.roles.indexOf(role);
+    if (index > -1) {
+      roles.splice(index, 1);
+    }
+  });
+
+  // If no roles left, user has already all the given roles
+  if (!roles.length) {
+    log.error('The user already has all the given roles! ');
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+    });
+  } else {
+    try {
+      user.roles.push(roles);
+      user.save();
+    } catch (error) {
+      log.error('Error trying to push new role! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+    }
   }
 
   if (!user) {

@@ -1,6 +1,7 @@
+const config = require('config');
 const mongodb = require('./database/mongo');
 const { initServer } = require('./server');
-const { log, createSuperAdmin } = require('./lib');
+const { log, createSuperAdmin, insertTestData } = require('./lib');
 
 
 module.exports = (async () => {
@@ -26,6 +27,14 @@ module.exports = (async () => {
     await createSuperAdmin();
   } catch (error) {
     log.error('Error creating superadmin! ', error);
+  }
+
+  if (config.get('createTestData')) {
+    try {
+      await insertTestData();
+    } catch (error) {
+      log.error('Error inserting test data! Might happen because test data already exists. ');
+    }
   }
 
   log.info('Service started successfully!');
