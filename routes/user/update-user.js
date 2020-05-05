@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { log } = require('../../lib');
+const { log, sendEmailVerification } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
@@ -83,6 +83,7 @@ const handler = async (req, reply) => {
   }
 
   const payload = req.body;
+  let roles = [];
 
   if (req.body.newPassword || req.body.email || req.body.oldPassword) {
     if (!req.body.oldPassword) {
@@ -96,7 +97,9 @@ const handler = async (req, reply) => {
 
     let user;
     try {
-      user = await User.findOne({ _id: req.params.id });
+      user = await User.findOne({
+        _id: req.params.id,
+      });
     } catch (error) {
       log.error('Error when trying to find user! ', error);
       reply.status(500).send({
@@ -112,6 +115,13 @@ const handler = async (req, reply) => {
         error: 'Not Found',
       });
       return;
+    }
+
+    // eslint-disable-next-line prefer-destructuring
+    roles = user.roles;
+    if (req.body.email !== user.email) {
+      roles.push('unConfirmedEmail');
+      payload.emailConfirmed = false;
     }
 
     const samePassword = await bcrypt.compare(req.body.oldPassword, user.password);
@@ -134,11 +144,14 @@ const handler = async (req, reply) => {
 
   let user;
   try {
-    user = await User.findOneAndUpdate({ _id: req.params.id },
+    user = await User.findOneAndUpdate({
+      _id: req.params.id,
+    }, {
       payload,
-      {
-        runValidators: true,
-      });
+      roles,
+    }, {
+      runValidators: true,
+    });
   } catch (error) {
     log.error('Error when trying to update user! ', error);
     reply.status(500).send({
@@ -152,6 +165,18 @@ const handler = async (req, reply) => {
     reply.status(404).send({
       status: 'ERROR',
       error: 'Not Found',
+    });
+    return;
+  }
+
+  // Send verification email
+  try {
+    await sendEmailVerification(user, reply);
+  } catch (error) {
+    log.error('Error sending an email! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
     return;
   }

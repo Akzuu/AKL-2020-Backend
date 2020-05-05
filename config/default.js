@@ -14,6 +14,7 @@ module.exports = {
       },
     },
   },
+  createTestData: true,
   routePrefix: '/aklapi',
   fastifyOptions: {
     logger: false,

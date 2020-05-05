@@ -45,7 +45,7 @@ const handler = async (req, reply) => {
       emailConfirmed: false,
     }, {
       emailConfirmed: true,
-      roles: ['player'],
+      $pull: { roles: 'unConfirmedEmail' },
     });
   } catch (error) {
     log.error('Error updating user!', error);
@@ -56,7 +56,7 @@ const handler = async (req, reply) => {
   }
 
   if (!user) {
-    reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Bad Request&message="Email already confirmed!"`);
+    reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Bad Request"&message="Email already confirmed!"`);
   }
 
   reply.redirect(`${REDIRECT_URI}?status=OK`);

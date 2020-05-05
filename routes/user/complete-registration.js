@@ -1,9 +1,5 @@
-const config = require('config');
-const { log, sendMail } = require('../../lib');
+const { log, sendEmailVerification } = require('../../lib');
 const { User } = require('../../models');
-
-const HOST = config.get('host');
-const ROUTE_PREFIX = config.get('routePrefix');
 
 const schema = {
   description: 'Completes Users registration. Requires authorization',
@@ -114,28 +110,23 @@ const handler = async (req, reply) => {
     log.error('Error creating token!', error);
   }
 
-  reply.send({ status: 'OK', accessToken, refreshToken });
-
-
-  // Send email confirmation
-  let confirmToken;
+  // Send verification email
   try {
-    confirmToken = await reply.jwtSign({
-      _id: user._id,
-    }, {
-      expiresIn: '2d',
+    await sendEmailVerification(user, reply);
+  } catch (error) {
+    log.error('Error sending an email! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
-  } catch (error) {
-    log.error('Error when trying to create confirmation token', error);
+    return;
   }
 
-  try {
-    await sendMail(payload.email,
-      'Email confirmation',
-      `Please click :D ${HOST}${ROUTE_PREFIX}/user/confirm?token=${confirmToken}`);
-  } catch (error) {
-    log.error('Error when trying to send an email', error);
-  }
+  reply.send({
+    status: 'OK',
+    accessToken,
+    refreshToken,
+  });
 };
 
 module.exports = async function (fastify) {

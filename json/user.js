@@ -43,5 +43,8 @@ module.exports = {
         type: 'string',
       },
     },
+    resetHash: {
+      type: 'string',
+    },
   },
 };

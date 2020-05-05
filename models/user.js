@@ -36,6 +36,7 @@ const schema = new Schema({
   email: {
     type: String,
     unique: true,
+    lowercase: true,
     match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Error invalid email'],
   },
   password: {
@@ -97,6 +98,9 @@ const schema = new Schema({
     type: Array,
     default: ['unregistered'],
   },
+  resetHash: {
+    type: String,
+  },
 }, {
   timestamps: true,
 });
@@ -114,7 +118,6 @@ schema.pre('save', function preSave(next) {
         next(new Error('Not able to save user!'));
         return;
       }
-
       this.password = hash;
       next();
     });
@@ -135,7 +138,6 @@ schema.pre('findOneAndUpdate', function preUpdate(next) {
       next(new Error('Not able to save user!'));
       return;
     }
-
     this._update.password = hash;
     next();
   });
