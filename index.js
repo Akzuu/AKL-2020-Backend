@@ -3,6 +3,7 @@ const mongodb = require('./database/mongo');
 const { initServer } = require('./server');
 const { log, createSuperAdmin, insertTestData } = require('./lib');
 
+const CREATE_TEST_DATA = config.get('createTestData');
 
 module.exports = (async () => {
   // Initialize database connection
@@ -29,7 +30,7 @@ module.exports = (async () => {
     log.error('Error creating superadmin! ', error);
   }
 
-  if (config.get('createTestData')) {
+  if (CREATE_TEST_DATA) {
     try {
       await insertTestData();
     } catch (error) {
