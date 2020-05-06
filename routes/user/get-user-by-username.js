@@ -11,7 +11,7 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      id: {
+      username: {
         type: 'string',
       },
     },
@@ -49,7 +49,7 @@ const handler = async (req, reply) => {
   let user;
   try {
     user = await User.findOne({
-      _id: req.params.id,
+      username: req.params.username,
     }, {
       password: 0, // Do not return password
       tokens: 0,
@@ -119,7 +119,7 @@ const handler = async (req, reply) => {
 
 module.exports = {
   method: 'GET',
-  url: '/id/:id',
+  url: '/username/:username',
   schema,
   handler,
 };
