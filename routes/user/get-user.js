@@ -52,7 +52,6 @@ const handler = async (req, reply) => {
       _id: req.params.id,
     }, {
       password: 0, // Do not return password
-      tokens: 0,
     });
   } catch (error) {
     log.error('Not able to find the user!', error);
@@ -83,6 +82,7 @@ const handler = async (req, reply) => {
   // If authenticated user is checking someones account
   if (authPayload) {
     reply.send({
+      username: user.username,
       firstName: user.firstName,
       surname: user.surname,
       age: user.age,
@@ -91,7 +91,7 @@ const handler = async (req, reply) => {
       currentTeam: user.currentTeam,
       previousTeams: user.previousTeams,
       steam: {
-        userName: user.steam.userName,
+        username: user.steam.username,
         steamID: user.steam.steamID,
         steamID64: user.steam.steamID64,
         avatar: user.steam.avatar,
@@ -103,12 +103,13 @@ const handler = async (req, reply) => {
 
   // If unregistered unauthenticated user is checking someones accounts
   reply.send({
+    username: user.username,
     guild: user.guild,
     university: user.university,
     currentTeam: user.currentTeam,
     previousTeams: user.previousTeams,
     steam: {
-      userName: user.steam.userName,
+      username: user.steam.userName,
       steamID: user.steam.steamID,
       steamID64: user.steam.steamID64,
       avatar: user.steam.avatar,
