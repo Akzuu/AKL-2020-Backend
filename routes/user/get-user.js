@@ -91,7 +91,7 @@ const handler = async (req, reply) => {
       currentTeam: user.currentTeam,
       previousTeams: user.previousTeams,
       steam: {
-        userName: user.steam.userName,
+        username: user.steam.username,
         steamID: user.steam.steamID,
         steamID64: user.steam.steamID64,
         avatar: user.steam.avatar,
@@ -109,7 +109,7 @@ const handler = async (req, reply) => {
     currentTeam: user.currentTeam,
     previousTeams: user.previousTeams,
     steam: {
-      userName: user.steam.userName,
+      username: user.steam.userName,
       steamID: user.steam.steamID,
       steamID64: user.steam.steamID64,
       avatar: user.steam.avatar,
