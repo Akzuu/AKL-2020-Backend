@@ -72,8 +72,8 @@ const schema = new Schema({
       type: String,
     },
   },
-  gameInfo: {
-    riotUsername: {
+  riotGames: {
+    username: {
       type: String,
       trim: true,
       unique: true,

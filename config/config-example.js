@@ -23,6 +23,9 @@ module.exports = {
       pass: 'password',
     },
   },
+  riot: {
+    webApiKey: '',
+  },
   superAdminCredentials: {
     username: 'Username',
     password: 'veryLongAndSecurePassword',

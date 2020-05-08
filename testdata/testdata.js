@@ -5,7 +5,7 @@ const user1 = {
   age: '22',
   guild: 'Skilta',
   university: 'Tuni',
-  email: 'niggel.leissön@tuni.fi',
+  email: 'niggel.leisson@tuni.fi',
   password: 'morjenttes',
   roles: ['moderator', 'player'],
   registrationComplete: true,
