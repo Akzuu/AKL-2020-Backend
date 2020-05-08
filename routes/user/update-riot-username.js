@@ -1,4 +1,4 @@
-const { log, fetchRiotUser } = require('../../lib');
+const { log, fetchRiotUser, fetchUserRank } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
@@ -60,12 +60,27 @@ const handler = async (req, reply) => {
     return;
   }
 
+  let rank;
+  try {
+    rank = await fetchUserRank(riotUser.id);
+  } catch (error) {
+    reply.status(error.statusCode).send({
+      status: error.status,
+      error: error.error,
+      message: error.message,
+    });
+    return;
+  }
+
   let user;
   try {
     user = await User.findOneAndUpdate({
       _id: authPayload._id,
     }, {
-      $set: { 'riotGames.username': req.body.riotUsername },
+      $set: {
+        'riotGames.username': req.body.riotUsername,
+        'riotGames.rank': rank,
+      },
     });
   } catch (error) {
     log.error('Cannot find the user! ', error);

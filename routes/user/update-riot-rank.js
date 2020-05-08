@@ -2,8 +2,8 @@ const { log, fetchRiotUser, fetchUserRank } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Verifies user has riot account by fetching it from Riot Api.',
-  summary: 'Verifies users riot account',
+  description: 'Updates users riot rank by fetching it from Riot Api.',
+  summary: 'Updates users riot rank',
   tags: ['User'],
   response: {
     200: {
