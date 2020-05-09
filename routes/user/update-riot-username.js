@@ -26,23 +26,18 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let authPayload;
-  try {
-    authPayload = await req.jwtVerify();
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
   let riotUser;
   try {
     riotUser = await fetchRiotUser(req.body.riotUsername);
   } catch (error) {
+    if (error.name === 'RequestError') {
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+        message: 'Failed to send network request! ',
+      });
+      return;
+    }
     reply.status(error.statusCode).send({
       status: error.status,
       error: error.error,
@@ -64,6 +59,14 @@ const handler = async (req, reply) => {
   try {
     rank = await fetchUserRank(riotUser.id);
   } catch (error) {
+    if (error.name === 'RequestError') {
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+        message: 'Failed to send network request! ',
+      });
+      return;
+    }
     reply.status(error.statusCode).send({
       status: error.status,
       error: error.error,
@@ -75,10 +78,11 @@ const handler = async (req, reply) => {
   let user;
   try {
     user = await User.findOneAndUpdate({
-      _id: authPayload._id,
+      _id: req.auth.jwtPayload._id,
     }, {
       $set: {
         'riotGames.username': req.body.riotUsername,
+        'riotGames.encryptedSummonerId': riotUser.id,
         'riotGames.rank': rank,
       },
     });

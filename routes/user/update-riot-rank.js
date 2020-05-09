@@ -1,4 +1,4 @@
-const { log, fetchRiotUser, fetchUserRank } = require('../../lib');
+const { log, fetchUserRank } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
@@ -18,23 +18,10 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let authPayload;
-  try {
-    authPayload = await req.jwtVerify();
-  } catch (error) {
-    log.error('Error validating token! ', error);
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Please authenticate',
-    });
-    return;
-  }
-
   let user;
   try {
     user = await User.findOne({
-      _id: authPayload._id,
+      _id: req.auth.jwtPayload._id,
     });
   } catch (error) {
     log.error('Cannot find the user! ', error);
@@ -54,29 +41,18 @@ const handler = async (req, reply) => {
     return;
   }
 
-  let riotUser;
+  let rank;
   try {
-    riotUser = await fetchRiotUser(user.riotGames.username);
+    rank = await fetchUserRank(user.riotGames.encryptedSummonerId);
   } catch (error) {
-    if (!error.statusCode) {
+    if (error.name === 'RequestError') {
       reply.status(500).send({
         status: 'ERROR',
         error: 'Internal Server Error',
+        message: 'Failed to send network request! ',
       });
       return;
     }
-    reply.status(error.statusCode).send({
-      status: error.status,
-      error: error.error,
-      message: error.message,
-    });
-    return;
-  }
-
-  let rank;
-  try {
-    rank = await fetchUserRank(riotUser.id);
-  } catch (error) {
     reply.status(error.statusCode).send({
       status: error.status,
       error: error.error,
