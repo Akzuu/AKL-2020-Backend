@@ -61,8 +61,19 @@ const handler = async (req, reply) => {
     return;
   }
 
-  user.riotGames.rank = rank;
-  user.save();
+  try {
+    await User.findOneAndUpdate({
+      _id: user._id,
+    }, {
+      $set: { 'riotGames.rank': rank },
+    });
+  } catch (error) {
+    log.error('Error trying to add the new role! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+  }
 
   reply.send({
     status: 'OK',

@@ -94,10 +94,13 @@ const handler = async (req, reply) => {
     });
   } else {
     try {
-      user.roles.push(roles);
-      user.save();
+      await User.findOneAndUpdate({
+        _id: user._id,
+      }, {
+        $push: { roles },
+      });
     } catch (error) {
-      log.error('Error trying to push new role! ', error);
+      log.error('Error trying to add the new role! ', error);
       reply.status(500).send({
         status: 'ERROR',
         error: 'Internal Server Error',

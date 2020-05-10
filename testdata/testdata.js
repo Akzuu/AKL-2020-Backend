@@ -83,6 +83,7 @@ const team1 = {
   abbreviation: 'KÄYR',
   introductionText: 'Me ollaa käyrikset!',
   hidden: false,
+  game: 'League of Legends',
   rank: 'Silver 1',
   members: [],
 };

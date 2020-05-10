@@ -50,6 +50,10 @@ const schema = new Schema({
     required: true,
     default: false,
   },
+  game: {
+    type: String,
+    required: true,
+  },
   rank: {
     type: String,
   },

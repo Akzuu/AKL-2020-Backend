@@ -31,5 +31,8 @@ module.exports = {
     password: 'veryLongAndSecurePassword',
     email: 'example@email.com',
   },
+  userRestrictions: {
+    maximumNumberOfTeamsPerUser: 2,
+  },
   serviceEmail: '"Akateeminen Kynäriliiga" <akl@null.net>',
 };

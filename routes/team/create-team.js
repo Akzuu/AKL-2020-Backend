@@ -1,5 +1,8 @@
+const config = require('config');
 const { log } = require('../../lib');
 const { Team, User } = require('../../models');
+
+const MAX_NMBR_OF_TEAMS_PER_USER = config.get('userRestrictions.maximumNumberOfTeamsPerUser');
 
 const schema = {
   description: 'Create new team for the service',
@@ -7,7 +10,7 @@ const schema = {
   tags: ['Team'],
   body: {
     type: 'object',
-    required: ['teamName', 'abbreviation', 'introductionText', 'rank'],
+    required: ['teamName', 'abbreviation', 'introductionText', 'game', 'rank'],
     properties: {
       teamName: {
         type: 'string',
@@ -19,6 +22,9 @@ const schema = {
         maxLength: 11,
       },
       introductionText: {
+        type: 'string',
+      },
+      game: {
         type: 'string',
       },
       rank: {
@@ -57,11 +63,44 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (user.currentTeam != null) {
+  if (!user) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'User not found.',
+    });
+    return;
+  }
+
+  if (user.currentTeams.length >= MAX_NMBR_OF_TEAMS_PER_USER) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
-      message: 'You already belong to a team!',
+      message: 'You already belong to maximum number of teams!',
+    });
+    return;
+  }
+
+  // Find users current teams
+  let currentTeams;
+  try {
+    currentTeams = await Team.find({
+      _id: { $in: user.currentTeams },
+    });
+  } catch (error) {
+    log.error('Error finding users teams! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (currentTeams.filter(team => team.game === req.body.game).length > 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'You already belong to a team in this game!',
     });
     return;
   }
@@ -83,10 +122,13 @@ const handler = async (req, reply) => {
   }
 
 
-  // Save current team for user
-  user.currentTeam = team._id;
+  // Push new team to user info
   try {
-    await user.save();
+    await User.findOneAndUpdate({
+      _id: user._id,
+    }, {
+      $push: { currentTeams: team._id },
+    });
   } catch (error) {
     log.error('Error when trying to set current team for user! ', { error, body: req.body });
     reply.status(500).send({

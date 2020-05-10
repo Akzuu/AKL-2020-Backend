@@ -43,10 +43,10 @@ const schema = new Schema({
     type: String,
     min: 8,
   },
-  currentTeam: {
+  currentTeams: [{
     type: ObjectId,
     ref: 'teams',
-  },
+  }],
   previousTeams: [{
     type: ObjectId,
     ref: 'teams',
