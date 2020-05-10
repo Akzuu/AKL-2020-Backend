@@ -109,6 +109,10 @@ const handler = async (req, reply) => {
   payload.captain = req.auth.jwtPayload._id;
   payload.members = [req.auth.jwtPayload._id];
 
+  if (req.body.game === 'League of Legends') {
+    payload.rank = user.riotGames.rank;
+  }
+
   let team;
   try {
     team = await Team.create(req.body);

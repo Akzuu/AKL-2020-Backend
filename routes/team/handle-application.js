@@ -1,4 +1,4 @@
-const { log } = require('../../lib');
+const { log, calculateAverageRiotRank } = require('../../lib');
 const { Team, User } = require('../../models');
 
 const schema = {
@@ -65,6 +65,7 @@ const handler = async (req, reply) => {
     payload,
     {
       runValidators: true,
+      new: true,
     });
   } catch (error) {
     log.error('Error when trying to update team! ', error);
@@ -87,7 +88,9 @@ const handler = async (req, reply) => {
   // Update users profile only after we have made sure team update was a success
   if (req.body.accepted) {
     try {
-      await User.findOneAndUpdate({ _id: req.body.userId }, {
+      await User.findOneAndUpdate({
+        _id: req.body.userId,
+      }, {
         currentTeam: req.params.teamId,
       }, {
         runValidators: true,
@@ -99,6 +102,36 @@ const handler = async (req, reply) => {
         error: 'Internal Server Error',
       });
       return;
+    }
+
+    // Update team after accepting application
+    if (team.game === 'League of Legends') {
+      let newRank;
+      try {
+        newRank = await calculateAverageRiotRank(team.members);
+      } catch (error) {
+        log.error('Error trying to calculate average rank! ', error);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
+        return;
+      }
+
+      try {
+        await Team.findOneAndUpdate({
+          _id: team._id,
+        }, {
+          rank: newRank,
+        });
+      } catch (error) {
+        log.error('Error when trying to update teams rank! ', error);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
+        return;
+      }
     }
   }
 
