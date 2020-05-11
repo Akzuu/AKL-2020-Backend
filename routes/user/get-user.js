@@ -52,6 +52,7 @@ const handler = async (req, reply) => {
       _id: req.params.id,
     }, {
       password: 0, // Do not return password
+      'riotGames.encryptedSummonerId': 0,
     });
   } catch (error) {
     log.error('Not able to find the user!', error);
@@ -97,6 +98,11 @@ const handler = async (req, reply) => {
         avatar: user.steam.avatar,
         profileUrl: user.steam.profileUrl,
       },
+      riotGames: {
+        username: user.riotGames.username,
+        role: user.riotGames.role,
+        rank: user.riotGames.rank,
+      },
     });
     return;
   }
@@ -114,6 +120,11 @@ const handler = async (req, reply) => {
       steamID64: user.steam.steamID64,
       avatar: user.steam.avatar,
       profileUrl: user.steam.profileUrl,
+    },
+    riotGames: {
+      username: user.riotGames.username,
+      role: user.riotGames.role,
+      rank: user.riotGames.rank,
     },
   });
 };

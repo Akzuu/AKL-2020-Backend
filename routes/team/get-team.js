@@ -84,6 +84,7 @@ const handler = async (req, reply) => {
     members: team.members,
     seasons: team.seasons,
     rank: team.rank,
+    game: team.game,
   });
 };
 
