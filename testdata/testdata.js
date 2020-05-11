@@ -5,7 +5,7 @@ const user1 = {
   age: '22',
   guild: 'Skilta',
   university: 'Tuni',
-  email: 'niggel.leissön@tuni.fi',
+  email: 'niggel.leisson@tuni.fi',
   password: 'morjenttes',
   roles: ['moderator', 'player'],
   registrationComplete: true,
@@ -60,6 +60,7 @@ const season1 = {
   division: 'pro',
   informationText: 'Teretulloo liigan ensimmäiseen kauteen',
   year: 2020,
+  game: 'League of Legends',
 };
 
 const season2 = {
@@ -68,6 +69,7 @@ const season2 = {
   division: 'pro',
   informationText: 'Teretulloo liigan neljänteen kauteen',
   year: 2020,
+  game: 'Counter-Strike: Global Offensive',
 };
 
 const season3 = {
@@ -76,6 +78,7 @@ const season3 = {
   division: 'just for fun',
   informationText: 'Teretulloo liigan neljänteen kauteen',
   year: 2020,
+  game: 'Counter-Strike: Global Offensive',
 };
 
 const team1 = {
@@ -83,6 +86,7 @@ const team1 = {
   abbreviation: 'KÄYR',
   introductionText: 'Me ollaa käyrikset!',
   hidden: false,
+  game: 'League of Legends',
   rank: 'Silver 1',
   members: [],
 };

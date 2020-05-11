@@ -10,6 +10,8 @@ const confirmEmail = require('./confirm-email');
 const resetPassword = require('./reset-password');
 const sendResetPasswordEmail = require('./send-reset-password-email');
 const resendEmailVerification = require('./resend-email-verification');
+const updateRiotUsername = require('./update-riot-username');
+const updateUserRank = require('./update-riot-rank');
 
 module.exports = {
   createUser,
@@ -24,4 +26,6 @@ module.exports = {
   resetPassword,
   sendResetPasswordEmail,
   resendEmailVerification,
+  updateRiotUsername,
+  updateUserRank,
 };

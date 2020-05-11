@@ -43,10 +43,10 @@ const schema = new Schema({
     type: String,
     min: 8,
   },
-  currentTeam: {
+  currentTeams: [{
     type: ObjectId,
     ref: 'teams',
-  },
+  }],
   previousTeams: [{
     type: ObjectId,
     ref: 'teams',
@@ -72,12 +72,16 @@ const schema = new Schema({
       type: String,
     },
   },
-  gameInfo: {
-    riotUsername: {
+  riotGames: {
+    username: {
       type: String,
       trim: true,
       unique: true,
       sparse: true,
+    },
+    encryptedSummonerId: {
+      type: String,
+      unique: true,
     },
     role: {
       type: String,

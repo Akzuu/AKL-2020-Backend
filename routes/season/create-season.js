@@ -1,5 +1,8 @@
+const config = require('config');
 const { log } = require('../../lib');
 const { Season } = require('../../models');
+
+const GAMES = config.get('games');
 
 const schema = {
   description: 'Create a new season to the service',
@@ -7,7 +10,7 @@ const schema = {
   tags: ['Season'],
   body: {
     type: 'object',
-    required: ['seasonName', 'seasonNumber', 'division', 'year', 'hidden'],
+    required: ['seasonName', 'seasonNumber', 'division', 'year', 'game', 'hidden'],
     properties: {
       seasonName: {
         type: 'string',
@@ -24,6 +27,9 @@ const schema = {
       },
       year: {
         type: 'number',
+      },
+      game: {
+        type: 'string',
       },
       hidden: {
         type: 'boolean',
@@ -54,6 +60,15 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  if (!GAMES.find(req.body.game)) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'Given game is not supported! ',
+    });
+    return;
+  }
+
   if (!req.auth.jwtPayload.roles.includes('admin')
   && !req.auth.jwtPayload.roles.includes('moderator')) {
     reply.status(403).send({

@@ -20,4 +20,5 @@ module.exports = {
     logger: false,
     ignoreTrailingSlash: true,
   },
+  games: ['League of Legends', 'Counter-Strike: Global Offensive'],
 };

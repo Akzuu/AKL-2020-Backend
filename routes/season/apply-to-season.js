@@ -42,10 +42,12 @@ const schema = {
 const handler = async (req, reply) => {
   let user;
   try {
-    user = await User.findOne({ _id: req.auth.jwtPayload._id }, {
+    user = await User.findOne({
+      _id: req.auth.jwtPayload._id,
+    }, {
       password: 0,
     })
-      .populate('currentTeam');
+      .populate('currentTeams');
   } catch (error) {
     log.error('Error finding the user: ', error);
     reply.status(500).send({
@@ -55,16 +57,18 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (!user || !user.currentTeam) {
+  if (!user || !user.currentTeams) {
     reply.status(400).send({
       status: 'ERROR',
       error: 'Bad Request',
-      messsage: 'User does not have a team',
+      messsage: 'User does not belong to a team! ',
     });
     return;
   }
 
-  if (user.currentTeam.seasons.includes(req.params.seasonId)) {
+  if (user.currentTeams.filter(
+    currentTeam => currentTeam.season === req.params.seasonId,
+  ).length > 0) {
     reply.status(400).send({
       status: 'ERROR',
       error: 'Bad Request',
@@ -73,27 +77,13 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (String(user._id) !== String(user.currentTeam.captain)) {
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Only captain can apply to a season!',
-    });
-    return;
-  }
-
   let season;
   try {
-    season = await Season.findOneAndUpdate({ _id: req.params.seasonId }, {
-      $push: {
-        applications: {
-          applicationText: req.body.applicationText,
-          team: user.currentTeam,
-        },
-      },
+    season = await Season.findOne({
+      _id: req.params.seasonId,
     });
   } catch (error) {
-    log.error('Error when trying to update seasons applications! ', error);
+    log.error('Error trying to find the season! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -106,6 +96,49 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Not Found',
       message: 'Season not found!',
+    });
+    return;
+  }
+
+  // Find the team matching with seasons game
+  const [applyingTeam] = user.currentTeams.filter(
+    currentTeam => currentTeam.game === season.game,
+  );
+
+  if (!applyingTeam) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      messsage: 'User is not in a team playing the same game as the season to be applied to!',
+    });
+    return;
+  }
+
+  if (String(user._id) !== String(applyingTeam.captain)) {
+    reply.status(401).send({
+      status: 'ERROR',
+      error: 'Unauthorized',
+      message: 'Only captain can apply to a season!',
+    });
+    return;
+  }
+
+  try {
+    await Season.findOneAndUpdate({
+      _id: req.params.seasonId,
+    }, {
+      $push: {
+        applications: {
+          applicationText: req.body.applicationText,
+          team: applyingTeam,
+        },
+      },
+    });
+  } catch (error) {
+    log.error('Error when trying to update seasons applications! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
     return;
   }

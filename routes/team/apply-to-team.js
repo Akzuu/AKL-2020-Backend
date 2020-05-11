@@ -42,7 +42,12 @@ const schema = {
 const handler = async (req, reply) => {
   let user;
   try {
-    user = await User.findOne({ _id: req.auth.jwtPayload._id });
+    user = await User.findOne({
+      _id: req.auth.jwtPayload._id,
+    }, {
+      password: 0,
+    })
+      .populate('currentTeams');
   } catch (error) {
     log.error('Error when trying to find user! ', error);
     reply.status(500).send({
@@ -52,30 +57,21 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (user.currentTeam && Object.keys(user.currentTeam).length === 0) {
-    reply.status(403).send({
+  if (!user) {
+    reply.status(404).send({
       status: 'ERROR',
-      error: 'Forbidden',
-      message: 'You already belong to a team!',
+      error: 'Not Found',
+      message: 'User not found.',
     });
     return;
   }
 
-  const applicationPayload = {
-    applicationText: req.body.applicationText,
-    user: req.auth.jwtPayload._id,
-  };
-
+  // Find the team to be applied to
   let team;
   try {
-    team = await Team.findOneAndUpdate({
-      _id: req.params.teamId,
-    }, { $push: { applications: applicationPayload } },
-    {
-      runValidators: true,
-    });
+    team = await Team.findById(req.params.teamId);
   } catch (error) {
-    log.error('Error when trying to update team! ', error);
+    log.error('Error finding the team! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -87,6 +83,35 @@ const handler = async (req, reply) => {
     reply.status(404).send({
       status: 'ERROR',
       error: 'Not Found',
+    });
+    return;
+  }
+
+  if (user.currentTeams.filter(currentTeam => currentTeam.game === team.game).length > 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'You already belong to a team in this game!',
+    });
+    return;
+  }
+
+  const applicationPayload = {
+    applicationText: req.body.applicationText,
+    user: req.auth.jwtPayload._id,
+  };
+
+  try {
+    await Team.findOneAndUpdate({
+      _id: team._id,
+    }, {
+      $push: { applications: applicationPayload },
+    });
+  } catch (error) {
+    log.error('Error when trying to update team! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
     return;
   }

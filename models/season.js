@@ -39,6 +39,10 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
+  game: {
+    type: String,
+    required: true,
+  },
   hidden: {
     type: Boolean,
     required: true,

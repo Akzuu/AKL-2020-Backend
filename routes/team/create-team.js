@@ -1,5 +1,8 @@
+const config = require('config');
 const { log } = require('../../lib');
 const { Team, User } = require('../../models');
+
+const GAMES = config.get('games');
 
 const schema = {
   description: 'Create new team for the service',
@@ -7,7 +10,7 @@ const schema = {
   tags: ['Team'],
   body: {
     type: 'object',
-    required: ['teamName', 'abbreviation', 'introductionText', 'rank'],
+    required: ['teamName', 'abbreviation', 'introductionText', 'game', 'rank'],
     properties: {
       teamName: {
         type: 'string',
@@ -19,6 +22,9 @@ const schema = {
         maxLength: 11,
       },
       introductionText: {
+        type: 'string',
+      },
+      game: {
         type: 'string',
       },
       rank: {
@@ -45,9 +51,21 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
+  if (!GAMES.find(req.body.game)) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'Given game is not supported! ',
+    });
+    return;
+  }
+
   let user;
   try {
-    user = await User.findOne({ _id: req.auth.jwtPayload._id });
+    user = await User.findOne({
+      _id: req.auth.jwtPayload._id,
+    })
+      .populate('currentTeams');
   } catch (error) {
     log.error('Error when trying to find user! ', error);
     reply.status(500).send({
@@ -57,11 +75,20 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (user.currentTeam != null) {
+  if (!user) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'User not found.',
+    });
+    return;
+  }
+
+  if (user.currentTeams.filter(team => team.game === req.body.game).length > 0) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
-      message: 'You already belong to a team!',
+      message: 'You already belong to a team in this game!',
     });
     return;
   }
@@ -69,6 +96,10 @@ const handler = async (req, reply) => {
   const payload = req.body;
   payload.captain = req.auth.jwtPayload._id;
   payload.members = [req.auth.jwtPayload._id];
+
+  if (req.body.game === 'League of Legends') {
+    payload.rank = user.riotGames.rank;
+  }
 
   let team;
   try {
@@ -83,10 +114,13 @@ const handler = async (req, reply) => {
   }
 
 
-  // Save current team for user
-  user.currentTeam = team._id;
+  // Push new team to user info
   try {
-    await user.save();
+    await User.findOneAndUpdate({
+      _id: user._id,
+    }, {
+      $push: { currentTeams: team._id },
+    });
   } catch (error) {
     log.error('Error when trying to set current team for user! ', { error, body: req.body });
     reply.status(500).send({
