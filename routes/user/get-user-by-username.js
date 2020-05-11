@@ -88,7 +88,7 @@ const handler = async (req, reply) => {
       age: user.age,
       guild: user.guild,
       university: user.university,
-      currentTeam: user.currentTeam,
+      currentTeams: user.currentTeams,
       previousTeams: user.previousTeams,
       steam: {
         userName: user.steam.userName,
@@ -105,7 +105,7 @@ const handler = async (req, reply) => {
   reply.send({
     guild: user.guild,
     university: user.university,
-    currentTeam: user.currentTeam,
+    currentTeams: user.currentTeams,
     previousTeams: user.previousTeams,
     steam: {
       userName: user.steam.userName,

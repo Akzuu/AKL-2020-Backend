@@ -1,8 +1,5 @@
-const config = require('config');
 const { log } = require('../../lib');
 const { Team, User } = require('../../models');
-
-const MAX_NMBR_OF_TEAMS_PER_USER = config.get('userRestrictions.maximumNumberOfTeamsPerUser');
 
 const schema = {
   description: 'Apply to be a member of a team. Requires authorization',
@@ -45,7 +42,12 @@ const schema = {
 const handler = async (req, reply) => {
   let user;
   try {
-    user = await User.findOne({ _id: req.auth.jwtPayload._id });
+    user = await User.findOne({
+      _id: req.auth.jwtPayload._id,
+    }, {
+      password: 0,
+    })
+      .populate('currentTeams');
   } catch (error) {
     log.error('Error when trying to find user! ', error);
     reply.status(500).send({
@@ -60,15 +62,6 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Not Found',
       message: 'User not found.',
-    });
-    return;
-  }
-
-  if (user.currentTeams.length >= MAX_NMBR_OF_TEAMS_PER_USER) {
-    reply.status(403).send({
-      status: 'ERROR',
-      error: 'Forbidden',
-      message: 'You already belong to maximum number of teams!',
     });
     return;
   }
@@ -94,22 +87,7 @@ const handler = async (req, reply) => {
     return;
   }
 
-  // Find users current teams
-  let currentTeams;
-  try {
-    currentTeams = await Team.find({
-      _id: { $in: user.currentTeams },
-    });
-  } catch (error) {
-    log.error('Error finding users teams! ', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
-  }
-
-  if (currentTeams.filter(currentTeam => currentTeam.game === team.game).length > 0) {
+  if (user.currentTeams.filter(currentTeam => currentTeam.game === team.game).length > 0) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',

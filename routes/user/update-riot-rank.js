@@ -1,5 +1,5 @@
-const { log, fetchUserRank, calculateAverageRiotRank } = require('../../lib');
-const { User, Team } = require('../../models');
+const { log, fetchUserRank, updateTeamRank } = require('../../lib');
+const { User } = require('../../models');
 
 const schema = {
   description: 'Updates users riot rank by fetching it from Riot Api.',
@@ -84,51 +84,21 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Internal Server Error',
     });
+    return;
   }
 
   // Update team rank when updating users rank
-  if (user.currentTeams.length > 0) {
-    let currentTeams;
-    try {
-      currentTeams = await Team.find({
-        _id: { $in: user.currentTeams },
-      });
-    } catch (error) {
-      log.error('Error finding users teams! ', error);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
-      return;
+  try {
+    await updateTeamRank(user);
+  } catch (error) {
+    if (!error.statusCode) {
+      log.error('Error trying to update team rank! ', error);
     }
-
-    const [riotTeam] = currentTeams.filter(team => team.game === 'League of Legends');
-    let newRank;
-    try {
-      newRank = await calculateAverageRiotRank(riotTeam.members);
-    } catch (error) {
-      log.error('Error trying to calculate average rank! ', error);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
-      return;
-    }
-
-    try {
-      await Team.findOneAndUpdate({
-        _id: riotTeam._id,
-      }, {
-        rank: newRank,
-      });
-    } catch (error) {
-      log.error('Error when trying to update teams rank! ', error);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
-      return;
-    }
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
   }
 
   reply.send({

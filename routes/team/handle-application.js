@@ -91,7 +91,7 @@ const handler = async (req, reply) => {
       await User.findOneAndUpdate({
         _id: req.body.userId,
       }, {
-        currentTeam: req.params.teamId,
+        $push: { currentTeams: req.params.teamId },
       }, {
         runValidators: true,
       });
@@ -119,13 +119,13 @@ const handler = async (req, reply) => {
       }
 
       try {
-        await Team.findOneAndUpdate({
+        await Team.updateOne({
           _id: team._id,
         }, {
           rank: newRank,
         });
       } catch (error) {
-        log.error('Error when trying to update teams rank! ', error);
+        log.error('Error trying to update teams rank! ', error);
         reply.status(500).send({
           status: 'ERROR',
           error: 'Internal Server Error',

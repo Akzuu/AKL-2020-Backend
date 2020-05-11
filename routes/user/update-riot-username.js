@@ -1,4 +1,9 @@
-const { log, fetchRiotUser, fetchUserRank } = require('../../lib');
+const {
+  log,
+  fetchRiotUser,
+  fetchUserRank,
+  updateTeamRank,
+} = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
@@ -100,6 +105,20 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Not Found',
       message: 'User not found.',
+    });
+    return;
+  }
+
+  // Update team rank when updating users rank
+  try {
+    await updateTeamRank(user);
+  } catch (error) {
+    if (!error.statusCode) {
+      log.error('Error trying to update team rank! ', error);
+    }
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
     return;
   }
