@@ -82,6 +82,7 @@ const schema = new Schema({
     encryptedSummonerId: {
       type: String,
       unique: true,
+      sparse: true,
     },
     role: {
       type: String,
