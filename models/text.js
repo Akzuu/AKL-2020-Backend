@@ -29,6 +29,10 @@ const schema = new Schema({
     type: Date,
     required: true,
   },
+  comments: [{
+    type: ObjectId,
+    ref: 'comments',
+  }],
 }, {
   timestamps: true,
 });
