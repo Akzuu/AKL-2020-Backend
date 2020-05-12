@@ -30,7 +30,11 @@ const handler = async (req, reply) => {
   try {
     text = await Text.findOne({
       _id: req.params.id,
-    });
+    })
+      .populate('author', {
+        _id: 1,
+        username: 1,
+      });
   } catch (error) {
     log.error('Error when trying to get a text via ID: ', error);
     reply.status(500).send({

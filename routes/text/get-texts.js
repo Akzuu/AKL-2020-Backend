@@ -61,7 +61,11 @@ const handler = async (req, reply) => {
   try {
     texts = await Text.find(findParams)
       .limit(pageSize)
-      .skip(pageSize * page);
+      .skip(pageSize * page)
+      .populate('author', {
+        _id: 1,
+        username: 1,
+      });
   } catch (error) {
     log.error('Error when trying to get a text via ID: ', error);
     reply.status(500).send({
