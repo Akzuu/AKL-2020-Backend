@@ -141,6 +141,17 @@ const textRoute = async (server) => {
   });
 };
 
+const commentRoute = async (server) => {
+  Object.keys(routes.comment).forEach((key) => {
+    try {
+      server.route(routes.comment[key]);
+    } catch (error) {
+      routes.comment[key](server);
+    }
+  });
+};
+
+
 /**
  * Init server
  * @param {Object} options Optional.
@@ -169,7 +180,8 @@ const initServer = async () => {
     .register(teamRoute, { prefix: `${ROUTE_PREFIX}/team` })
     .register(seasonRoute, { prefix: `${ROUTE_PREFIX}/season` })
     .register(integrationRoute, { prefix: `${ROUTE_PREFIX}/integration` })
-    .register(textRoute, { prefix: `${ROUTE_PREFIX}/text` });
+    .register(textRoute, { prefix: `${ROUTE_PREFIX}/text` })
+    .register(commentRoute, { prefix: `${ROUTE_PREFIX}/comment` });
 
 
   return {

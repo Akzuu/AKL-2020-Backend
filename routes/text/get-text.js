@@ -32,8 +32,21 @@ const handler = async (req, reply) => {
       _id: req.params.id,
     })
       .populate('author', {
-        _id: 1,
         username: 1,
+      })
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'author',
+          select: {
+            username: 1,
+          },
+        },
+        select: {
+          comment: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
       });
   } catch (error) {
     log.error('Error when trying to get a text via ID: ', error);

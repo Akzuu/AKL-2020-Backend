@@ -4,6 +4,7 @@ const team = require('./team');
 const season = require('./season');
 const integration = require('./integration');
 const text = require('./text');
+const comment = require('./comment');
 
 module.exports = {
   utility,
@@ -12,4 +13,5 @@ module.exports = {
   season,
   integration,
   text,
+  comment,
 };

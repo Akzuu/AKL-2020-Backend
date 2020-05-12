@@ -101,6 +101,8 @@ const steamIdRegex = new RegExp(/(\d{17})$/, 'g');
  */
 const handler = async (req, reply) => {
   relyingParty.verifyAssertion(req.raw.url, async (error, result) => {
+    console.log(req.raw.url);
+
     if (error || !result.authenticated) {
       log.error('Error validating assertion! ', error);
       reply.redirect(`${REDIRECT_URI}?status=ERROR&error=Unauthorized`);
