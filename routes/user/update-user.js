@@ -83,7 +83,6 @@ const handler = async (req, reply) => {
   }
 
   const payload = req.body;
-  let roles = [];
 
   if (req.body.newPassword || req.body.email || req.body.oldPassword) {
     if (!req.body.oldPassword) {
@@ -118,9 +117,9 @@ const handler = async (req, reply) => {
     }
 
     // eslint-disable-next-line prefer-destructuring
-    roles = user.roles;
+    payload.roles = user.roles;
     if (req.body.email !== user.email) {
-      roles.push('unConfirmedEmail');
+      payload.roles.push('unConfirmedEmail');
       payload.emailConfirmed = false;
     }
 
@@ -146,10 +145,9 @@ const handler = async (req, reply) => {
   try {
     user = await User.findOneAndUpdate({
       _id: req.params.id,
-    }, {
-      payload,
-      roles,
-    }, {
+    },
+    payload,
+    {
       runValidators: true,
     });
   } catch (error) {
@@ -169,16 +167,18 @@ const handler = async (req, reply) => {
     return;
   }
 
-  // Send verification email
-  try {
-    await sendEmailVerification(user, reply);
-  } catch (error) {
-    log.error('Error sending an email! ', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
+  if (req.body.email) {
+    // Send verification email
+    try {
+      await sendEmailVerification(user, reply);
+    } catch (error) {
+      log.error('Error sending an email! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
   }
 
   const { newTokens = {} } = req.auth;
