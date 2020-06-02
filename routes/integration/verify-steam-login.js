@@ -1,7 +1,7 @@
 const openid = require('openid');
 const config = require('config');
 const SteamId = require('steamid');
-const { log, createUser } = require('../../lib');
+const { log, steamUserManager } = require('../../lib');
 const { User } = require('../../models');
 
 const HOST = config.get('host');
@@ -10,66 +10,22 @@ const REDIRECT_URI = config.get('loginRedirectUri');
 
 const schema = {
   description: `This endpoint is used by steam openid when it redirects 
-  user from steamcommunity login. It may return four statuses.
+  user from steamcommunity login. It will always have the following query param
+  when it redirects to front: status. If status is "OK", it will also have params
+  "accessToken", "refreshToken", "linked". If status is "ERROR", it will have
+  query param "error", which will indicate the error type. 
+
+  The four possible forward status combos are explained below.
   
-  1. Code 200: user has an account and should be redirected to frontpage with new token
-  2. Code 201: user used the service for the first time and should complete the registration process
-  3. Code 401: openid login failed. User did not authenticate with steam or smth failed somewhere
-  4. Code 500: Something went wrong, error has been logged to backend service`,
-  summary: 'Steam openid callback',
+  1. Status OK: user has an account or linking steam account was a success.
+  User will be forwareded to frontpage with new tokens. The forward uri will have
+  a param "linked" which will be true or false. If true, it means that the user
+  has successfully linked steam account to their normal account
+  2. Status ERROR - Unauthorized: openid login failed. User did not authenticate with steam or smth failed somewhere
+  3. Status ERROR - Not Found: User not found with the steamId. User should create user account to service
+  4. Status ERROR - Internal Server Error: Something went wrong, error has been logged to backend service`,
+  summary: 'Steam openid callback. See description',
   tags: ['Integration'],
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        status: {
-          type: 'string',
-        },
-        accessToken: {
-          type: 'string',
-        },
-        refreshToken: {
-          type: 'string',
-        },
-      },
-    },
-    201: {
-      type: 'object',
-      properties: {
-        status: {
-          type: 'string',
-        },
-        accessToken: {
-          type: 'string',
-        },
-        refreshToken: {
-          type: 'string',
-        },
-      },
-    },
-    401: {
-      type: 'object',
-      properties: {
-        status: {
-          type: 'string',
-        },
-        token: {
-          type: 'string',
-        },
-      },
-    },
-    500: {
-      type: 'object',
-      properties: {
-        status: {
-          type: 'string',
-        },
-        error: {
-          type: 'string',
-        },
-      },
-    },
-  },
 };
 
 const relyingParty = new openid.RelyingParty(
@@ -92,10 +48,9 @@ const steamIdRegex = new RegExp(/(\d{17})$/, 'g');
  * we parse steamid64 from the url and check if the user already has an account
  * on our service. If true, we just redirect user to frontpage with new token.
  *
- * If the user is using our service for the first time, we must create account.
- * We can only use the data we get from steam web api, so the registration will
- * not be complete, the user must fill in a form with email etc after this
- * process. After that, user can use the website like normal user should be able.
+ * If user does not have an account, he will be redirected to the frontpage
+ * TODO: Redirect to register page
+ *
  * @param {*} req
  * @param {*} reply
  */
@@ -121,14 +76,60 @@ const handler = async (req, reply) => {
     }
 
     let user;
-    try {
-      user = await User.findOne({
-        'steam.steamID64': steamID64,
-      });
-    } catch (err) {
-      log.error('Error when trying to look for user! ', err);
-      reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
-      return;
+    let linked = false;
+    /**
+     * Check if linkToken exists. If it exists, user is linking steam account
+     * to their normal account.
+     *
+     * If it does not exist, check if user exists aka is user logging in.
+     */
+    if (req.query.linkToken) {
+      // Workaround to verify that the linkToken is valid
+      req.raw.headers.authorization = `Bearer ${req.query.linkToken}`;
+      let authPayload;
+      try {
+        authPayload = await req.jwtVerify();
+      } catch (err) {
+        log.error('Error confirming linkToken: ', err);
+        reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
+        return;
+      }
+
+      try {
+        user = await User.findOne({
+          _id: authPayload._id,
+        });
+      } catch (err) {
+        log.error('Error when trying to look for user! ', err);
+        reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
+        return;
+      }
+
+      if (!user) {
+        reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Not Found"`);
+        return;
+      }
+
+      // Link steam account to the user
+      try {
+        user = await steamUserManager.linkUser(user, steamID64);
+      } catch (err) {
+        log.error('Error when trying to link user: ', err);
+        reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
+        return;
+      }
+
+      linked = true;
+    } else {
+      try {
+        user = await User.findOne({
+          'steam.steamID64': steamID64,
+        });
+      } catch (err) {
+        log.error('Error when trying to look for user! ', err);
+        reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
+        return;
+      }
     }
 
     // User already has an account, so just log in and redirect to frontpage
@@ -155,41 +156,51 @@ const handler = async (req, reply) => {
         return;
       }
 
-      reply.redirect(`${REDIRECT_URI}?status=OK&accessToken=${accessToken}&refreshToken=${refreshToken}`);
+      reply.redirect(`${REDIRECT_URI}?status=OK&accessToken=${accessToken}&refreshToken=${refreshToken}&linked=${linked}`);
       return;
     }
+
+    // User not found
+    reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Not Found"`);
+
+    /**
+     * This feature has been disabled, because it can create conflicts when
+     * user already has an account, but has not yet linked steam account to
+     * that account, leading the user having two accounts
+     */
 
     // Start account creation process
-    let id;
-    try {
-      id = await createUser(steamID64);
-    } catch (err) {
-      log.error('Unexpected error while trying to create user! ', err);
-      reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
-      return;
-    }
+    //   let id;
+    //   try {
+    //     id = await steamUserManager.createUser(steamID64);
+    //   } catch (err) {
+    //     log.error('Unexpected error while trying to create user! ', err);
+    //     reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
+    //     return;
+    //   }
 
-    let accessToken;
-    let refreshToken;
-    try {
-      accessToken = await reply.jwtSign({
-        _id: id,
-        roles: ['unregistered'],
-        steamID64,
-      }, {
-        expiresIn: '10min',
-      });
+    //   let accessToken;
+    //   let refreshToken;
+    //   try {
+    //     accessToken = await reply.jwtSign({
+    //       _id: id,
+    //       roles: ['unregistered'],
+    //       steamID64,
+    //     }, {
+    //       expiresIn: '10min',
+    //     });
 
-      refreshToken = await reply.jwtSign({
-        _id: id,
-      }, {
-        expiresIn: '2d',
-      });
-    } catch (err) {
-      log.error('Error creating token!', err);
-    }
+    //     refreshToken = await reply.jwtSign({
+    //       _id: id,
+    //     }, {
+    //       expiresIn: '2d',
+    //     });
+    //   } catch (err) {
+    //     log.error('Error creating token!', err);
+    //   }
 
-    reply.redirect(`${REDIRECT_URI}?status=CREATED&accessToken=${accessToken}&refreshToken=${refreshToken}`);
+    //   reply.redirect(`${REDIRECT_URI}?status=CREATED
+    //              &accessToken=${accessToken}&refreshToken=${refreshToken}`);
   });
 };
 

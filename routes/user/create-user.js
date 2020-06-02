@@ -2,12 +2,12 @@ const { log, sendEmailVerification } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Create new user for the service. ALL Endpoint',
-  summary: 'Create user. ALL Endpoint',
+  description: 'Create new user for the service',
+  summary: 'Create user',
   tags: ['User'],
   body: {
     type: 'object',
-    required: ['username', 'password', 'email', 'gameInfo'],
+    required: ['username', 'password', 'email'],
     properties: {
       username: {
         type: 'string',
@@ -35,21 +35,6 @@ const schema = {
       password: {
         type: 'string',
         minLength: 8,
-      },
-      gameInfo: {
-        type: 'object',
-        required: ['riotUsername'],
-        properties: {
-          riotUsername: {
-            type: 'string',
-          },
-          role: {
-            type: 'string',
-          },
-          rank: {
-            type: 'string',
-          },
-        },
       },
     },
   },
