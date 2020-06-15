@@ -47,7 +47,6 @@ const handler = async (req, reply) => {
         email: 0,
         previousTeams: 0,
         'steam.steamID': 0,
-        'steam.steamID64': 0,
         'steam.avatar': 0,
         'riotGames.rank': 0,
         'riotGames.encryptedSummonerId': 0,

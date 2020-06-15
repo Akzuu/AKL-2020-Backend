@@ -83,6 +83,7 @@ const handler = async (req, reply) => {
   // If authenticated user is checking someones account
   if (authPayload) {
     reply.send({
+      username: user.username,
       firstName: user.firstName,
       surname: user.surname,
       age: user.age,
@@ -108,6 +109,7 @@ const handler = async (req, reply) => {
 
   // If unregistered unauthenticated user is checking someones accounts
   reply.send({
+    username: user.username,
     guild: user.guild,
     university: user.university,
     currentTeams: user.currentTeams,

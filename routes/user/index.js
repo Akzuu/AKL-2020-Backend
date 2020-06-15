@@ -13,6 +13,8 @@ const resendEmailVerification = require('./resend-email-verification');
 const updateRiotUsername = require('./update-riot-username');
 const updateUserRank = require('./update-riot-rank');
 const linkSteamAccount = require('./link-steam-account');
+const getUserByRiotUsername = require('./get-user-by-riot-username');
+const getUserBySteamID64 = require('./get-user-by-steamid');
 
 module.exports = {
   createUser,
@@ -30,4 +32,6 @@ module.exports = {
   updateRiotUsername,
   updateUserRank,
   linkSteamAccount,
+  getUserByRiotUsername,
+  getUserBySteamID64,
 };
