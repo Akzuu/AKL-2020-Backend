@@ -51,7 +51,7 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  if (!GAMES.find(req.body.game)) {
+  if (!GAMES.find(game => game === req.body.game)) {
     reply.status(400).send({
       status: 'ERROR',
       error: 'Bad Request',

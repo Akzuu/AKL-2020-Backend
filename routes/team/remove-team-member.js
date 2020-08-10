@@ -85,7 +85,7 @@ const handler = async (req, reply) => {
         _id: req.body.userId,
       },
       {
-        $pull: { currentTeams: team },
+        $pull: { currentTeams: req.params.teamId },
         $push: { previousTeams: req.params.teamId },
       }, {
         runValidators: true,

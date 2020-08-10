@@ -109,7 +109,7 @@ const handler = async (req, reply) => {
         _id: req.auth.jwtPayload._id,
       },
       {
-        $pull: { currentTeams: team },
+        $pull: { currentTeams: req.params.teamId },
         $push: { previousTeams: req.params.teamId },
       }, {
         runValidators: true,
