@@ -69,9 +69,7 @@ const handler = async (req, reply) => {
 
   // Own team
   if (authPayload && team.members.includes(authPayload._id)) {
-    reply.send({
-      team,
-    });
+    reply.send(team);
     return;
   }
 
