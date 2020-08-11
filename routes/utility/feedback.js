@@ -53,12 +53,17 @@ const handler = async (req, reply) => {
     }
   }
 
+  let { authorStringName } = req.body;
+  if (req.body.anonymous) {
+    authorStringName = '';
+  }
+
   try {
     await Feedback.create({
       subject: req.body.subject,
       feedback: req.body.feedback,
       author: authPayload ? authPayload._id : null,
-      authorStringName: req.body.authorStringName,
+      authorStringName,
     });
   } catch (error) {
     log.error('Error when saving feedback! ', error);
