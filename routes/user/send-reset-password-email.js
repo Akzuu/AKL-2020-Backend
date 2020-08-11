@@ -3,8 +3,7 @@ const bcrypt = require('bcrypt');
 const { log, sendMail } = require('../../lib');
 const { User } = require('../../models');
 
-const HOST = config.get('host');
-const ROUTE_PREFIX = config.get('routePrefix');
+const FRONTEND_PASSWORD_RESET_URL = config.get('frontendPasswordResetUrl');
 
 const schema = {
   description: 'Reset password for current user',
@@ -99,7 +98,7 @@ const handler = async (req, reply) => {
     await sendMail(user.email,
       'Password change',
       `Password reset was requested for user ${user.username}. Please click to change password. The link is valid for 24 hours.
-      ${HOST}${ROUTE_PREFIX}/user/reset-password?resetToken=${resetToken}`);
+      ${FRONTEND_PASSWORD_RESET_URL}?resetToken=${resetToken}`);
   } catch (error) {
     log.error('Error trying to send an email! ', error);
     reply.status(500).send({

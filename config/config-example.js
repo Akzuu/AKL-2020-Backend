@@ -1,8 +1,8 @@
 module.exports = {
   host: 'Backend URI. E.g. http://localhost:3000 !Do not use backslash!',
-  loginRedirectUri: `Frontend uri. Steam logins will be redirected to this uri. 
-                    Will have query params status, accessToken and refreshToken.
-                    If error, will have query params status and error`,
+  frontendSteamCallbackUrl: 'Steam will redirect users to this url after login in',
+  frontendEmailVerificationUrl: 'Email verification links will move user here',
+  frontendPasswordResetUrl: 'Password reset links will move user here',
   database: {
     mongo: {
       uri: 'E.g mongodb://localhost:27017/akl-backend',

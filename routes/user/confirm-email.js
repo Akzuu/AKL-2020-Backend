@@ -1,8 +1,5 @@
-const config = require('config');
 const { log } = require('../../lib');
 const { User } = require('../../models');
-
-const REDIRECT_URI = config.get('loginRedirectUri');
 
 const schema = {
   description: 'Completes Users registration. Requires authorization',
@@ -34,7 +31,10 @@ const handler = async (req, reply) => {
   try {
     authPayload = await req.jwtVerify();
   } catch (error) {
-    reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
     return;
   }
 
@@ -56,10 +56,16 @@ const handler = async (req, reply) => {
   }
 
   if (!user) {
-    reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Bad Request"&message="Email already confirmed!"`);
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'Email confirmed already!',
+    });
   }
 
-  reply.redirect(`${REDIRECT_URI}?status=OK`);
+  reply.send({
+    status: 'OK',
+  });
 };
 
 module.exports = async function (fastify) {
