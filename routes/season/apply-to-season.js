@@ -100,6 +100,14 @@ const handler = async (req, reply) => {
     return;
   }
 
+  if (!season.acceptParticipants) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'This season is not currently accepting any participants',
+    });
+  }
+
   // Find the team matching with seasons game
   const [applyingTeam] = user.currentTeams.filter(
     currentTeam => currentTeam.game === season.game,

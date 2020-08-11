@@ -32,6 +32,9 @@ const schema = {
         type: 'string',
         format: 'uri',
       },
+      acceptParticipants: {
+        type: 'boolean',
+      },
     },
   },
   response: {
@@ -76,12 +79,9 @@ const handler = async (req, reply) => {
     season = await Season.findOneAndUpdate({
       _id: req.params.seasonId,
     },
-    req.body,
-    {
-      runValidators: true,
-    });
+    req.body);
   } catch (error) {
-    log.error('Error deleting season: ', error);
+    log.error('Error updating season: ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',

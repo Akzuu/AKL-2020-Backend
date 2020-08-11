@@ -39,6 +39,10 @@ const schema = {
         type: 'string',
         format: 'uri',
       },
+      acceptParticipants: {
+        type: 'boolean',
+        default: true,
+      },
     },
   },
   response: {
