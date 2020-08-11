@@ -4,8 +4,7 @@ const SteamId = require('steamid');
 const { log, steamUserManager } = require('../../lib');
 const { User } = require('../../models');
 
-const HOST = config.get('host');
-const ROUTE_PREFIX = config.get('routePrefix');
+const FRONTEND_STEAM_CALLBACK_URL = config.get('frontendSteamCallbackUri');
 
 const schema = {
   description: `This endpoint is used by steam openid when it redirects 
@@ -28,7 +27,7 @@ const schema = {
 };
 
 const relyingParty = new openid.RelyingParty(
-  `${HOST}${ROUTE_PREFIX}/integration/steam/login/verify`, // Callback url
+  FRONTEND_STEAM_CALLBACK_URL, // Callback url
   null, // Realm (optional, specifies realm for OpenID authentication)
   true, // Use stateless verification, must be true with Steam
   false, // Strict mode
