@@ -5,7 +5,7 @@ const { User } = require('../../models');
 
 const HOST = config.get('host');
 const ROUTE_PREFIX = config.get('routePrefix');
-const FRONTEND_STEAM_CALLBACK_URL = config.get('frontendSteamCallbackUrl');
+const FRONTEND_STEAM_CALLBACK_URL = config.get('frontendSteamCallbackUri');
 
 
 const schema = {

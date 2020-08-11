@@ -51,6 +51,14 @@ const schema = new Schema({
   challongeURI: {
     type: String,
   },
+  challongeTournamentID: {
+    type: String,
+  },
+  acceptsParticipants: {
+    type: Boolean,
+    required: true,
+    default: true,
+  },
 }, {
   timestamps: true,
 });
