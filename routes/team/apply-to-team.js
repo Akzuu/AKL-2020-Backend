@@ -87,7 +87,19 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (user.currentTeams.filter(currentTeam => currentTeam.game === team.game).length > 0) {
+  if (team.applications.filter(
+    application => String(application.user) === String(user._id),
+  ).length > 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'Already applied to this team!',
+    });
+  }
+
+  if (user.currentTeams.filter(
+    currentTeam => currentTeam.game === team.game,
+  ).length > 0) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
