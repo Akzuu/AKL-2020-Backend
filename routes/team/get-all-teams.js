@@ -34,6 +34,8 @@ const handler = async (req, reply) => {
         applications: 0,
         hidden: 0,
       })
+      .populate('captain', 'username')
+      .populate('members', 'username')
       .limit(pageSize)
       .skip(pageSize * page);
   } catch (error) {

@@ -49,7 +49,10 @@ const handler = async (req, reply) => {
   try {
     team = await Team.findOne({
       _id: req.params.teamId,
-    });
+    })
+      .populate('capitain', 'username')
+      .populate('members', 'username')
+      .populate('applications.user', 'username');
   } catch (error) {
     log.error('Not able to find the team!', error);
     reply.status(500).send({
