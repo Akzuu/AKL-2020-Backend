@@ -16,6 +16,12 @@ const schema = {
   body: {
     type: 'object',
     properties: {
+      seasonName: {
+        type: 'string',
+      },
+      seasonNumber: {
+        type: 'string',
+      },
       division: {
         type: 'string',
       },
