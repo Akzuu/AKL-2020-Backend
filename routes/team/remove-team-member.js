@@ -57,9 +57,6 @@ const handler = async (req, reply) => {
     },
     {
       $pull: { members: req.body.userId },
-    },
-    {
-      runValidators: true,
     });
   } catch (error) {
     log.error('Error when trying to update team! ', error);
@@ -87,8 +84,6 @@ const handler = async (req, reply) => {
       {
         $pull: { currentTeams: req.params.teamId },
         $push: { previousTeams: req.params.teamId },
-      }, {
-        runValidators: true,
       },
     );
   } catch (error) {
