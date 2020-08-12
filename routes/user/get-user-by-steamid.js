@@ -23,7 +23,9 @@ const handler = async (req, reply) => {
     }, {
       password: 0, // Do not return password
       'riotGames.encryptedSummonerId': 0,
-    });
+    })
+      .populate('currentTeams', 'teamName')
+      .populate('previousTeams', 'teamName');
   } catch (error) {
     log.error('Not able to find the user!', error);
     reply.status(500).send({

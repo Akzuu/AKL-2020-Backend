@@ -56,7 +56,9 @@ const handler = async (req, reply) => {
     season = await Season.findOne({
       _id: req.params.seasonId,
     },
-    projection);
+    projection)
+      .populate('teams', 'teamName')
+      .populate('applications.team');
   } catch (error) {
     log.error('Error when trying to get a season via ID: ', error);
     reply.status(500).send({
