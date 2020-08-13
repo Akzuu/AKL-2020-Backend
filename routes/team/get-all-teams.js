@@ -20,17 +20,26 @@ const schema = {
         default: 20,
         description: 'How many will be returned',
       },
+      game: {
+        type: 'string',
+        description: 'Filter returned seasons using the game name',
+      },
     },
   },
   // TODO: Response
 };
 
 const handler = async (req, reply) => {
-  const { page, pageSize } = req.query;
+  const { page, pageSize, game } = req.query;
+
+  const findParams = {
+    game: game || /.*/g,
+  };
+
   let teams;
   try {
     teams = await Team
-      .find({}, {
+      .find(findParams, {
         applications: 0,
         hidden: 0,
       })

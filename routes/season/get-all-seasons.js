@@ -26,6 +26,10 @@ const schema = {
         default: 20,
         description: 'How many will be returned',
       },
+      game: {
+        type: 'string',
+        description: 'Filter returned seasons using the game name',
+      },
     },
   },
   response: {
@@ -41,14 +45,15 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  const { page, pageSize } = req.query;
+  const {
+    page, pageSize, showHidden, game,
+  } = req.query;
   let seasons;
 
-  let findParams = { hidden: false };
-
-  if (!req.query.showHidden) {
-    findParams = {};
-  }
+  const findParams = {
+    hidden: showHidden || false,
+    game: game || /.*/g,
+  };
 
   try {
     seasons = await Season.find(findParams, {
