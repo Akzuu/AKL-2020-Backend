@@ -34,12 +34,55 @@ const schema = {
       hidden: {
         type: 'boolean',
       },
-      challongeURI: {
-        type: 'string',
-        format: 'uri',
-      },
       acceptParticipants: {
         type: 'boolean',
+      },
+      challonge: {
+        subdomain: {
+          type: 'string',
+          description: 'Subdomain used in challonge url. E.g subdomain akl = akl.challonge.com/...',
+        },
+        twoStageTournament: {
+          type: 'boolean',
+          default: false,
+          description: 'If tournament is not a two stage tournament, final choices are the only ones that matter',
+        },
+        groupStageTournamentType: {
+          type: 'string',
+          enum: ['single elimination', 'double elimination', 'round robin'],
+          default: 'round robin',
+        },
+        groupSize: {
+          type: 'number',
+          default: 4,
+          min: 2,
+          max: 20,
+        },
+        groupAdvance: {
+          type: 'number',
+          default: 2,
+          min: 1,
+          max: 20,
+          description: 'How many teams proceed to final stage from the groups',
+        },
+        groupRankBy: {
+          type: 'string',
+          enum: ['match wins', 'points scored', 'points difference'],
+          default: 'match wins',
+        },
+        finalStageTournamentType: {
+          type: 'string',
+          enum: ['single elimination', 'double elimination', 'round robin', 'swiss'],
+          default: 'single elimination',
+          description: 'If tournament is not a two stage tournament, final choices are the only ones that matter',
+        },
+        finalStageIncludeMatchForThird: {
+          type: 'boolean',
+          default: false,
+        },
+        finalStageSwissRounds: {
+          type: 'number',
+        },
       },
     },
   },

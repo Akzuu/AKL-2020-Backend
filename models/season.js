@@ -48,16 +48,59 @@ const schema = new Schema({
     required: true,
     default: false,
   },
-  challongeURI: {
-    type: String,
-  },
-  challongeTournamentID: {
-    type: String,
-  },
   acceptsParticipants: {
     type: Boolean,
     required: true,
     default: true,
+  },
+  challonge: {
+    URI: {
+      type: String,
+    },
+    tournamentID: {
+      type: String,
+    },
+    subdomain: {
+      type: String,
+    },
+    twoStageTournament: {
+      type: Boolean,
+      default: false,
+    },
+    groupStageTournamentType: {
+      type: String,
+      enum: ['single elimination', 'double elimination', 'round robin'],
+      default: 'round robin',
+    },
+    groupSize: {
+      type: Number,
+      default: 4,
+      min: 2,
+      max: 20,
+    },
+    groupAdvance: {
+      type: Number,
+      default: 2,
+      min: 1,
+      max: 20,
+    },
+    groupRankBy: {
+      type: String,
+      enum: ['match wins', 'points scored', 'points difference'],
+      default: 'match wins',
+    },
+    finalStageTournamentType: {
+      type: String,
+      enum: ['single elimination', 'double elimination', 'round robin', 'swiss'],
+      default: 'single elimination',
+    },
+    finalStageIncludeMatchForThird: {
+      type: Boolean,
+      default: false,
+    },
+    finalStageSwissRounds: {
+      type: Number,
+    },
   },
 }, {
   timestamps: true,
