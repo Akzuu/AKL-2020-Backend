@@ -32,4 +32,5 @@ module.exports = {
     email: 'example@email.com',
   },
   serviceEmail: '"Akateeminen Kynäriliiga" <akl@null.net>',
+  challongeBackendServiceUri: 'URL for challonge backend service. E.g. http:localhost:3001',
 };

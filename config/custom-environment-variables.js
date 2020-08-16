@@ -31,4 +31,5 @@ module.exports = {
     password: 'SUPER_ADMIN_PASSWORD',
     email: 'SUPER_ADMIN_EMAIL',
   },
+  challongeBackendServiceUri: 'CHALLONGE_SERVICE_URI',
 };
