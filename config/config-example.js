@@ -1,8 +1,8 @@
 module.exports = {
   host: 'Backend URI. E.g. http://localhost:3000 !Do not use backslash!',
-  frontendSteamCallbackUrl: 'Steam will redirect users to this url after login in',
-  frontendEmailVerificationUrl: 'Email verification links will move user here',
-  frontendPasswordResetUrl: 'Password reset links will move user here',
+  frontendSteamCallbackUri: 'Steam will redirect users to this url after login in',
+  frontendEmailVerificationUri: 'Email verification links will move user here',
+  frontendPasswordResetUri: 'Password reset links will move user here',
   database: {
     mongo: {
       uri: 'E.g mongodb://localhost:27017/akl-backend',
