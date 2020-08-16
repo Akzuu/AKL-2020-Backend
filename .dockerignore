@@ -3,4 +3,4 @@ npm-debug.log
 
 # Ignore local configs
 config/local.js
-envlist.env
+*.env
