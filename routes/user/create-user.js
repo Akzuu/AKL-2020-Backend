@@ -168,19 +168,16 @@ const handler = async (req, reply) => {
     return;
   }
 
-
-  if (user.roles.find(role => role === 'unConfirmedEmail')) {
-    try {
-      await sendEmailVerification(user, reply);
-    } catch (error) {
-      log.error('Error sending an email! ', error);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-        message: 'Sending email failed, but account creation was complete.',
-      });
-      return;
-    }
+  try {
+    await sendEmailVerification(user, reply);
+  } catch (error) {
+    log.error('Error sending an email! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+      message: 'Sending email failed, but account creation was complete.',
+    });
+    return;
   }
 
   reply.status(201).send({
