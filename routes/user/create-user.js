@@ -1,4 +1,4 @@
-const { log, sendEmailVerification, steamUserManager } = require('../../lib');
+const { log, sendEmailVerification } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
@@ -107,42 +107,27 @@ const handler = async (req, reply) => {
       return;
     }
 
-    // If user exists, merge accounts
+    // If user exists, stop the process
     if (user) {
-      try {
-        await User.findByIdAndDelete(authPayload._id);
-      } catch (error) {
-        log.error('Error when trying to remove duplicate steam account! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
+      reply.status(403).send({
+        status: 'ERROR',
+        error: 'Forbidden',
+        message: 'Please use steam account linking to link your account to steam!',
+      });
+      return;
+    }
 
-      try {
-        await steamUserManager.linkUser(user, authPayload.steamID64);
-      } catch (error) {
-        log.error('Error when trying to link steam account to user! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
-    } else {
-      try {
-        user = await User.findByIdAndUpdate(authPayload._id, payload, {
-          new: true,
-        });
-      } catch (error) {
-        log.error('Error when trying to update existing steam account! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
+    try {
+      user = await User.findByIdAndUpdate(authPayload._id, payload, {
+        new: true,
+      });
+    } catch (error) {
+      log.error('Error when trying to update existing steam account! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
     }
   }
 
@@ -183,17 +168,19 @@ const handler = async (req, reply) => {
     return;
   }
 
-  // Send verification email
-  try {
-    await sendEmailVerification(user, reply);
-  } catch (error) {
-    log.error('Error sending an email! ', error);
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-      message: 'Sending email failed, but account creation was complete.',
-    });
-    return;
+
+  if (user.roles.find(role => role === 'unConfirmedEmail')) {
+    try {
+      await sendEmailVerification(user, reply);
+    } catch (error) {
+      log.error('Error sending an email! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+        message: 'Sending email failed, but account creation was complete.',
+      });
+      return;
+    }
   }
 
   reply.status(201).send({
