@@ -1,4 +1,4 @@
-const { log, sendEmailVerification } = require('../../lib');
+const { log, sendEmailVerification, steamUserManager } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
@@ -36,6 +36,10 @@ const schema = {
         type: 'string',
         minLength: 8,
       },
+      steamRegistrationToken: {
+        type: 'string',
+        description: 'Send this token to complete registration process via steam',
+      },
     },
   },
   response: {
@@ -57,21 +61,101 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let user;
-
   const payload = req.body;
   payload.roles = ['player', 'unConfirmedEmail'];
   payload.registrationComplete = true;
 
-  try {
-    user = await User.create(payload);
-  } catch (error) {
-    log.error('Error when trying to create user! ', { error, body: req.body });
-    reply.status(500).send({
-      status: 'ERROR',
-      error: 'Internal Server Error',
-    });
-    return;
+  let user;
+
+  // Check steamRegistrationToken and check if given email can be found from the
+  // database. If so, merge accounts
+  if (req.body.steamRegistrationToken) {
+    req.raw.headers.authorization = `Bearer ${req.body.steamRegistrationToken}`;
+
+    let authPayload;
+    try {
+      authPayload = await req.jwtVerify();
+    } catch (error) {
+      log.error('Error validating steam registration token! ', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
+
+    if (!authPayload.steamRegistrationToken) {
+      reply.status(403).send({
+        status: 'ERROR',
+        error: 'Forbidden',
+        message: 'Invalid steamRegistrationToken',
+      });
+      return;
+    }
+
+    try {
+      user = await User.findOne({
+        email: req.body.email,
+      });
+    } catch (error) {
+      log.error('Error when trying to find user!', error);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
+
+    // If user exists, merge accounts
+    if (user) {
+      try {
+        await User.findByIdAndDelete(authPayload._id);
+      } catch (error) {
+        log.error('Error when trying to remove duplicate steam account! ', error);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
+        return;
+      }
+
+      try {
+        await steamUserManager.linkUser(user, authPayload.steamID64);
+      } catch (error) {
+        log.error('Error when trying to link steam account to user! ', error);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
+        return;
+      }
+    } else {
+      try {
+        user = await User.findByIdAndUpdate(authPayload._id, payload, {
+          new: true,
+        });
+      } catch (error) {
+        log.error('Error when trying to update existing steam account! ', error);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
+        return;
+      }
+    }
+  }
+
+  if (!user) {
+    try {
+      user = await User.create(payload);
+    } catch (error) {
+      log.error('Error when trying to create user! ', { error, body: req.body });
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
   }
 
   let accessToken;
@@ -91,13 +175,13 @@ const handler = async (req, reply) => {
     });
   } catch (err) {
     log.error('Error creating tokens!', err);
-    log.error('Error when trying to create tokens! ', err);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
     });
     return;
   }
+
   // Send verification email
   try {
     await sendEmailVerification(user, reply);
@@ -106,6 +190,7 @@ const handler = async (req, reply) => {
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
+      message: 'Sending email failed, but account creation was complete.',
     });
     return;
   }

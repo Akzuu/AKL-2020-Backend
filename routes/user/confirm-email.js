@@ -2,7 +2,7 @@ const { log } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Completes Users registration. Requires authorization',
+  description: 'Confirms email. Requires authorization',
   summary: 'Complete registration process',
   tags: ['User'],
   query: {

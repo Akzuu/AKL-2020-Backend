@@ -187,50 +187,36 @@ const handler = async (req, reply) => {
       return;
     }
 
-    // User not found
-    reply.status(404).send({
-      status: 'ERROR',
-      error: 'Not Found',
-    });
-
-    /**
-     * This feature has been disabled, because it can create conflicts when
-     * user already has an account, but has not yet linked steam account to
-     * that account, leading the user having two accounts
-     */
-
     // Start account creation process
-    //   let id;
-    //   try {
-    //     id = await steamUserManager.createUser(steamID64);
-    //   } catch (err) {
-    //     log.error('Unexpected error while trying to create user! ', err);
-    //     reply.redirect(`${REDIRECT_URI}?status=ERROR&error="Internal Server Error"`);
-    //     return;
-    //   }
+    let id;
+    try {
+      id = await steamUserManager.createUser(steamID64);
+    } catch (err) {
+      log.error('Unexpected error while trying to create user! ', err);
+      reply.status(500).send({
+        status: 'ERROR',
+        error: 'Internal Server Error',
+      });
+      return;
+    }
 
-    //   let accessToken;
-    //   let refreshToken;
-    //   try {
-    //     accessToken = await reply.jwtSign({
-    //       _id: id,
-    //       roles: ['unregistered'],
-    //       steamID64,
-    //     }, {
-    //       expiresIn: '10min',
-    //     });
+    let steamRegistrationToken;
+    try {
+      steamRegistrationToken = await reply.jwtSign({
+        _id: id,
+        steamID64,
+        steamRegistrationToken: true,
+      }, {
+        expiresIn: '10min',
+      });
+    } catch (err) {
+      log.error('Error creating token!', err);
+    }
 
-    //     refreshToken = await reply.jwtSign({
-    //       _id: id,
-    //     }, {
-    //       expiresIn: '2d',
-    //     });
-    //   } catch (err) {
-    //     log.error('Error creating token!', err);
-    //   }
-
-    //   reply.redirect(`${REDIRECT_URI}?status=CREATED
-    //              &accessToken=${accessToken}&refreshToken=${refreshToken}`);
+    reply.status(201).send({
+      status: 'CREATED',
+      steamRegistrationToken,
+    });
   });
 };
 
