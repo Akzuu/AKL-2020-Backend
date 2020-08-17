@@ -4,7 +4,6 @@ const updateUser = require('./update-user');
 const getUser = require('./get-user');
 const getUserByUsername = require('./get-user-by-username');
 const getAllUsers = require('./get-all-users');
-const completeRegistration = require('./complete-registration');
 const manageRoles = require('./manage-roles');
 const confirmEmail = require('./confirm-email');
 const resetPassword = require('./reset-password');
@@ -23,7 +22,6 @@ module.exports = {
   getUser,
   getUserByUsername,
   getAllUsers,
-  completeRegistration,
   manageRoles,
   confirmEmail,
   resetPassword,
