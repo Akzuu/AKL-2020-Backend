@@ -60,6 +60,7 @@ const schema = {
   },
 };
 
+// TODO: Rewrite this :D
 const handler = async (req, reply) => {
   const payload = req.body;
   payload.roles = ['player', 'unConfirmedEmail'];
