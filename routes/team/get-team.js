@@ -72,6 +72,7 @@ const handler = async (req, reply) => {
 
   // Own team
   if (authPayload
+    && team.members
     && team.members.find(member => String(member._id) === String(authPayload._id))) {
     reply.send(team);
     return;
