@@ -5,7 +5,6 @@ const { User } = require('../../models');
 
 const HOST = config.get('host');
 const ROUTE_PREFIX = config.get('routePrefix');
-const FRONTEND_STEAM_CALLBACK_URL = config.get('frontendSteamCallbackUri');
 
 
 const schema = {
@@ -63,7 +62,7 @@ const handler = async (req, reply) => {
   }
 
   const relyingParty = new openid.RelyingParty(
-    FRONTEND_STEAM_CALLBACK_URL, // Callback url
+    `${HOST}${ROUTE_PREFIX}/integration/steam/login/verify?linkToken=${linkToken}`, // Callback url
     null, // Realm (optional, specifies realm for OpenID authentication)
     true, // Use stateless verification, must be true with Steam
     false, // Strict mode

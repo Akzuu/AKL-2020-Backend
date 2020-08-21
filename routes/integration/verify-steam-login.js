@@ -56,10 +56,7 @@ const handler = async (req, reply) => {
   relyingParty.verifyAssertion(req.raw.url, async (error, result) => {
     if (error || !result.authenticated) {
       log.error('Error validating assertion! ', error);
-      reply.status(401).send({
-        status: 'ERROR',
-        error: 'Unauthorized',
-      });
+      reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error=Unauthorized`);
       return;
     }
 
@@ -72,10 +69,7 @@ const handler = async (req, reply) => {
       if (!sid.isValid) throw new Error('Invalid SteamId');
     } catch (err) {
       log.error('Error matching regex! ', err);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
+      reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
       return;
     }
 
@@ -95,10 +89,7 @@ const handler = async (req, reply) => {
         authPayload = await req.jwtVerify();
       } catch (err) {
         log.error('Error confirming linkToken: ', err);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
         return;
       }
 
@@ -108,18 +99,12 @@ const handler = async (req, reply) => {
         });
       } catch (err) {
         log.error('Error when trying to look for user! ', err);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
         return;
       }
 
       if (!user) {
-        reply.status(404).send({
-          status: 'ERROR',
-          error: 'Not Found',
-        });
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Not Found"`);
         return;
       }
 
@@ -128,10 +113,7 @@ const handler = async (req, reply) => {
         user = await steamUserManager.linkUser(user, steamID64);
       } catch (err) {
         log.error('Error when trying to link user: ', err);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
         return;
       }
 
@@ -143,10 +125,7 @@ const handler = async (req, reply) => {
         });
       } catch (err) {
         log.error('Error when trying to look for user! ', err);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
         return;
       }
     }
@@ -171,19 +150,11 @@ const handler = async (req, reply) => {
         });
       } catch (err) {
         log.error('Error creating token!', err);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
         return;
       }
 
-      reply.send({
-        status: 'OK',
-        accessToken,
-        refreshToken,
-        linked,
-      });
+      reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=OK&accessToken=${accessToken}&refreshToken=${refreshToken}&linked=${linked}`);
       return;
     }
 
@@ -193,10 +164,7 @@ const handler = async (req, reply) => {
       id = await steamUserManager.createUser(steamID64);
     } catch (err) {
       log.error('Unexpected error while trying to create user! ', err);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
+      reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
       return;
     }
 
@@ -207,16 +175,13 @@ const handler = async (req, reply) => {
         steamID64,
         steamRegistrationToken: true,
       }, {
-        expiresIn: '10min',
+        expiresIn: '7d',
       });
     } catch (err) {
       log.error('Error creating token!', err);
     }
 
-    reply.status(201).send({
-      status: 'CREATED',
-      steamRegistrationToken,
-    });
+    reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=CREATED&steamRegistrationToken=${steamRegistrationToken}`);
   });
 };
 
