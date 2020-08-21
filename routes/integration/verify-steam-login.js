@@ -49,8 +49,7 @@ const steamIdRegex = new RegExp(/(\d{17})$/, 'g');
  * we parse steamid64 from the url and check if the user already has an account
  * on our service. If true, we just redirect user to frontpage with new token.
  *
- * If user does not have an account, he will be redirected to the frontpage
- * TODO: Redirect to register page
+ * If user does not have an account, account will be created based on steam data
  *
  * @param {*} req
  * @param {*} reply
