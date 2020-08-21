@@ -50,7 +50,7 @@ const handler = async (req, reply) => {
     team = await Team.findOne({
       _id: req.params.teamId,
     })
-      .populate('capitain', 'username')
+      .populate('captain', 'username')
       .populate('members', 'username')
       .populate('applications.user', 'username');
   } catch (error) {
@@ -71,7 +71,8 @@ const handler = async (req, reply) => {
   }
 
   // Own team
-  if (authPayload && team.members.includes(authPayload._id)) {
+  if (authPayload
+    && team.members.find(member => String(member._id) === String(authPayload._id))) {
     reply.send(team);
     return;
   }
