@@ -149,6 +149,7 @@ const handler = async (req, reply) => {
     payload,
     {
       runValidators: true,
+      new: true,
     });
   } catch (error) {
     log.error('Error when trying to update user! ', error);
