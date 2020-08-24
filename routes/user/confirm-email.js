@@ -31,24 +31,19 @@ const handler = async (req, reply) => {
   try {
     authPayload = await req.jwtVerify();
   } catch (error) {
-    reply.status(500).send({
+    reply.status(400).send({
       status: 'ERROR',
-      error: 'Internal Server Error',
+      error: 'Bad Request',
+      message: 'Verifying the confirmation token failed!',
     });
     return;
   }
 
   let user;
   try {
-    user = await User.findOneAndUpdate({
-      _id: authPayload._id,
-      emailConfirmed: false,
-    }, {
-      emailConfirmed: true,
-      $pull: { roles: 'unConfirmedEmail' },
-    });
+    user = await User.findById(authPayload._id);
   } catch (error) {
-    log.error('Error updating user!', error);
+    log.error('Error finding user!', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -56,10 +51,30 @@ const handler = async (req, reply) => {
   }
 
   if (!user) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'User not found!',
+    });
+  } else if (user.emailConfirmed) {
     reply.status(400).send({
       status: 'ERROR',
-      error: 'Bad Request',
-      message: 'Email confirmed already!',
+      error: 'Bad Reqeust',
+      message: 'Email already confirmed!',
+    });
+  }
+
+  // Update components
+  user.emailConfirmed = true;
+  user.roles = user.roles.filter(role => role !== 'unConfirmedEmail');
+
+  try {
+    await user.save();
+  } catch (error) {
+    log.error('Error updating user!', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
   }
 
