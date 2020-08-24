@@ -37,9 +37,6 @@ const relyingParty = new openid.RelyingParty(
   [], // List of extensions to enable and include
 );
 
-const steamIdRegex = new RegExp(/(\d{17})$/, 'g');
-
-
 /**
  * This endpoint is used by steam openid when it redirects user from
  * steamcommunity login. So, how does it work?
@@ -61,6 +58,8 @@ const handler = async (req, reply) => {
       reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error=Unauthorized`);
       return;
     }
+
+    const steamIdRegex = new RegExp(/(\d{17})$/, 'g');
 
     let steamID64;
     try {
