@@ -2,8 +2,8 @@ const { log } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Confirms email. Requires authorization',
-  summary: 'Complete registration process',
+  description: 'Confirms email',
+  summary: 'Cpnfirm email',
   tags: ['User'],
   query: {
     type: 'object',
