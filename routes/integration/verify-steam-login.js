@@ -136,6 +136,23 @@ const handler = async (req, reply) => {
 
     // User already has an account, so just log in and redirect to frontpage
     if (user) {
+      // Send registration token if user has not completed registration
+      if (!user.registrationComplete) {
+        let steamRegistrationToken;
+        try {
+          steamRegistrationToken = await reply.jwtSign({
+            _id: user._id,
+            steamRegistrationToken: true,
+          }, {
+            expiresIn: '7d',
+          });
+        } catch (err) {
+          log.error('Error creating token!', err);
+        }
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=OK&steamRegistrationToken=${steamRegistrationToken}`);
+        return;
+      }
+
       let accessToken;
       let refreshToken;
       try {
@@ -158,24 +175,6 @@ const handler = async (req, reply) => {
         return;
       }
 
-      // Send registration token if user has not completed registration
-      if (!user.registrationComplete) {
-        let steamRegistrationToken;
-        try {
-          steamRegistrationToken = await reply.jwtSign({
-            _id: user._id,
-            steamID64,
-            steamRegistrationToken: true,
-          }, {
-            expiresIn: '7d',
-          });
-        } catch (err) {
-          log.error('Error creating token!', err);
-        }
-        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=OK&accessToken=${accessToken}&refreshToken=${refreshToken}&linked=${linked}&steamRegistrationToken=${steamRegistrationToken}`);
-        return;
-      }
-
       reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=OK&accessToken=${accessToken}&refreshToken=${refreshToken}&linked=${linked}`);
       return;
     }
@@ -194,7 +193,6 @@ const handler = async (req, reply) => {
     try {
       steamRegistrationToken = await reply.jwtSign({
         _id: id,
-        steamID64,
         steamRegistrationToken: true,
       }, {
         expiresIn: '7d',
