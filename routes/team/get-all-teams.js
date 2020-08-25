@@ -24,16 +24,24 @@ const schema = {
         type: 'string',
         description: 'Filter returned seasons using the game name',
       },
+      hidden: {
+        type: 'boolean',
+        default: false,
+        description: 'Show hidden teams',
+      },
     },
   },
   // TODO: Response
 };
 
 const handler = async (req, reply) => {
-  const { page, pageSize, game } = req.query;
+  const {
+    page, pageSize, game, hidden,
+  } = req.query;
 
   const findParams = {
     game: game || /.*/g,
+    hidden,
   };
 
   let teams;
@@ -41,7 +49,6 @@ const handler = async (req, reply) => {
     teams = await Team
       .find(findParams, {
         applications: 0,
-        hidden: 0,
       })
       .populate('captain', 'username')
       .populate('members', 'username')

@@ -32,22 +32,15 @@ const schema = {
 };
 
 
-// TODO: Optimize Team database queries
 const handler = async (req, reply) => {
   let team;
   try {
-    team = await Team.findOneAndUpdate({
+    team = await Team.findOne({
       _id: req.params.teamId,
       members: req.auth.jwtPayload._id,
-    },
-    {
-      $pull: { members: req.auth.jwtPayload._id },
-    },
-    {
-      runValidators: true,
     });
   } catch (error) {
-    log.error('Error when trying to update team! ', error);
+    log.error('Error when trying to find team! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -64,43 +57,35 @@ const handler = async (req, reply) => {
     return;
   }
 
+  // Remove member
+  team.members = team.members.filter(
+    member => String(member._id) !== req.auth.jwtPayload._id,
+  );
+
   // Captain leaving the team
   if (String(team.captain) === req.auth.jwtPayload._id) {
-    let updatePayload;
-
     /**
      * If there are still members to the team, assign one of them
      * as the new captain
      * else hide the team, because there are no more members for it
      */
-    if (team.members.length !== 0) {
-      updatePayload = { captain: team.members[0] };
+    if (team.members.length > 0) {
+      [team.captain] = team.members;
     } else {
-      updatePayload = { hidden: true };
-    }
-
-    try {
-      await Team.findOneAndUpdate(
-        {
-          _id: req.params.teamId,
-        },
-        {
-          updatePayload,
-        },
-        {
-          runValidators: true,
-        },
-      );
-    } catch (error) {
-      log.error('Error when trying to assign new captain automaticly! ', error);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
-      return;
+      team.hidden = true;
+      team.captain = null;
     }
   }
 
+  try {
+    await team.save();
+  } catch (error) {
+    log.error('Error when trying to update Team! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+  }
 
   // Update user profile
   try {
