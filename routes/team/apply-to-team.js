@@ -95,6 +95,7 @@ const handler = async (req, reply) => {
       error: 'Forbidden',
       message: 'Already applied to this team!',
     });
+    return;
   }
 
   if (user.currentTeams.filter(
