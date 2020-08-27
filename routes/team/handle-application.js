@@ -76,6 +76,18 @@ const handler = async (req, reply) => {
     });
   }
 
+  const applicationArray = team.applications
+    .filter(application => String(application.user) === req.body.userId);
+
+  if (applicationArray.length === 0) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'Application not found!',
+    });
+    return;
+  }
+
   if (req.body.accepted) {
     team.members.push(req.body.userId);
 
