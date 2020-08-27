@@ -44,29 +44,61 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let payload;
-  if (req.body.accepted) {
-    payload = {
-      $push: { members: req.body.userId },
-      $pull: { applications: { user: req.body.userId } },
-    };
-  } else {
-    payload = {
-      $pull: { applications: { user: req.body.userId } },
-    };
-  }
-
   let team;
   try {
-    team = await Team.findOneAndUpdate({
+    team = await Team.findOne({
       _id: req.params.teamId,
       captain: req.auth.jwtPayload._id,
-    },
-    payload,
-    {
-      runValidators: true,
-      new: true,
     });
+  } catch (error) {
+    log.error('Error when trying to find team! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (!team) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'Only the captain can update the team!',
+    });
+    return;
+  }
+
+  if (team.members.length >= 8) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'Team is full! Consider removing some members before accepting new ones.',
+    });
+  }
+
+  if (req.body.accepted) {
+    team.members.push(req.body.userId);
+
+    // Update LoL team rank
+    if (team.game === 'League of Legends') {
+      try {
+        team.rank = await calculateAverageRiotRank(team.members);
+      } catch (error) {
+        log.error('Error trying to calculate average rank! ', error);
+        reply.status(500).send({
+          status: 'ERROR',
+          error: 'Internal Server Error',
+        });
+        return;
+      }
+    }
+  }
+
+  team.applications = team.applications
+    .filter(application => String(application.user) !== req.body.userId);
+
+  try {
+    await team.save();
   } catch (error) {
     log.error('Error when trying to update team! ', error);
     reply.status(500).send({
@@ -76,24 +108,13 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (!team) {
-    reply.status(401).send({
-      status: 'ERROR',
-      error: 'Unauthorized',
-      message: 'Only captain can update the team!',
-    });
-    return;
-  }
-
   // Update users profile only after we have made sure team update was a success
   if (req.body.accepted) {
     try {
-      await User.findOneAndUpdate({
+      await User.updateOne({
         _id: req.body.userId,
       }, {
         $push: { currentTeams: req.params.teamId },
-      }, {
-        runValidators: true,
       });
     } catch (error) {
       log.error('Error when trying to update users currentTeam! ', error);
@@ -102,36 +123,6 @@ const handler = async (req, reply) => {
         error: 'Internal Server Error',
       });
       return;
-    }
-
-    // Update team after accepting application
-    if (team.game === 'League of Legends') {
-      let newRank;
-      try {
-        newRank = await calculateAverageRiotRank(team.members);
-      } catch (error) {
-        log.error('Error trying to calculate average rank! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
-
-      try {
-        await Team.updateOne({
-          _id: team._id,
-        }, {
-          rank: newRank,
-        });
-      } catch (error) {
-        log.error('Error trying to update teams rank! ', error);
-        reply.status(500).send({
-          status: 'ERROR',
-          error: 'Internal Server Error',
-        });
-        return;
-      }
     }
   }
 
