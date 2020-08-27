@@ -16,6 +16,10 @@ const schema = {
   body: {
     type: 'object',
     properties: {
+      teamName: {
+        type: 'string',
+        minLength: 3,
+      },
       abbreviation: {
         type: 'string',
         minLength: 1,
@@ -65,15 +69,12 @@ const handler = async (req, reply) => {
 
   let team;
   try {
-    team = await Team.findOneAndUpdate({
+    team = await Team.findOne({
       _id: req.params.teamId,
       captain: req.auth.jwtPayload._id,
-    }, req.body,
-    {
-      runValidators: true,
-    });
+    }).populate('seasons', 'seasonEnded');
   } catch (error) {
-    log.error('Error when trying to update team! ', error);
+    log.error('Error when trying to find team! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -82,10 +83,36 @@ const handler = async (req, reply) => {
   }
 
   if (!team) {
-    reply.status(401).send({
+    reply.status(403).send({
       status: 'ERROR',
-      error: 'Unauthorized',
+      error: 'Forbidden',
       message: 'Only captain can update the team!',
+    });
+    return;
+  }
+
+  // Only allow updating team if team is not part of an active season
+  if (team.seasons.filter(season => season.seasonEnded !== true).length !== 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'Team cannot be updated when it is part of an active season',
+    });
+    return;
+  }
+
+  try {
+    await Team.updateOne({
+      _id: req.params.teamId,
+      captain: req.auth.jwtPayload._id,
+    }, req.body, {
+      runValidators: true,
+    });
+  } catch (error) {
+    log.error('Error when trying to update team! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
     return;
   }

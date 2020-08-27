@@ -38,7 +38,7 @@ const handler = async (req, reply) => {
     team = await Team.findOne({
       _id: req.params.teamId,
       members: req.auth.jwtPayload._id,
-    });
+    }).populate('seasons', 'seasonEnded');
   } catch (error) {
     log.error('Error when trying to find team! ', error);
     reply.status(500).send({
@@ -53,6 +53,16 @@ const handler = async (req, reply) => {
       status: 'ERROR',
       error: 'Not Found',
       message: 'Team not found. Is user part of this team?',
+    });
+    return;
+  }
+
+  // Only allow leaving team if team is not part of an active season
+  if (team.seasons.filter(season => season.seasonEnded !== true).length !== 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'You can not leave team during an active season!',
     });
     return;
   }

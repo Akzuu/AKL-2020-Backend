@@ -51,15 +51,12 @@ const handler = async (req, reply) => {
 
   let team;
   try {
-    team = await Team.findOneAndUpdate({
+    team = await Team.findOne({
       _id: req.params.teamId,
       captain: req.auth.jwtPayload._id,
-    },
-    {
-      $pull: { members: req.body.userId },
-    });
+    }).populate('seasons', 'seasonEnded');
   } catch (error) {
-    log.error('Error when trying to update team! ', error);
+    log.error('Error when trying to find team! ', error);
     reply.status(500).send({
       status: 'ERROR',
       error: 'Internal Server Error',
@@ -75,6 +72,31 @@ const handler = async (req, reply) => {
     });
     return;
   }
+
+  // Only allow removing member if team is not part of an active season
+  if (team.seasons.filter(season => season.seasonEnded !== true).length !== 0) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'You can not remove team member during an active season!',
+    });
+    return;
+  }
+
+  team.members = team.members
+    .filter(member => String(member) !== req.body.userId);
+
+  try {
+    await team.save();
+  } catch (error) {
+    log.error('Error when trying to update team! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
 
   try {
     await User.findOneAndUpdate(
