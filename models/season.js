@@ -53,6 +53,10 @@ const schema = new Schema({
     required: true,
     default: true,
   },
+  seasonEnded: {
+    type: Boolean,
+    default: false,
+  },
   challonge: {
     URI: {
       type: String,
