@@ -52,7 +52,8 @@ const handler = async (req, reply) => {
     })
       .populate('captain', 'username')
       .populate('members', 'username')
-      .populate('applications.user', 'username');
+      .populate('applications.user', 'username')
+      .populate('seasons', ['seasonName', 'seasonNumber', 'division', 'year', 'seasonEnded']);
   } catch (error) {
     log.error('Not able to find the team!', error);
     reply.status(500).send({
