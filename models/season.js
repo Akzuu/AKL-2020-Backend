@@ -57,6 +57,9 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   },
+  maximumParticipants: {
+    type: Number,
+  },
   challonge: {
     URI: {
       type: String,

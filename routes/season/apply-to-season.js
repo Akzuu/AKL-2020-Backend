@@ -100,12 +100,13 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (!season.acceptParticipants) {
+  if (!season.acceptsParticipants) {
     reply.status(403).send({
       status: 'ERROR',
       error: 'Forbidden',
       message: 'This season is not currently accepting any participants',
     });
+    return;
   }
 
   // Find the team matching with seasons game
@@ -131,6 +132,24 @@ const handler = async (req, reply) => {
     return;
   }
 
+  if (applyingTeam.members.length < 5) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'Team does not have enough members to apply to this season! You need atleast five members to participate!',
+    });
+    return;
+  }
+
+  if (applyingTeam.seasons.filter(teamSeason => String(teamSeason) === req.params.seasonId)) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'Already applied to this season!',
+    });
+    return;
+  }
+
   if (season.applications.filter(
     application => String(application.team) === String(applyingTeam._id),
   ).length > 0) {
@@ -139,6 +158,7 @@ const handler = async (req, reply) => {
       error: 'Forbidden',
       message: 'Already applied to this season!',
     });
+    return;
   }
 
   try {

@@ -54,28 +54,9 @@ const handler = async (req, reply) => {
     return;
   }
 
-  let payload;
-  if (req.body.accepted) {
-    payload = {
-      $push: { teams: req.body.teamId },
-      $pull: { applications: { team: req.body.teamId } },
-    };
-  } else {
-    payload = {
-      $pull: { applications: { team: req.body.teamId } },
-    };
-  }
-
   let season;
   try {
-    season = await Season.findOneAndUpdate({
-      _id: req.params.seasonId,
-      'applications.team': req.body.teamId,
-    },
-    payload,
-    {
-      runValidators: true,
-    });
+    season = await Season.findById(req.params.seasonId);
   } catch (error) {
     log.error('Error when trying to update team! ', error);
     reply.status(500).send({
@@ -89,7 +70,46 @@ const handler = async (req, reply) => {
     reply.status(404).send({
       status: 'ERROR',
       error: 'Not Found',
-      message: 'Season / team not found inside season!',
+      message: 'Season not found!',
+    });
+    return;
+  }
+
+  if (season.maximumParticipants && season.teams.length >= season.maximumParticipants) {
+    reply.status(403).send({
+      status: 'ERROR',
+      error: 'Forbidden',
+      message: 'Season has reached maximum number of participants!',
+    });
+    return;
+  }
+
+  const applicationArray = season.applications
+    .filter(application => String(application.team) === req.body.teamId);
+
+  if (applicationArray.length === 0) {
+    reply.status(404).send({
+      status: 'ERROR',
+      error: 'Not Found',
+      message: 'Application not found!',
+    });
+    return;
+  }
+
+  if (req.body.accepted) {
+    season.teams.push(req.body.teamId);
+  }
+
+  season.applications = season.applications
+    .filter(application => String(application.team) !== req.body.teamId);
+
+  try {
+    await season.save();
+  } catch (error) {
+    log.error('Error when trying to update season! ', error);
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
     });
     return;
   }
@@ -99,8 +119,6 @@ const handler = async (req, reply) => {
     try {
       await Team.findOneAndUpdate({ _id: req.body.teamId }, {
         $push: { seasons: req.params.seasonId },
-      }, {
-        runValidators: true,
       });
     } catch (error) {
       log.error('Error when trying to update users currentTeam! ', error);

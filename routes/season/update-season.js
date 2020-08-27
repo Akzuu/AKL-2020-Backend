@@ -37,6 +37,9 @@ const schema = {
       acceptParticipants: {
         type: 'boolean',
       },
+      maximumParticipants: {
+        type: 'number',
+      },
       challonge: {
         subdomain: {
           type: 'string',
@@ -128,7 +131,10 @@ const handler = async (req, reply) => {
     season = await Season.findOneAndUpdate({
       _id: req.params.seasonId,
     },
-    req.body);
+    req.body,
+    {
+      runValidators: true,
+    });
   } catch (error) {
     log.error('Error updating season: ', error);
     reply.status(500).send({

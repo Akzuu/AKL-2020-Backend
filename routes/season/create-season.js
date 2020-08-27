@@ -39,6 +39,10 @@ const schema = {
         type: 'boolean',
         default: true,
       },
+      maximumParticipants: {
+        type: 'number',
+        description: 'Maximum number of teams for this season',
+      },
       challonge: {
         subdomain: {
           type: 'string',
