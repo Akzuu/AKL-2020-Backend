@@ -112,6 +112,35 @@ const handler = async (req, reply) => {
         return;
       }
 
+      // Make sure there isn't an account with the id already
+      let steamUser;
+      try {
+        steamUser = await User.findOne({
+          'steam.steamID64': steamID64,
+        });
+      } catch (err) {
+        log.error('Error when trying to look for user! ', err);
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
+        return;
+      }
+
+      if (steamUser && steamUser.registrationComplete) {
+        reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Forbidden"&message="Account already exists with this SteamID!"`);
+        return;
+      }
+
+      if (steamUser && !steamUser.registrationComplete && !steamUser.email) {
+        try {
+          await User.deleteOne({
+            'steam.steamID64': steamID64,
+          });
+        } catch (err) {
+          log.error('Error when trying to remove empty steam user! ', err);
+          reply.redirect(`${FRONTEND_STEAM_CALLBACK_URL}?status=ERROR&error="Internal Server Error"`);
+          return;
+        }
+      }
+
       // Link steam account to the user
       try {
         user = await steamUserManager.linkUser(user, steamID64);
