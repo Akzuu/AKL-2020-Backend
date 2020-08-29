@@ -67,6 +67,39 @@ const handler = async (req, reply) => {
   payload.registrationComplete = true;
 
   let user;
+  // Check if email / username already exists
+  try {
+    user = User.findOne({
+      $or: [{ email: req.body.email }, { username: req.body.username }],
+    });
+  } catch (error) {
+    log.error('Error when trying to find user! ', { error, body: req.body });
+    reply.status(500).send({
+      status: 'ERROR',
+      error: 'Internal Server Error',
+    });
+    return;
+  }
+
+  if (user) {
+    let message;
+
+    if (user.email === req.body.email && user.username === req.body.username) {
+      message = 'Username and email already in use!';
+    } else if (user.email === req.body.email) {
+      message = 'Email already in use!';
+    } else {
+      message = 'Username already in use!';
+    }
+
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Requst',
+      message,
+    });
+    return;
+  }
+
 
   // Check steamRegistrationToken and check if given email can be found from the
   // database. If so, merge accounts
