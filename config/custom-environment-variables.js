@@ -3,8 +3,8 @@ module.exports = {
   frontendSteamCallbackUri: 'FRONTEND_STEAM_CALLBACK_URI',
   frontendEmailVerificationUri: 'FRONTEND_EMAIL_VERIFICATION_CALLBACK_URI',
   frontendPasswordResetUri: 'FRONTEND_PASSWORD_RESET_URI',
-  allFrontendEmailVerificationUri: '',
-  allFrontendPasswordResetUri: '',
+  allFrontendEmailVerificationUri: 'ALL_FRONTEND_EMAIL_VERIFICATION_CALLBACK_URI',
+  allFrontendPasswordResetUri: 'ALL_FRONTEND_PASSWORD_RESET_URI',
   database: {
     mongo: {
       uri: 'MONGODB_URI',
