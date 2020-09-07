@@ -21,4 +21,5 @@ module.exports = {
     ignoreTrailingSlash: true,
   },
   games: ['League of Legends', 'Counter-Strike: Global Offensive'],
+  mailAuth: true,
 };

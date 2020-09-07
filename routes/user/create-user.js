@@ -88,8 +88,6 @@ const handler = async (req, reply) => {
     return;
   }
 
-  console.log(user);
-
   if (user) {
     let message;
 
