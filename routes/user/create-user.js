@@ -76,7 +76,7 @@ const handler = async (req, reply) => {
   let user;
   // Check if email / username already exists
   try {
-    user = User.findOne({
+    user = await User.findOne({
       $or: [{ email: req.body.email }, { username: req.body.username }],
     });
   } catch (error) {
@@ -87,6 +87,8 @@ const handler = async (req, reply) => {
     });
     return;
   }
+
+  console.log(user);
 
   if (user) {
     let message;
