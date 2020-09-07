@@ -1,5 +1,5 @@
 module.exports = {
-  serviceEmail: '"Akateeminen Kynäriliiga" <akl@null.net>',
+  serviceEmail: '"Akateeminen Kynäriliiga" <no-reply@akl.gg>',
   createTestData: false,
   mailAuth: false,
 };
