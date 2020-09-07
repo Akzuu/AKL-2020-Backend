@@ -4,6 +4,7 @@ const { log, sendMail } = require('../../lib');
 const { User } = require('../../models');
 
 const FRONTEND_PASSWORD_RESET_URI = config.get('frontendPasswordResetUri');
+const ALL_FRONTEND_PASSWORD_RESET_URI = config.get('allFrontendPasswordResetUri');
 
 const schema = {
   description: 'Reset password for current user',
@@ -14,6 +15,10 @@ const schema = {
     properties: {
       email: {
         type: 'string',
+      },
+      game: {
+        type: 'string',
+        enum: ['csgo', 'lol'],
       },
     },
   },
@@ -93,12 +98,17 @@ const handler = async (req, reply) => {
     return;
   }
 
+  let passwordResetUri = FRONTEND_PASSWORD_RESET_URI;
+  if (req.body.game === 'lol') {
+    passwordResetUri = ALL_FRONTEND_PASSWORD_RESET_URI;
+  }
+
   // Send email with link to reset password
   try {
     await sendMail(user.email,
       'Password change',
       `Password reset was requested for user ${user.username}. Please click to change password. The link is valid for 24 hours.
-      ${FRONTEND_PASSWORD_RESET_URI}?resetToken=${resetToken}`);
+      ${passwordResetUri}?resetToken=${resetToken}`);
   } catch (error) {
     log.error('Error trying to send an email! ', error);
     reply.status(500).send({

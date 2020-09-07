@@ -43,6 +43,11 @@ const schema = {
         type: 'string',
         minLength: 8,
       },
+      game: {
+        type: 'string',
+        enum: ['csgo', 'lol'],
+        default: 'csgo',
+      },
     },
   },
   response: {
@@ -82,7 +87,9 @@ const handler = async (req, reply) => {
     return;
   }
 
+  const { game } = req.body;
   const payload = req.body;
+  delete payload.game;
 
   if (req.body.newPassword || req.body.email || req.body.oldPassword) {
     if (!req.body.oldPassword) {
@@ -171,7 +178,7 @@ const handler = async (req, reply) => {
   if (req.body.email) {
     // Send verification email
     try {
-      await sendEmailVerification(user, reply);
+      await sendEmailVerification(user, reply, game);
     } catch (error) {
       log.error('Error sending an email! ', error);
       reply.status(500).send({

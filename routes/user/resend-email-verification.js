@@ -11,6 +11,11 @@ const schema = {
       id: {
         type: 'string',
       },
+      game: {
+        type: 'string',
+        enum: ['csgo', 'lol'],
+        default: 'csgo',
+      },
     },
   },
   response: {
@@ -70,7 +75,7 @@ const handler = async (req, reply) => {
 
   // Send verification email
   try {
-    await sendEmailVerification(user, reply);
+    await sendEmailVerification(user, reply, req.body.game);
   } catch (error) {
     log.error('Error sending an email! ', error);
     reply.status(500).send({

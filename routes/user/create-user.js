@@ -40,6 +40,11 @@ const schema = {
         type: 'string',
         description: 'Send this token to complete registration process via steam',
       },
+      game: {
+        type: 'string',
+        enum: ['csgo', 'lol'],
+        default: 'csgo',
+      },
     },
   },
   response: {
@@ -62,9 +67,11 @@ const schema = {
 
 // TODO: Rewrite this :D
 const handler = async (req, reply) => {
+  const { game } = req.body;
   const payload = req.body;
   payload.roles = ['player', 'unConfirmedEmail'];
   payload.registrationComplete = true;
+  delete payload.game;
 
   let user;
   // Check if email / username already exists
@@ -202,7 +209,7 @@ const handler = async (req, reply) => {
   }
 
   try {
-    await sendEmailVerification(user, reply);
+    await sendEmailVerification(user, reply, game);
   } catch (error) {
     log.error('Error sending an email! ', error);
     reply.status(500).send({
