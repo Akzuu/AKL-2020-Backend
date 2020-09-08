@@ -75,7 +75,7 @@ const handler = async (req, reply) => {
 
   // Send verification email
   try {
-    await sendEmailVerification(user, reply, req.body.game);
+    await sendEmailVerification(user, reply, req.params.game);
   } catch (error) {
     log.error('Error sending an email! ', error);
     reply.status(500).send({

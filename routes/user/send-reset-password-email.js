@@ -19,6 +19,7 @@ const schema = {
       game: {
         type: 'string',
         enum: ['csgo', 'lol'],
+        default: ['csgo'],
       },
     },
   },
