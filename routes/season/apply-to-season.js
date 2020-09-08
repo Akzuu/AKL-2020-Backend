@@ -141,15 +141,6 @@ const handler = async (req, reply) => {
     return;
   }
 
-  if (applyingTeam.seasons.filter(teamSeason => String(teamSeason) === req.params.seasonId)) {
-    reply.status(403).send({
-      status: 'ERROR',
-      error: 'Forbidden',
-      message: 'Already applied to this season!',
-    });
-    return;
-  }
-
   if (season.applications.filter(
     application => String(application.team) === String(applyingTeam._id),
   ).length > 0) {
