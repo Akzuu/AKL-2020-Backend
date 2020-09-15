@@ -15,17 +15,35 @@ const schema = {
         refreshToken: {
           type: 'string',
         },
+        jwtPayload: {
+          type: 'object',
+          properties: {
+            _id: {
+              type: 'string',
+            },
+            roles: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+            steamID64: {
+              type: 'string',
+            },
+          },
+        },
       },
     },
   },
 };
 
 const handler = (req, reply) => {
-  const { newTokens = {} } = req.auth;
+  const { newTokens = {}, jwtPayload = {} } = req.auth;
   reply.send({
     status: 'OK',
     accessToken: newTokens.accessToken,
     refreshToken: newTokens.refreshToken,
+    jwtPayload,
   });
 };
 
