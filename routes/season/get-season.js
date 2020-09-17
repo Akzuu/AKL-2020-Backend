@@ -59,15 +59,13 @@ const handler = async (req, reply) => {
   // Show applications for moderators and admins
   if (authPayload.roles && (authPayload.roles.includes('moderator')
   || authPayload.roles.includes('admin'))) {
-    season.depopulate('applications.team');
     reply.send(season);
     return;
   }
 
   // Check if team already applied for the season
   let alreadyApplied = false;
-  if (season.applications && season.applications
-    .find(application => String(application.team.members).includes(String(authPayload._id)))
+  if (season.applications && String(season.applications).includes(String(authPayload._id))
   ) {
     alreadyApplied = true;
   }

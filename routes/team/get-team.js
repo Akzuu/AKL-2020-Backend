@@ -81,8 +81,7 @@ const handler = async (req, reply) => {
 
   // Check if user already applied for the team
   let alreadyApplied = false;
-  if (team.applications && team.applications
-    .find(application => String(application.user._id) === String(authPayload._id))) {
+  if (team.applications && String(team.applications).includes(String(authPayload._id))) {
     alreadyApplied = true;
   }
 
