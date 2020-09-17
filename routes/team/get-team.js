@@ -37,10 +37,10 @@ const handler = async (req, reply) => {
     try {
       authPayload = await req.jwtVerify();
     } catch (error) {
-      log.error('Error validating token! ', error);
-      reply.status(500).send({
+      reply.status(401).send({
         status: 'ERROR',
-        error: 'Internal Server Error',
+        error: 'Unauthorized',
+        message: 'Please authenticate',
       });
     }
   }
