@@ -43,3 +43,4 @@ User has started password reset procedure, for example in case of forgotten pass
 
 ## TODO
 -Resend email confirmation when user changes email
+-Change authPayload._id from string to objectId (need to check all endpoints also after that)

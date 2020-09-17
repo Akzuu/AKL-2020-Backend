@@ -79,6 +79,13 @@ const handler = async (req, reply) => {
     return;
   }
 
+  // Check if user already applied for the team
+  let alreadyApplied = false;
+  if (team.applications && team.applications
+    .find(application => String(application.user._id) === String(authPayload._id))) {
+    alreadyApplied = true;
+  }
+
   // Other users
   reply.send({
     teamName: team.teamName,
@@ -89,6 +96,7 @@ const handler = async (req, reply) => {
     seasons: team.seasons,
     rank: team.rank,
     game: team.game,
+    alreadyApplied,
   });
 };
 

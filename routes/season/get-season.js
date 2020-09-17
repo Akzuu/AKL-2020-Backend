@@ -27,12 +27,8 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  let projection = {
-    applications: 0,
-  };
-
+  let authPayload;
   if (req.raw.headers.authorization) {
-    let authPayload;
     try {
       authPayload = await req.jwtVerify();
     } catch (error) {
@@ -42,21 +38,13 @@ const handler = async (req, reply) => {
         error: 'Internal Server Error',
       });
     }
-
-    // Show applications for moderators and admins
-    if (authPayload.roles && (authPayload.roles.includes('moderator')
-        || authPayload.roles.includes('admin'))) {
-      projection = {};
-    }
   }
-
 
   let season;
   try {
     season = await Season.findOne({
       _id: req.params.seasonId,
-    },
-    projection)
+    })
       .populate('teams', 'teamName')
       .populate('applications.team');
   } catch (error) {
@@ -68,7 +56,39 @@ const handler = async (req, reply) => {
     return;
   }
 
-  reply.send(season);
+  // Show applications for moderators and admins
+  if (authPayload.roles && (authPayload.roles.includes('moderator')
+  || authPayload.roles.includes('admin'))) {
+    season.depopulate('applications.team');
+    reply.send(season);
+    return;
+  }
+
+  // Check if team already applied for the season
+  let alreadyApplied = false;
+  if (season.applications && season.applications
+    .find(application => String(application.team.members).includes(String(authPayload._id)))
+  ) {
+    alreadyApplied = true;
+  }
+
+  const payload = {
+    challonge: season.challonge,
+    teams: season.teams,
+    hidden: season.hidden,
+    acceptsParticipants: season.acceptsParticipants,
+    seasonEnded: season.seasonEnded,
+    _id: season._id,
+    seasonName: season.seasonName,
+    seasonNumber: season.seasonNumber,
+    division: season.division,
+    informationText: season.informationText,
+    year: season.year,
+    game: season.game,
+    alreadyApplied,
+  };
+
+  reply.send(payload);
 };
 
 module.exports = async function (fastify) {
