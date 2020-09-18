@@ -65,11 +65,13 @@ const handler = async (req, reply) => {
   }
 
   // Update components
-  user.emailConfirmed = true;
-  user.roles = user.roles.filter(role => role !== 'unConfirmedEmail');
+  const updatePayload = {
+    emailConfirmed: true,
+    $pull: { roles: 'unConfirmedEmail' },
+  };
 
   try {
-    await user.save();
+    await User.findByIdAndUpdate(authPayload._id, updatePayload);
   } catch (error) {
     log.error('Error updating user!', error);
     reply.status(500).send({
