@@ -41,7 +41,7 @@ const handler = async (req, reply) => {
   }
 
   let isAdmin = false;
-  if (user.roles.includes(['admin', 'moderator'])) {
+  if (user.roles.includes('admin') || user.roles.includes('moderator')) {
     isAdmin = true;
   }
 
