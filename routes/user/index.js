@@ -14,6 +14,7 @@ const updateUserRank = require('./update-riot-rank');
 const linkSteamAccount = require('./link-steam-account');
 const getUserByRiotUsername = require('./get-user-by-riot-username');
 const getUserBySteamID64 = require('./get-user-by-steamid');
+const getCSPlayerInfo = require('./get-cs-player-info');
 
 module.exports = {
   createUser,
@@ -32,4 +33,5 @@ module.exports = {
   linkSteamAccount,
   getUserByRiotUsername,
   getUserBySteamID64,
+  getCSPlayerInfo,
 };
