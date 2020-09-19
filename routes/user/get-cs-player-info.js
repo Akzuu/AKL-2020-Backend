@@ -20,7 +20,8 @@ const handler = async (req, reply) => {
   try {
     user = await User.findOne({
       'steam.steamID64': req.params.steamID64,
-    });
+    })
+      .populate('currentTeams');
   } catch (error) {
     log.error('Not able to find the user! ', error);
     reply.status(500).send({
@@ -39,8 +40,25 @@ const handler = async (req, reply) => {
     return;
   }
 
+  let isAdmin = false;
+  if (user.roles.includes(['admin', 'moderator'])) {
+    isAdmin = true;
+  }
+
+  const csTeam = user.currentTeams.find(team => team.game === 'csgo');
+  if (!csTeam) {
+    reply.status(400).send({
+      status: 'ERROR',
+      error: 'Bad Request',
+      message: 'User does not belong to a CS team',
+    });
+    return;
+  }
+
   reply.send({
-    roles: user.roles,
+    isAdmin,
+    teamName: csTeam.teamName,
+    teamAbbreviation: csTeam.abbreviation,
   });
 };
 

@@ -60,7 +60,7 @@ const season1 = {
   division: 'pro',
   informationText: 'Teretulloo liigan ensimmäiseen kauteen',
   year: 2020,
-  game: 'League of Legends',
+  game: 'lol',
 };
 
 const season2 = {
@@ -69,7 +69,7 @@ const season2 = {
   division: 'pro',
   informationText: 'Teretulloo liigan neljänteen kauteen',
   year: 2020,
-  game: 'Counter-Strike: Global Offensive',
+  game: 'csgo',
 };
 
 const season3 = {
@@ -78,7 +78,7 @@ const season3 = {
   division: 'just for fun',
   informationText: 'Teretulloo liigan neljänteen kauteen',
   year: 2020,
-  game: 'Counter-Strike: Global Offensive',
+  game: 'csgo',
 };
 
 const team1 = {
@@ -86,7 +86,7 @@ const team1 = {
   abbreviation: 'KÄYR',
   introductionText: 'Me ollaa käyrikset!',
   hidden: false,
-  game: 'League of Legends',
+  game: 'lol',
   rank: 'Silver 1',
   members: [],
 };
