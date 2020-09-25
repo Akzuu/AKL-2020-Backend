@@ -7,6 +7,7 @@ const schema = {
   tags: ['Team'],
   body: {
     type: 'object',
+    required: ['teamIdArray'],
     properties: {
       teamIdArray: {
         type: 'array',
@@ -20,14 +21,6 @@ const schema = {
 };
 
 const handler = async (req, reply) => {
-  if (!req.body.teamIdArray) {
-    reply.status(400).send({
-      status: 'ERROR',
-      error: 'Bad Request',
-      message: 'No teams given! ',
-    });
-    return;
-  }
   let teams;
   try {
     teams = await Team.find({
