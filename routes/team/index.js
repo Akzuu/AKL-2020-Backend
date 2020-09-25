@@ -7,6 +7,8 @@ const applyToTeam = require('./apply-to-team');
 const handleApplication = require('./handle-application');
 const leaveTeam = require('./leave-team');
 const removeTeamMember = require('./remove-team-member');
+const getCaptainIds = require('./get-captain-ids');
+const getTeamByName = require('./get-team-by-name');
 
 module.exports = {
   createTeam,
@@ -18,4 +20,6 @@ module.exports = {
   handleApplication,
   leaveTeam,
   removeTeamMember,
+  getCaptainIds,
+  getTeamByName,
 };
