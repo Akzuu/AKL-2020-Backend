@@ -51,7 +51,7 @@ const handler = async (req, reply) => {
       _id: req.params.teamId,
     })
       .populate('captain', 'username')
-      .populate('members', 'username')
+      .populate('members', ['username', 'steam.steamID64'])
       .populate('applications.user', 'username')
       .populate('seasons', ['seasonName', 'seasonNumber', 'division', 'year', 'seasonEnded']);
   } catch (error) {
