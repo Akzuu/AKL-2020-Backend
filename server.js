@@ -5,6 +5,7 @@ const fastifySwagger = require('fastify-swagger');
 const fastifyJWT = require('fastify-jwt');
 const fastifyHelmet = require('fastify-helmet');
 const fastifyAuth = require('fastify-auth');
+const fastifyCors = require('fastify-cors');
 const routes = require('./routes');
 
 const { auth } = require('./lib');
@@ -173,8 +174,22 @@ const initServer = async () => {
     .decorate('verifyJWT', auth.verifyJWT)
     .register(fastifySwagger, initSwagger())
     .register(fastifyJWT, { secret: JWT_SECRET })
-    .register(fastifyHelmet)
+    .register(fastifyHelmet, {
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ['\'self\''],
+          styleSrc: ['\'self\'', '\'unsafe-inline\''],
+          imgSrc: ['\'self\'', 'data:', 'validator.swagger.io'],
+          scriptSrc: ['\'self\'', 'https: \'unsafe-inline\''],
+        },
+      },
+    })
     .register(fastifyAuth)
+    .register(fastifyCors, {
+      origin: (origin, cb) => {
+        cb(null, true);
+      },
+    })
     .register(userRoute, { prefix: `${ROUTE_PREFIX}/user` })
     .register(utilityRoute, { prefix: `${ROUTE_PREFIX}/utility` })
     .register(teamRoute, { prefix: `${ROUTE_PREFIX}/team` })
