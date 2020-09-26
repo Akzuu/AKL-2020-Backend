@@ -97,7 +97,7 @@ const handler = async (req, reply) => {
   }
 
   const updatePayload = {
-    $pull: { team: req.body.teamId },
+    $pull: { applications: { team: req.body.teamId } },
   };
 
   if (req.body.accepted) {
