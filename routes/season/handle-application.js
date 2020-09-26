@@ -96,15 +96,17 @@ const handler = async (req, reply) => {
     return;
   }
 
+  const updatePayload = {
+    $pull: { team: req.body.teamId },
+  };
+
   if (req.body.accepted) {
     season.teams.push(req.body.teamId);
+    updatePayload.$push = { teams: req.body.teamId };
   }
 
-  season.applications = season.applications
-    .filter(application => String(application.team) !== req.body.teamId);
-
   try {
-    await season.save();
+    await Season.findByIdAndUpdate(req.params.seasonId, updatePayload);
   } catch (error) {
     log.error('Error when trying to update season! ', error);
     reply.status(500).send({
