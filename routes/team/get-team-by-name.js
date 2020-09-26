@@ -77,6 +77,7 @@ const handler = async (req, reply) => {
 
   // Other users
   reply.send({
+    _id: team._id,
     teamName: team.teamName,
     abbreviation: team.abbreviation,
     introductionText: team.introductionText,
