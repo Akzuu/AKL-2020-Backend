@@ -8,6 +8,7 @@ const handleApplication = require('./handle-application');
 const removeTeamFromSeason = require('./remove-team-from-season');
 const sendEmailToCaptains = require('./send-email-to-captains');
 const endSeason = require('./end-season');
+const getCaptainsInfo = require('./get-captains-info');
 
 module.exports = {
   createSeason,
@@ -20,4 +21,5 @@ module.exports = {
   removeTeamFromSeason,
   sendEmailToCaptains,
   endSeason,
+  getCaptainsInfo,
 };
