@@ -65,6 +65,7 @@ const handler = async (req, reply) => {
   }
 
   const infos = [];
+  const emails = [];
 
   season.teams.forEach((team) => {
     const captainInfo = {
@@ -77,6 +78,7 @@ const handler = async (req, reply) => {
       },
     };
     infos.push(captainInfo);
+    emails.push(team.captain.email);
   });
 
 
@@ -86,6 +88,7 @@ const handler = async (req, reply) => {
     accessToken: newTokens.accessToken,
     refreshToken: newTokens.refreshToken,
     infos,
+    emails,
   });
 };
 
