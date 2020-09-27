@@ -37,11 +37,7 @@ const handler = async (req, reply) => {
     try {
       authPayload = await req.jwtVerify();
     } catch (error) {
-      reply.status(401).send({
-        status: 'ERROR',
-        error: 'Unauthorized',
-        message: 'Please authenticate',
-      });
+      authPayload = undefined;
     }
   }
 

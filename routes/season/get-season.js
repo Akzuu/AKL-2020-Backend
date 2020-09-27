@@ -32,11 +32,7 @@ const handler = async (req, reply) => {
     try {
       authPayload = await req.jwtVerify();
     } catch (error) {
-      log.error('Error validating token! ', error);
-      reply.status(500).send({
-        status: 'ERROR',
-        error: 'Internal Server Error',
-      });
+      authPayload = undefined;
     }
   }
 
