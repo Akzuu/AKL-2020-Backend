@@ -2,8 +2,8 @@ const { log } = require('../../lib');
 const { User } = require('../../models');
 
 const schema = {
-  description: 'Get users roles by steamId',
-  summary: 'Get roles by steamId',
+  description: 'Get CS player info by steamId',
+  summary: 'Get info by steamId',
   tags: ['User'],
   params: {
     type: 'object',
@@ -64,7 +64,7 @@ const handler = async (req, reply) => {
 
 module.exports = {
   method: 'GET',
-  url: '/get-roles/:steamID64',
+  url: '/get-cs-player-info/:steamID64',
   schema,
   handler,
 };
