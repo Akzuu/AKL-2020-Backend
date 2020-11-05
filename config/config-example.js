@@ -33,6 +33,6 @@ module.exports = {
     password: 'veryLongAndSecurePassword',
     email: 'example@email.com',
   },
-  serviceEmail: '"Akateeminen Kynäriliiga" <akl@null.net>',
+  serviceEmail: '"Akateeminen Kynäriliiga" <>',
   challongeBackendServiceUri: 'URL for challonge backend service. E.g. http:localhost:3001',
 };
