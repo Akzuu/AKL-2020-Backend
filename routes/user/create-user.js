@@ -69,9 +69,14 @@ const schema = {
 const handler = async (req, reply) => {
   const { game } = req.body;
   const payload = req.body;
-  payload.roles = ['player', 'unConfirmedEmail'];
+  // payload.roles = ['player', 'unConfirmedEmail'];
   payload.registrationComplete = true;
   delete payload.game;
+
+  // TODO Fix emails
+  // Temp confirm all emails automaticly
+  payload.roles = ['player', 'tempEmailConfirm'];
+  payload.emailConfirmed = true;
 
   let user;
   // Check if email / username already exists
